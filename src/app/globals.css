@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/*
+ * Identidade visual da PPCM — tokens de cor e tipografia.
+ * Contraste mínimo AA (RNF01). Modo de alto contraste (eMAG) via [data-contraste="alto"].
+ */
+@theme {
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --color-brand-950: #061a33;
+  --color-brand-900: #0b2545;
+  --color-brand-800: #10325e;
+  --color-brand-700: #134074;
+  --color-brand-600: #1d5596;
+  --color-brand-500: #2f6db5;
+  --color-brand-200: #c3d6ee;
+  --color-brand-100: #e3ecf8;
+  --color-brand-50: #f2f6fc;
+
+  --color-civic-700: #a14a05;
+  --color-civic-600: #c2590a;
+  --color-civic-500: #e07a1f;
+  --color-civic-100: #fdebd6;
+  --color-civic-50: #fff7ed;
+
+  --color-ok-700: #166534;
+  --color-ok-100: #dcfce7;
+  --color-warn-800: #854d0e;
+  --color-warn-100: #fef3c7;
+  --color-bad-700: #b91c1c;
+  --color-bad-100: #fee2e2;
+  --color-info-700: #075985;
+  --color-info-100: #e0f2fe;
+
+  --color-ink: #13202f;
+  --color-muted: #4b5a6b;
+  --color-line: #d5dde7;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f7fa;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-civic-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  h1,
+  h2,
+  h3 {
+    line-height: 1.25;
+    color: var(--color-brand-900);
+    text-wrap: balance;
+  }
+  ::selection {
+    background: var(--color-civic-100);
+  }
+  input,
+  select,
+  textarea {
+    font-size: 1rem; /* evita zoom automático em celulares */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Alto contraste (eMAG 3.1 — recomendação 6.1) */
+html[data-contraste="alto"] {
+  --color-canvas: #000;
+  --color-surface: #000;
+  --color-ink: #fff;
+  --color-muted: #fff;
+  --color-line: #fff;
+  --color-brand-900: #ff0;
+  --color-brand-800: #ff0;
+  --color-brand-700: #ff0;
+  --color-brand-600: #ff0;
+  --color-brand-100: #000;
+  --color-brand-50: #000;
+  --color-civic-700: #ff0;
+  --color-civic-100: #000;
+  --color-civic-50: #000;
+}
+html[data-contraste="alto"] body,
+html[data-contraste="alto"] .bg-white,
+html[data-contraste="alto"] header,
+html[data-contraste="alto"] footer {
+  background: #000 !important;
+  color: #fff !important;
+}
+html[data-contraste="alto"] a {
+  color: #ff0 !important;
+  text-decoration: underline !important;
+}
+html[data-contraste="alto"] .btn-primary {
+  background: #ff0 !important;
+  color: #000 !important;
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 1.5rem;
+    }
+  }
+  .prose-civic p + p {
+    margin-top: 0.75rem;
+  }
+  .prose-civic {
+    white-space: pre-line;
+  }
+}
