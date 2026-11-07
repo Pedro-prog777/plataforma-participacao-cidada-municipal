@@ -104,7 +104,7 @@ const RESULT_COLS = DATA_DICTIONARY.resultados.map((d) => d.campo);
 const OUTCOME_COLS = DATA_DICTIONARY.encaminhamentos.map((d) => d.campo);
 
 export async function exportDataset(dataset: "resultados" | "encaminhamentos", format: "csv" | "json" | "pdf", filter: { consultationId?: string; from?: string; to?: string } = {}, db: DbOrTx = getDb()) {
-  const rows = dataset === "resultados" ? await resultRows(filter, db) : await outcomeRows(filter, db);
+  const rows: Record<string, unknown>[] = dataset === "resultados" ? await resultRows(filter, db) : await outcomeRows(filter, db);
   const cols = dataset === "resultados" ? RESULT_COLS : OUTCOME_COLS;
   const stamp = clock.now().toISOString().slice(0, 10);
   const filename = `ppcm-${dataset}-${stamp}.${format}`;
