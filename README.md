@@ -2,6 +2,8 @@
 
 Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 
+[![CI](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/workflows/ci.yml/badge.svg)](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/workflows/ci.yml)
+
 | | |
 |---|---|
 | **Integrantes** | João Pedro e Flávia Marina |
@@ -193,6 +195,7 @@ npm run screenshots  # regenera as capturas das telas
 | Unitários, integração e segurança (Vitest, 8 arquivos) | **114 de 114 aprovados** |
 | Ponta a ponta com acessibilidade (Playwright, Chromium) | **32 de 32 aprovados** |
 | Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades |
+| Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada**: 114 de 114 e 32 de 32 — [execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027) |
 
 Cenários, cobertura por requisito e o que **não** foi testado (carga, leitores de tela, outros navegadores, teste de intrusão) estão em [PLANO_DE_TESTES.md](docs/testes/PLANO_DE_TESTES.md).
 

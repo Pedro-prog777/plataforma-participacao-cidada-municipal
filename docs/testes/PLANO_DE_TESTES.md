@@ -23,7 +23,9 @@
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
 | Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
 
-**Não executado localmente:** integração contra PostgreSQL servidor (o ambiente não tem Docker/PostgreSQL — fica a cargo do workflow de CI no GitHub Actions; o resultado da primeira execução deve ser conferido no repositório); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
+**Integração contínua (GitHub Actions, Ubuntu, Node 22, PostgreSQL 16 real), 12/11/2026:** a 1ª execução falhou no `npm ci` (lock fora de sincronia para o npm 10) e foi corrigida; a 2ª foi **aprovada** — tipos, lint, 114 de 114 testes no PostgreSQL 16, auditoria de dependências e 32 de 32 E2E ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)).
+
+**Não executado:** integração contra PostgreSQL servidor **no ambiente local** (sem Docker/PostgreSQL; coberta pelo CI); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
 
 ## Arquivos de teste
 

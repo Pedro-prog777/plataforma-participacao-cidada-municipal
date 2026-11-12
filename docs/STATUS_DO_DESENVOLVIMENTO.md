@@ -20,7 +20,7 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | SMS do código de voto (RF011) | Pendente | Sem provedor definido; SMS simulado, e-mail real |
 | Envio real de e-mail | Implementado | Funciona com `SMTP_URL`; não testado contra servidor SMTP real |
 | Antivírus ClamAV (RF023) | Implementado | Cliente clamd não testado contra servidor real; verificação embutida testada |
-| Testes em PostgreSQL servidor | Pendente | Configurado no CI (GitHub Actions); conferir o resultado da primeira execução após a publicação |
+| Testes em PostgreSQL servidor | Testado | CI no GitHub Actions com PostgreSQL 16: 114/114 e E2E 32/32 em 12/11/2026 ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)) |
 | Docker/Compose | Implementado | Arquivos criados; **não executados** (sem Docker no ambiente) |
 | RNF04, RNF09, RNF10 (desempenho/disponibilidade) | Pendente | Sem medição sob carga |
 | RNF01/RNF11 com NVDA, TalkBack e outros navegadores | Pendente | Só axe-core em Chromium |
@@ -132,10 +132,11 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Contraste insuficiente (botão de destaque e contador de avisos) apontado pelo axe → cores ajustadas.
 - Vulnerabilidades em nodemailer 7 e postcss embutido → atualização e `overrides`.
 - Roteiro de capturas falhava em dois blocos (cidadã que já tinha votado; sessão administrativa não encerrada entre logins) e o botão de download disparava pré-carregamento de rotas `/api` → roteiro e componente corrigidos.
+- Primeira execução do CI falhou no `npm ci`: `package-lock.json` fora de sincronia para o npm 10 (faltava `esbuild` 0.28 exigido pelo `vite`) → lock regenerado; segunda execução aprovada.
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada
-1. Conferir a execução do CI (GitHub Actions) em PostgreSQL real e corrigir o que aparecer.
+1. Criar o quadro Trello com o CSV de `docs/trello/`, anexar as capturas e colocar o link no README.
 2. Levar `docs/requisitos/PENDENCIAS_CLIENTE.md` ao cliente e ajustar parâmetros.
-3. Criar o quadro Trello com o CSV de `docs/trello/`, anexar as capturas e colocar o link no README.
+3. Executar o `docker compose` e exercitar backup e restauração (RNF14).
 4. Inspeção de acessibilidade com NVDA/TalkBack e medição de desempenho.
