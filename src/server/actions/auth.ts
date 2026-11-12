@@ -10,13 +10,17 @@ import { clientIp, ipHash, userAgent } from "../lib/request";
 import { clearSessionCookie, getSession, sessionToken, setSessionCookie } from "../auth/current";
 import { ensureDatabase } from "../db/bootstrap";
 import { attempt, obj, str, withValues, type FormState } from "./helpers";
+import { hit } from "../lib/rate-limit";
+import { HOUR } from "../lib/clock";
+import { safeInternalPath } from "@/lib/text";
 
-function safeNext(next: string, fallback: string) {
-  return next.startsWith("/") && !next.startsWith("//") ? next : fallback;
-}
 
 export async function registerAction(_: FormState, fd: FormData): Promise<FormState> {
   await ensureDatabase();
+  // Limite de cadastros por rede: reduz criação automatizada de contas (RS004).
+  if (hit(`cadastro-ip:${ipHash(await clientIp())}`, HOUR) > 10) {
+    return withValues({ ok: false, message: "Muitos cadastros a partir desta rede. Tente novamente em uma hora." }, fd);
+  }
   const r = await attempt(() => registerCitizen(obj(fd)));
   if (!r.ok) return withValues(r.state, fd);
   redirect("/entrar?ok=cadastro");
@@ -37,7 +41,7 @@ export async function loginAction(_: FormState, fd: FormData): Promise<FormState
   }
   await setSessionCookie(res.token);
   if (res.needsMfa) redirect("/entrar/segundo-fator");
-  redirect(safeNext(str(fd, "proximo"), res.kind === "admin" ? "/admin" : "/conta"));
+  redirect(safeInternalPath(str(fd, "proximo"), res.kind === "admin" ? "/admin" : "/conta"));
 }
 
 export async function mfaAction(_: FormState, fd: FormData): Promise<FormState> {

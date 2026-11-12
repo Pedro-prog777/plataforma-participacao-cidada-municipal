@@ -5,15 +5,16 @@
  */
 import { and, count, eq } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
-import { attachments, consultations, municipalProposals } from "../../db/schema";
+import { attachments, consultationAssignments, consultations, municipalProposals } from "../../db/schema";
 import { clock } from "../../lib/clock";
 import { DomainError, NotFoundError, ValidationError, type FieldErrors } from "../../lib/errors";
 import { receiveFile } from "../../lib/files";
-import { sanitizePlainText } from "@/lib/text";
+import { isPublicHttpsUrl, sanitizePlainText } from "@/lib/text";
 import { audit } from "../audit/audit.service";
 import { assertConsultationRole, assertPermission, type Actor } from "../access/access.service";
 import { recordPublicEvent } from "../consultations/common";
 import { notifyChange } from "../notifications/dispatch";
+import { notifyUser } from "../notifications/notifications.service";
 
 const MAX_FILES = 10;
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -29,7 +30,7 @@ export async function addAttachment(actor: Actor, input: AttachmentInput, db: Db
   if (!title) errors.title = ["Informe um título para o material."];
   const hasFile = !!input.file && input.file.size > 0;
   if (!hasFile && !url) errors.file = ["Envie um arquivo ou informe um link."];
-  if (url && !/^https:\/\/[^\s]+$/i.test(url)) errors.url = ["Informe um link seguro (https://)."];
+  if (url && !isPublicHttpsUrl(url)) errors.url = ["Informe um link público seguro (https:// com nome de domínio)."];
   if (Object.keys(errors).length) throw new ValidationError(errors);
 
   // Situação editável: rascunho/rejeitada (elaborador) ou publicada com acréscimo justificado (responsável — RF032).
@@ -108,17 +109,37 @@ export async function getAttachment(id: string, db: DbOrTx = getDb()) {
   return a ?? null;
 }
 
-/** Verificação periódica de links externos (RF023 — link indisponível alerta o responsável). */
-export async function checkExternalLinks(db: DbOrTx = getDb()) {
+/**
+ * Verificação periódica de links externos (RF023): link indisponível alerta o responsável e a
+ * página pública passa a destacar a alternativa textual. Só HEAD, sem seguir redirecionamentos,
+ * e apenas para URLs públicas (anti-SSRF).
+ */
+export async function checkExternalLinks(db: DbOrTx = getDb(), fetcher: typeof fetch = fetch) {
   const links = await db.select().from(attachments).where(eq(attachments.kind, "link"));
+  let changed = 0;
   for (const l of links) {
     let status = "ok";
-    try {
-      const r = await fetch(l.url!, { method: "HEAD", signal: AbortSignal.timeout(5000), redirect: "follow" });
-      if (!r.ok) status = `http_${r.status}`;
-    } catch {
-      status = "indisponivel";
+    if (!l.url || !isPublicHttpsUrl(l.url)) status = "indisponivel";
+    else {
+      try {
+        const r = await fetcher(l.url, { method: "HEAD", signal: AbortSignal.timeout(5000), redirect: "manual" });
+        if (r.status >= 400) status = `http_${r.status}`;
+      } catch {
+        status = "indisponivel";
+      }
     }
-    if (status !== l.linkStatus) await db.update(attachments).set({ linkStatus: status }).where(eq(attachments.id, l.id));
+    if (status === l.linkStatus) continue;
+    changed++;
+    await db.update(attachments).set({ linkStatus: status }).where(eq(attachments.id, l.id));
+    if (status !== "ok" && l.ownerType === "consultation") {
+      const responsaveis = await db
+        .select({ userId: consultationAssignments.userId })
+        .from(consultationAssignments)
+        .where(and(eq(consultationAssignments.consultationId, l.ownerId), eq(consultationAssignments.role, "responsavel"), eq(consultationAssignments.active, true)));
+      for (const r of responsaveis) {
+        await notifyUser(db, r.userId, { type: "conta", title: "Link de material indisponível", body: `O link "${l.title}" não respondeu. A página pública está exibindo a alternativa em texto.`, link: `/admin/consultas/${l.ownerId}/anexos` });
+      }
+    }
   }
+  return changed;
 }

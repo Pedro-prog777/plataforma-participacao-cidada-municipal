@@ -8,7 +8,7 @@ export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, "src") } },
   test: {
     environment: "node",
-    include: ["tests/unit/**/*.test.ts", "tests/integration/**/*.test.ts"],
+    include: ["tests/unit/**/*.test.ts", "tests/integration/**/*.test.ts", "tests/security/**/*.test.ts"],
     setupFiles: ["tests/setup-env.ts"],
     testTimeout: 60_000,
     hookTimeout: 120_000,
