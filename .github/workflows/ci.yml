@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  qualidade:
+    name: Tipos, lint e testes (PostgreSQL 16 real)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ppcm_test
+          POSTGRES_USER: ppcm
+          POSTGRES_PASSWORD: ppcm_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ppcm -d ppcm_test" --health-interval 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://ppcm:ppcm_ci@localhost:5432/ppcm_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Testes unitários e de integração no PostgreSQL
+        run: npx vitest run --no-file-parallelism
+      - name: Auditoria de dependências (alta severidade)
+        run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: E2E e acessibilidade (Playwright + axe)
+    runs-on: ubuntu-latest
+    needs: qualidade
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
