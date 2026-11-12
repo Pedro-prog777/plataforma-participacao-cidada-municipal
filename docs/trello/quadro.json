@@ -1,0 +1,1701 @@
+{
+  "quadro": "6af5eab7a85ea3fed1422ceb",
+  "listas": [
+    "Planejamento e documentação",
+    "Análise de requisitos",
+    "Protótipos (telas)",
+    "Backlog",
+    "Em desenvolvimento",
+    "Revisão de código",
+    "Segurança",
+    "Testes",
+    "Concluído",
+    "Pendências de validação"
+  ],
+  "etiquetas": {
+    "Documentação": "blue",
+    "Requisitos": "sky",
+    "Interface": "purple",
+    "Desenvolvimento": "green",
+    "Testes": "yellow",
+    "Segurança": "red",
+    "Cliente (*)": "orange",
+    "Entrega": "lime",
+    "Pendente": "black"
+  },
+  "cartoes": [
+    {
+      "lista": "Planejamento e documentação",
+      "nome": "Sobre o projeto PPCM",
+      "descricao": "Plataforma de Participação Cidadã Municipal — trabalho de Engenharia de Software (CESMAC). Equipe: João Pedro e Flávia Marina. O README apresenta o projeto, como executar e os resultados dos testes; o AGENTS.md reúne as regras do projeto e os requisitos completos.",
+      "etiquetas": [
+        "Documentação"
+      ],
+      "checklist": [
+        {
+          "nome": "README com apresentação do projeto",
+          "feito": true
+        },
+        {
+          "nome": "AGENTS.md com regras e requisitos",
+          "feito": true
+        },
+        {
+          "nome": "Repositório público no GitHub",
+          "feito": true
+        },
+        {
+          "nome": "Integração contínua configurada",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Repositório no GitHub",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal"
+        },
+        {
+          "nome": "README",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/README.md"
+        },
+        {
+          "nome": "AGENTS.md",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/AGENTS.md"
+        },
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Planejamento e documentação",
+      "nome": "Arquitetura e decisões técnicas",
+      "descricao": "Monólito Next.js em camadas, PostgreSQL com Drizzle. As decisões DT-01 a DT-19 explicam cada escolha e cada interpretação do documento de requisitos.",
+      "etiquetas": [
+        "Documentação"
+      ],
+      "checklist": [
+        {
+          "nome": "ARQUITETURA.md",
+          "feito": true
+        },
+        {
+          "nome": "DECISOES_TECNICAS.md",
+          "feito": true
+        },
+        {
+          "nome": "MODELO_DE_DADOS.md",
+          "feito": true
+        },
+        {
+          "nome": "Diagrama entidade-relacionamento",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Arquitetura",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/arquitetura/ARQUITETURA.md"
+        },
+        {
+          "nome": "Decisões técnicas",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/arquitetura/DECISOES_TECNICAS.md"
+        },
+        {
+          "nome": "Modelo de dados",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/arquitetura/MODELO_DE_DADOS.md"
+        },
+        {
+          "nome": "Diagrama ER",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/database/diagrams/modelo-er.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Planejamento e documentação",
+      "nome": "Organização das pastas do repositório",
+      "descricao": "docs/ (requisitos, arquitetura, seguranca, testes, trello), src/ (interface e servidor), database/ (migrations, seeds, diagrams), tests/ (unit, integration, security, e2e), screenshots/. A adaptação ao Next.js está registrada na decisão DT-18.",
+      "etiquetas": [
+        "Documentação"
+      ],
+      "checklist": [
+        {
+          "nome": "docs/ por assunto",
+          "feito": true
+        },
+        {
+          "nome": "database/ com migrations, seeds e diagrama",
+          "feito": true
+        },
+        {
+          "nome": "tests/ por tipo",
+          "feito": true
+        },
+        {
+          "nome": "screenshots/ por área",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Estrutura no README",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/README.md#7-estrutura-das-pastas"
+        },
+        {
+          "nome": "Pasta docs",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/docs"
+        },
+        {
+          "nome": "Pasta database",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/database"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Análise de requisitos",
+      "nome": "Documento de Requisitos v6 (original e transcrição)",
+      "descricao": "Documento-base do projeto: 68 requisitos funcionais, 15 não funcionais, 13 de segurança, matriz de risco, rastreabilidade e pontos de função (384 PF). O PDF original foi preservado e transcrito integralmente.",
+      "etiquetas": [
+        "Requisitos"
+      ],
+      "checklist": [
+        {
+          "nome": "PDF original preservado",
+          "feito": true
+        },
+        {
+          "nome": "Transcrição integral",
+          "feito": true
+        },
+        {
+          "nome": "Identificadores RF/RNF/RS mantidos",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Documento de Requisitos v6 (PDF)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/Documento_de_Requisitos_v6.pdf"
+        },
+        {
+          "nome": "Transcrição completa",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/REQUISITOS_COMPLETOS.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Análise de requisitos",
+      "nome": "Mapeamento requisito → tela → código → teste",
+      "descricao": "Para cada um dos 68 requisitos funcionais: telas, módulo, testes e situação.",
+      "etiquetas": [
+        "Requisitos"
+      ],
+      "checklist": [
+        {
+          "nome": "RF001–RF068 mapeados",
+          "feito": true
+        },
+        {
+          "nome": "Matriz de rastreabilidade",
+          "feito": true
+        },
+        {
+          "nome": "Dependências entre requisitos",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Matriz de rastreabilidade",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MATRIZ_DE_RASTREABILIDADE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Análise de requisitos",
+      "nome": "Itens que dependem do cliente (*)",
+      "descricao": "O documento marca com (*) o que ainda precisa de aprovação. Esses itens foram implementados como parâmetros configuráveis ou recursos desligados, e estão detalhados na lista Pendências de validação.",
+      "etiquetas": [
+        "Requisitos"
+      ],
+      "checklist": [
+        {
+          "nome": "Itens (*) identificados",
+          "feito": true
+        },
+        {
+          "nome": "Parâmetros configuráveis criados",
+          "feito": true
+        },
+        {
+          "nome": "Lista de pendências escrita",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Protótipos (telas)",
+      "nome": "Telas — Área pública",
+      "descricao": "Telas implementadas no próprio sistema e capturadas automaticamente com dados fictícios (não houve protótipo separado em ferramenta de design). As imagens estão anexadas a este cartão. Telas: Início; Indicadores; Consultas; Pesquisa; Detalhe da consulta; Como funciona; Consultas encerradas; Resultado; Histórico; Encaminhamentos; Transparência; Propostas; Detalhe de proposta; Cadastro; Login; Recuperar senha; Resultados; Dados abertos.",
+      "etiquetas": [
+        "Interface"
+      ],
+      "checklist": [
+        {
+          "nome": "Início",
+          "feito": true
+        },
+        {
+          "nome": "Indicadores",
+          "feito": true
+        },
+        {
+          "nome": "Consultas",
+          "feito": true
+        },
+        {
+          "nome": "Pesquisa",
+          "feito": true
+        },
+        {
+          "nome": "Detalhe da consulta",
+          "feito": true
+        },
+        {
+          "nome": "Como funciona",
+          "feito": true
+        },
+        {
+          "nome": "Consultas encerradas",
+          "feito": true
+        },
+        {
+          "nome": "Resultado",
+          "feito": true
+        },
+        {
+          "nome": "Histórico",
+          "feito": true
+        },
+        {
+          "nome": "Encaminhamentos",
+          "feito": true
+        },
+        {
+          "nome": "Transparência",
+          "feito": true
+        },
+        {
+          "nome": "Propostas",
+          "feito": true
+        },
+        {
+          "nome": "Detalhe de proposta",
+          "feito": true
+        },
+        {
+          "nome": "Cadastro",
+          "feito": true
+        },
+        {
+          "nome": "Login",
+          "feito": true
+        },
+        {
+          "nome": "Recuperar senha",
+          "feito": true
+        },
+        {
+          "nome": "Resultados",
+          "feito": true
+        },
+        {
+          "nome": "Dados abertos",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Capturas no GitHub",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/screenshots/area-publica"
+        }
+      ],
+      "pastaDeImagens": "screenshots/area-publica"
+    },
+    {
+      "lista": "Protótipos (telas)",
+      "nome": "Telas — Área do cidadão",
+      "descricao": "Telas implementadas no próprio sistema e capturadas automaticamente com dados fictícios (não houve protótipo separado em ferramenta de design). As imagens estão anexadas a este cartão. Telas: Meu perfil; Verificação de identidade; Minhas participações; Nova proposta; Acompanhar proposta; Avisos; Preferências; Privacidade (LGPD); Votação — escolher; Votação — revisar; Voto registrado; Verificar comprovante.",
+      "etiquetas": [
+        "Interface"
+      ],
+      "checklist": [
+        {
+          "nome": "Meu perfil",
+          "feito": true
+        },
+        {
+          "nome": "Verificação de identidade",
+          "feito": true
+        },
+        {
+          "nome": "Minhas participações",
+          "feito": true
+        },
+        {
+          "nome": "Nova proposta",
+          "feito": true
+        },
+        {
+          "nome": "Acompanhar proposta",
+          "feito": true
+        },
+        {
+          "nome": "Avisos",
+          "feito": true
+        },
+        {
+          "nome": "Preferências",
+          "feito": true
+        },
+        {
+          "nome": "Privacidade (LGPD)",
+          "feito": true
+        },
+        {
+          "nome": "Votação — escolher",
+          "feito": true
+        },
+        {
+          "nome": "Votação — revisar",
+          "feito": true
+        },
+        {
+          "nome": "Voto registrado",
+          "feito": true
+        },
+        {
+          "nome": "Verificar comprovante",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Capturas no GitHub",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/screenshots/cidadao"
+        }
+      ],
+      "pastaDeImagens": "screenshots/cidadao"
+    },
+    {
+      "lista": "Protótipos (telas)",
+      "nome": "Telas — Administração",
+      "descricao": "Telas implementadas no próprio sistema e capturadas automaticamente com dados fictícios (não houve protótipo separado em ferramenta de design). As imagens estão anexadas a este cartão. Telas: Painel; Monitoramento; Usuários; Papéis; Auditoria; Incidentes; Relatórios; Parâmetros; Consultas; Visão geral da consulta; Responsáveis; Criar consulta; Alternativas; Público-alvo; Propostas municipais; Aprovação; Revisão; Condução; Divulgação; Publicação do resultado; Encaminhamentos; Fila de propostas; Análise de proposta; Moderação; Verificações.",
+      "etiquetas": [
+        "Interface"
+      ],
+      "checklist": [
+        {
+          "nome": "Painel",
+          "feito": true
+        },
+        {
+          "nome": "Monitoramento",
+          "feito": true
+        },
+        {
+          "nome": "Usuários",
+          "feito": true
+        },
+        {
+          "nome": "Papéis",
+          "feito": true
+        },
+        {
+          "nome": "Auditoria",
+          "feito": true
+        },
+        {
+          "nome": "Incidentes",
+          "feito": true
+        },
+        {
+          "nome": "Relatórios",
+          "feito": true
+        },
+        {
+          "nome": "Parâmetros",
+          "feito": true
+        },
+        {
+          "nome": "Consultas",
+          "feito": true
+        },
+        {
+          "nome": "Visão geral da consulta",
+          "feito": true
+        },
+        {
+          "nome": "Responsáveis",
+          "feito": true
+        },
+        {
+          "nome": "Criar consulta",
+          "feito": true
+        },
+        {
+          "nome": "Alternativas",
+          "feito": true
+        },
+        {
+          "nome": "Público-alvo",
+          "feito": true
+        },
+        {
+          "nome": "Propostas municipais",
+          "feito": true
+        },
+        {
+          "nome": "Aprovação",
+          "feito": true
+        },
+        {
+          "nome": "Revisão",
+          "feito": true
+        },
+        {
+          "nome": "Condução",
+          "feito": true
+        },
+        {
+          "nome": "Divulgação",
+          "feito": true
+        },
+        {
+          "nome": "Publicação do resultado",
+          "feito": true
+        },
+        {
+          "nome": "Encaminhamentos",
+          "feito": true
+        },
+        {
+          "nome": "Fila de propostas",
+          "feito": true
+        },
+        {
+          "nome": "Análise de proposta",
+          "feito": true
+        },
+        {
+          "nome": "Moderação",
+          "feito": true
+        },
+        {
+          "nome": "Verificações",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Capturas no GitHub",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/screenshots/administrador"
+        }
+      ],
+      "pastaDeImagens": "screenshots/administrador"
+    },
+    {
+      "lista": "Protótipos (telas)",
+      "nome": "Telas — Celular (375 px)",
+      "descricao": "Telas implementadas no próprio sistema e capturadas automaticamente com dados fictícios (não houve protótipo separado em ferramenta de design). As imagens estão anexadas a este cartão. Telas: Início; Detalhe da consulta.",
+      "etiquetas": [
+        "Interface"
+      ],
+      "checklist": [
+        {
+          "nome": "Início",
+          "feito": true
+        },
+        {
+          "nome": "Detalhe da consulta",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Capturas no GitHub",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/screenshots/celular"
+        }
+      ],
+      "pastaDeImagens": "screenshots/celular"
+    },
+    {
+      "lista": "Backlog",
+      "nome": "Integração oficial gov.br e provedor de SMS",
+      "descricao": "Hoje simulados e identificados como demonstração. Dependem de credenciamento junto ao governo e da escolha de um provedor de SMS.",
+      "etiquetas": [
+        "Pendente"
+      ],
+      "checklist": [
+        {
+          "nome": "Credenciamento gov.br",
+          "feito": false
+        },
+        {
+          "nome": "Escolha do provedor de SMS",
+          "feito": false
+        },
+        {
+          "nome": "Trocar o adaptador simulado",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Backlog",
+      "nome": "Medição de desempenho e disponibilidade (RNF09, RNF10)",
+      "descricao": "Metas do documento ainda não medidas sob carga.",
+      "etiquetas": [
+        "Pendente"
+      ],
+      "checklist": [
+        {
+          "nome": "Definir carga de referência com o município",
+          "feito": false
+        },
+        {
+          "nome": "Teste de carga",
+          "feito": false
+        },
+        {
+          "nome": "Monitorar disponibilidade",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Backlog",
+      "nome": "Leitores de tela e outros navegadores (RNF01, RNF11)",
+      "descricao": "A acessibilidade foi verificada com axe-core no Chromium. Falta inspeção manual com NVDA e TalkBack e teste em Firefox, Safari e Edge.",
+      "etiquetas": [
+        "Pendente"
+      ],
+      "checklist": [
+        {
+          "nome": "NVDA",
+          "feito": false
+        },
+        {
+          "nome": "TalkBack",
+          "feito": false
+        },
+        {
+          "nome": "Firefox, Safari e Edge",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Backlog",
+      "nome": "Docker, backup e restauração (RNF14)",
+      "descricao": "Arquivos de Docker prontos, mas não executados; estratégia de backup documentada, não exercitada.",
+      "etiquetas": [
+        "Pendente"
+      ],
+      "checklist": [
+        {
+          "nome": "Executar docker compose",
+          "feito": false
+        },
+        {
+          "nome": "Backup diário",
+          "feito": false
+        },
+        {
+          "nome": "Teste de restauração",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Backlog",
+      "nome": "Teste de intrusão e relatório de impacto (RNF06)",
+      "descricao": "Antes de qualquer uso real: teste de intrusão independente e relatório de impacto à proteção de dados (LGPD).",
+      "etiquetas": [
+        "Pendente"
+      ],
+      "checklist": [
+        {
+          "nome": "Teste de intrusão",
+          "feito": false
+        },
+        {
+          "nome": "Relatório de impacto (RIPD)",
+          "feito": false
+        },
+        {
+          "nome": "Análise jurídica da Lei 15.211/2025 (RS010)",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Status do desenvolvimento",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/STATUS_DO_DESENVOLVIMENTO.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Segurança",
+      "nome": "Sigilo e unicidade do voto (RS001, RS002)",
+      "descricao": "O voto é gravado sem identificador do cidadão, sem comprovante e sem horário exato, na mesma transação da participação e sem relacionamento entre as tabelas. O banco impede o segundo voto. Testes provam que nem a administração identifica a escolha de alguém.",
+      "etiquetas": [
+        "Segurança"
+      ],
+      "checklist": [
+        {
+          "nome": "Tabelas sem vínculo",
+          "feito": true
+        },
+        {
+          "nome": "Restrição de unicidade no banco",
+          "feito": true
+        },
+        {
+          "nome": "Teste de concorrência",
+          "feito": true
+        },
+        {
+          "nome": "Teste de sigilo aprovado",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Matriz de riscos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/seguranca/MATRIZ_DE_RISCOS.md"
+        },
+        {
+          "nome": "Teste de votação e sigilo",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/tests/integration/voting.test.ts"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Segurança",
+      "nome": "Revisão OWASP Top 10",
+      "descricao": "Controles e evidências por categoria no plano de testes. Limite: não houve teste de intrusão independente; o sistema não deve ser declarado seguro para produção.",
+      "etiquetas": [
+        "Segurança"
+      ],
+      "checklist": [
+        {
+          "nome": "Controle de acesso",
+          "feito": true
+        },
+        {
+          "nome": "Criptografia",
+          "feito": true
+        },
+        {
+          "nome": "Injeção",
+          "feito": true
+        },
+        {
+          "nome": "Configuração",
+          "feito": true
+        },
+        {
+          "nome": "Autenticação",
+          "feito": true
+        },
+        {
+          "nome": "Integridade",
+          "feito": true
+        },
+        {
+          "nome": "Registro e monitoramento",
+          "feito": true
+        },
+        {
+          "nome": "SSRF",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Plano de testes — segurança",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/testes/PLANO_DE_TESTES.md"
+        },
+        {
+          "nome": "Testes de segurança",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/tests/security/security.test.ts"
+        },
+        {
+          "nome": "Matriz de riscos RS001–RS013",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/seguranca/MATRIZ_DE_RISCOS.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Testes",
+      "nome": "Testes unitários, de integração e de segurança",
+      "descricao": "Vitest: 114 de 114 aprovados (8 arquivos), em banco PostgreSQL. Comando: npm run check.",
+      "etiquetas": [
+        "Testes"
+      ],
+      "checklist": [
+        {
+          "nome": "Unitários",
+          "feito": true
+        },
+        {
+          "nome": "Integração",
+          "feito": true
+        },
+        {
+          "nome": "Segurança",
+          "feito": true
+        },
+        {
+          "nome": "114 de 114 aprovados",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Plano de testes e resultados",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/testes/PLANO_DE_TESTES.md"
+        },
+        {
+          "nome": "Pasta de testes",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/tests"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Testes",
+      "nome": "Testes no navegador e acessibilidade",
+      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 32 de 32 aprovados. Comando: npm run test:e2e.",
+      "etiquetas": [
+        "Testes"
+      ],
+      "checklist": [
+        {
+          "nome": "Portal público",
+          "feito": true
+        },
+        {
+          "nome": "Área do cidadão",
+          "feito": true
+        },
+        {
+          "nome": "Administração",
+          "feito": true
+        },
+        {
+          "nome": "Acessibilidade (axe)",
+          "feito": true
+        },
+        {
+          "nome": "32 de 32 aprovados",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Testes E2E",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/tests/e2e"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Testes",
+      "nome": "Integração contínua (GitHub Actions)",
+      "descricao": "A cada envio ao GitHub: tipos, lint, testes em PostgreSQL 16 real, auditoria de dependências e testes no navegador.",
+      "etiquetas": [
+        "Testes"
+      ],
+      "checklist": [
+        {
+          "nome": "Workflow configurado",
+          "feito": true
+        },
+        {
+          "nome": "Testes em PostgreSQL 16",
+          "feito": true
+        },
+        {
+          "nome": "E2E no CI",
+          "feito": true
+        },
+        {
+          "nome": "Execução aprovada",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Execuções do CI",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions"
+        },
+        {
+          "nome": "Workflow",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/.github/workflows/ci.yml"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 1 — Cadastro e autenticação",
+      "descricao": "Requisitos: RF001–RF011. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Cadastro e validação",
+          "feito": true
+        },
+        {
+          "nome": "Confirmação de e-mail",
+          "feito": true
+        },
+        {
+          "nome": "Verificação de identidade",
+          "feito": true
+        },
+        {
+          "nome": "Login e 2º fator",
+          "feito": true
+        },
+        {
+          "nome": "Logout e sessões",
+          "feito": true
+        },
+        {
+          "nome": "Recuperação e alteração de senha",
+          "feito": true
+        },
+        {
+          "nome": "Bloqueio por tentativas",
+          "feito": true
+        },
+        {
+          "nome": "Código antes do voto",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 2 — Perfil do cidadão",
+      "descricao": "Requisitos: RF012–RF015, RF052. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Perfil e elegibilidade",
+          "feito": true
+        },
+        {
+          "nome": "Atualização de dados",
+          "feito": true
+        },
+        {
+          "nome": "Participações e propostas",
+          "feito": true
+        },
+        {
+          "nome": "LGPD: cópia e desativação",
+          "feito": true
+        },
+        {
+          "nome": "Preferências de aviso",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 3 — Consultas públicas",
+      "descricao": "Requisitos: RF016–RF019, RF023, RF050, RF051. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Listagem e busca",
+          "feito": true
+        },
+        {
+          "nome": "Detalhes",
+          "feito": true
+        },
+        {
+          "nome": "Situação automática",
+          "feito": true
+        },
+        {
+          "nome": "Anexos",
+          "feito": true
+        },
+        {
+          "nome": "Portal",
+          "feito": true
+        },
+        {
+          "nome": "Histórico",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 4 — Propostas cidadãs",
+      "descricao": "Requisitos: RF020, RF021, RF067. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Envio com semelhantes",
+          "feito": true
+        },
+        {
+          "nome": "Fila e análise",
+          "feito": true
+        },
+        {
+          "nome": "Ajuste e resposta",
+          "feito": true
+        },
+        {
+          "nome": "Publicação autorizada",
+          "feito": true
+        },
+        {
+          "nome": "Apoios (condicionado)",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 5 — Administração de consultas",
+      "descricao": "Requisitos: RF022, RF024–RF035, RF061. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Proposta municipal",
+          "feito": true
+        },
+        {
+          "nome": "Cadastro/edição com versões",
+          "feito": true
+        },
+        {
+          "nome": "Alternativas",
+          "feito": true
+        },
+        {
+          "nome": "Público-alvo",
+          "feito": true
+        },
+        {
+          "nome": "Revisão",
+          "feito": true
+        },
+        {
+          "nome": "Aprovação e prazo excepcional",
+          "feito": true
+        },
+        {
+          "nome": "Publicação",
+          "feito": true
+        },
+        {
+          "nome": "Abertura",
+          "feito": true
+        },
+        {
+          "nome": "Alteração publicada",
+          "feito": true
+        },
+        {
+          "nome": "Suspensão/retomada",
+          "feito": true
+        },
+        {
+          "nome": "Cancelamento",
+          "feito": true
+        },
+        {
+          "nome": "Encerramento",
+          "feito": true
+        },
+        {
+          "nome": "Responsáveis",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 6 — Participação e votação",
+      "descricao": "Requisitos: RF036–RF041. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Elegibilidade",
+          "feito": true
+        },
+        {
+          "nome": "Votação em 3 passos",
+          "feito": true
+        },
+        {
+          "nome": "Comprovante",
+          "feito": true
+        },
+        {
+          "nome": "Voto único (3 camadas)",
+          "feito": true
+        },
+        {
+          "nome": "Fora do período",
+          "feito": true
+        },
+        {
+          "nome": "Verificação pública",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 7 — Resultados e transparência",
+      "descricao": "Requisitos: RF042–RF045, RF050, RF056, RF063. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Apuração",
+          "feito": true
+        },
+        {
+          "nome": "Homologação e retificação",
+          "feito": true
+        },
+        {
+          "nome": "Página de resultado",
+          "feito": true
+        },
+        {
+          "nome": "Dados abertos",
+          "feito": true
+        },
+        {
+          "nome": "Acervo",
+          "feito": true
+        },
+        {
+          "nome": "Encaminhamentos",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 8 — Administração e permissões",
+      "descricao": "Requisitos: RF046–RF049, RF061. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Usuários e convites",
+          "feito": true
+        },
+        {
+          "nome": "Papéis",
+          "feito": true
+        },
+        {
+          "nome": "Monitoramento",
+          "feito": true
+        },
+        {
+          "nome": "Relatórios",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 9 — Notificações",
+      "descricao": "Requisitos: RF052–RF055. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Central de avisos",
+          "feito": true
+        },
+        {
+          "nome": "Fila de e-mails",
+          "feito": true
+        },
+        {
+          "nome": "Avisos de publicação/abertura",
+          "feito": true
+        },
+        {
+          "nome": "Alterações",
+          "feito": true
+        },
+        {
+          "nome": "Lembretes e resultados",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 10 — Auditoria e integridade",
+      "descricao": "Requisitos: RF057–RF060. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Trilha encadeada",
+          "feito": true
+        },
+        {
+          "nome": "Consulta e verificação",
+          "feito": true
+        },
+        {
+          "nome": "Integridade",
+          "feito": true
+        },
+        {
+          "nome": "Incidentes",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Módulo 11 — Divulgação e moderação",
+      "descricao": "Requisitos: RF062, RF064–RF066, RF068. Implementado e coberto por testes automatizados. Telas, módulo e testes de cada requisito estão no mapeamento.",
+      "etiquetas": [
+        "Desenvolvimento"
+      ],
+      "checklist": [
+        {
+          "nome": "Material e QR Code",
+          "feito": true
+        },
+        {
+          "nome": "Denúncias",
+          "feito": true
+        },
+        {
+          "nome": "Moderação e revisão",
+          "feito": true
+        },
+        {
+          "nome": "Comentários (condicionado)",
+          "feito": true
+        },
+        {
+          "nome": "Eventos (condicionado)",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Mapeamento de requisitos",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md"
+        },
+        {
+          "nome": "Código (regras de negócio)",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/tree/main/src/server/modules"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Concluído",
+      "nome": "Publicação no GitHub",
+      "descricao": "Repositório público autorizado pela equipe em 12/11/2026.",
+      "etiquetas": [
+        "Entrega"
+      ],
+      "checklist": [
+        {
+          "nome": "Revisar segredos e dados pessoais",
+          "feito": true
+        },
+        {
+          "nome": "Rodar testes",
+          "feito": true
+        },
+        {
+          "nome": "Criar repositório público",
+          "feito": true
+        },
+        {
+          "nome": "git push",
+          "feito": true
+        },
+        {
+          "nome": "Conferir execução do CI",
+          "feito": true
+        }
+      ],
+      "links": [
+        {
+          "nome": "Repositório",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal"
+        },
+        {
+          "nome": "Histórico de commits",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/commits/main"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Prazo padrão de 20 dias e redução para 10",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Quem autoriza prazo excepcional",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Público-alvo padrão",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Participação de crianças e adolescentes",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Regra de apuração, quórum e preliminar",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Comentários, apoios e eventos",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Política de moderação",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Divisão do Administrador em papéis",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    },
+    {
+      "lista": "Pendências de validação",
+      "nome": "Integração oficial gov.br",
+      "descricao": "Item marcado com (*) no documento de requisitos: ainda não é decisão aprovada. Está implementado como parâmetro configurável ou recurso desligado.",
+      "etiquetas": [
+        "Cliente (*)"
+      ],
+      "checklist": [
+        {
+          "nome": "Levar ao cliente",
+          "feito": false
+        },
+        {
+          "nome": "Registrar decisão",
+          "feito": false
+        },
+        {
+          "nome": "Ajustar parâmetro/código",
+          "feito": false
+        }
+      ],
+      "links": [
+        {
+          "nome": "Pendências com o cliente",
+          "url": "https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/blob/main/docs/requisitos/PENDENCIAS_CLIENTE.md"
+        }
+      ],
+      "pastaDeImagens": null
+    }
+  ]
+}

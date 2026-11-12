@@ -7,7 +7,7 @@ Atualizado em 12/11/2026. Estados: Não iniciado · Em desenvolvimento · Implem
 - **Requisitos funcionais:** 68 implementados e cobertos por teste automatizado (68 no total); RF004, RF005 e RF011 com provedor de identidade/SMS simulados. RF064, RF067 e RF068 existem, mas ficam desligados até a validação do cliente.
 - **Testes:** 114/114 unitários, de integração e de segurança; 32/32 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
-- **Trello:** quadro criado pela equipe — <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> (link de convite). A ferramenta de desenvolvimento não tem acesso ao Trello: os cartões e as capturas são lançados pela equipe a partir de `docs/trello/`.
+- **Trello:** quadro criado pela equipe — <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> (link de convite). A organização do quadro está em `docs/trello/quadro.json` (10 listas, 41 cartões, 57 capturas) e é aplicada por `npm run trello:sync`, que exige chave e token do Trello da equipe; sem essas credenciais os cartões ainda não foram lançados.
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
 ## O que funciona (verificado)
@@ -136,7 +136,7 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada
-1. Importar no quadro Trello os cartões de `docs/trello/TRELLO_IMPORT.csv` e anexar as capturas de `screenshots/`.
+1. Gerar a chave e o token do Trello e executar `npm run trello:sync` (passos em `docs/trello/PLANO_TRELLO.md`).
 2. Levar `docs/requisitos/PENDENCIAS_CLIENTE.md` ao cliente e ajustar parâmetros.
 3. Executar o `docker compose` e exercitar backup e restauração (RNF14).
 4. Inspeção de acessibilidade com NVDA/TalkBack e medição de desempenho.

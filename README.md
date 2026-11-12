@@ -223,7 +223,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Item | Situação |
 |---|---|
 | **GitHub** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> — código, documentação, testes e capturas; histórico de commits por etapa |
-| **Trello** | <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> — quadro criado pela equipe; o link é de convite e pede login no Trello. O plano do quadro e os 29 cartões preparados para importação estão em [docs/trello/](docs/trello/). |
+| **Trello** | <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> — quadro criado pela equipe; o link é de convite e pede login no Trello. A organização do quadro (10 listas, 41 cartões com documentação, requisitos, telas, segurança, testes e pendências) está em [docs/trello/](docs/trello/) e é aplicada com `npm run trello:sync`, usando uma chave do Trello da equipe. |
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 
