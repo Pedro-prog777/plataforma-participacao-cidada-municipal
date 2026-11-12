@@ -5,15 +5,15 @@
  * Votos sintéticos são inseridos diretamente (mesma estrutura sem vínculo usada pelo sistema).
  */
 import { eq } from "drizzle-orm";
-import type { Db } from "./client";
-import { alternatives, citizenProposals, consultations, districts, organs, participations, regions, roles, themes, userRoles, users, votes } from "./schema";
-import { brDate, clock, DAY, HOUR } from "../lib/clock";
-import { cpfHmac, encrypt, receiptCode, sha256 } from "../lib/crypto";
-import { hashPassword } from "../lib/password";
+import type { Db } from "@/server/db/client";
+import { alternatives, citizenProposals, consultations, districts, organs, participations, regions, roles, themes, userRoles, users, votes } from "@/server/db/schema";
+import { brDate, clock, DAY, HOUR } from "@/server/lib/clock";
+import { cpfHmac, encrypt, receiptCode, sha256 } from "@/server/lib/crypto";
+import { hashPassword } from "@/server/lib/password";
 import { generateCpf, maskCpf } from "@/lib/cpf";
 import { toLocalInput } from "@/lib/labels";
-import { loadActor, type Actor } from "../modules/access/access.service";
-import { createMunicipalProposal } from "../modules/proposals/municipal-proposals.service";
+import { loadActor, type Actor } from "@/server/modules/access/access.service";
+import { createMunicipalProposal } from "@/server/modules/proposals/municipal-proposals.service";
 import {
   cancelConsultation,
   createConsultation,
@@ -27,14 +27,14 @@ import {
   setAudience,
   submitForReview,
   suspendConsultation,
-} from "../modules/consultations/lifecycle.service";
-import { closeDueConsultations, openDueConsultations } from "../modules/scheduler/scheduler.service";
-import { publishFinalResult } from "../modules/results/results.service";
-import { registerOutcome, updateOutcomeStatus } from "../modules/outcomes/outcomes.service";
-import { analyzeProposal, submitCitizenProposal } from "../modules/proposals/citizen-proposals.service";
-import { registerDissemination } from "../modules/dissemination/dissemination.service";
-import { notifyUser } from "../modules/notifications/notifications.service";
-import { audit } from "../modules/audit/audit.service";
+} from "@/server/modules/consultations/lifecycle.service";
+import { closeDueConsultations, openDueConsultations } from "@/server/modules/scheduler/scheduler.service";
+import { publishFinalResult } from "@/server/modules/results/results.service";
+import { registerOutcome, updateOutcomeStatus } from "@/server/modules/outcomes/outcomes.service";
+import { analyzeProposal, submitCitizenProposal } from "@/server/modules/proposals/citizen-proposals.service";
+import { registerDissemination } from "@/server/modules/dissemination/dissemination.service";
+import { notifyUser } from "@/server/modules/notifications/notifications.service";
+import { audit } from "@/server/modules/audit/audit.service";
 
 export const DEMO_PASSWORD = "Demo@2026";
 /** Segredos TOTP FICTÍCIOS das contas de demonstração (documentados no README). */

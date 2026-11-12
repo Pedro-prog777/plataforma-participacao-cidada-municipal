@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { MainContainer } from "@/components/layout/site-chrome";
 import { Alert, Card, LinkButton, PageHeader, Section, Table } from "@/components/ui/primitives";
 import { demoMode } from "@/server/lib/env";
-import { DEMO_ADMINS, DEMO_CITIZENS, DEMO_PASSWORD } from "@/server/db/seed-demo";
+import { DEMO_ADMINS, DEMO_CITIZENS, DEMO_PASSWORD } from "@database/seeds/seed-demo";
 import { totp } from "@/server/lib/totp";
 import { ROLE_LABELS } from "./roles";
 

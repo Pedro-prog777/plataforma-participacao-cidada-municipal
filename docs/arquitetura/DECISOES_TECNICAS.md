@@ -95,7 +95,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 | `frontend/` | `src/app` (rotas e páginas), `src/components`, `src/lib` | Interface |
 | `backend/` | `src/server` (`actions`, `auth`, `modules`, `lib`, `db`) | Regras de negócio só em `src/server/modules` |
 | `database/migrations` | `database/migrations` | Antes em `drizzle/` |
-| `database/seeds` | `src/server/db/seed-*.ts` | O servidor aplica os dados iniciais ao subir; ficam com o código |
+| `database/seeds` | `database/seeds` | Importados pelo servidor com o alias `@database/*` (o servidor aplica os dados iniciais ao subir) |
 | `database/diagrams` | `database/diagrams` | Diagrama ER |
 | `tests/security` | `tests/security` | Entradas maliciosas e SSRF; sigilo do voto segue em `tests/integration/voting.test.ts` |
 | `screenshots/prototipos` | — | Não houve protótipo separado (Figma); as capturas são das telas reais implementadas |

@@ -2,8 +2,8 @@
  * Dados de referência (fictícios) — regiões, bairros, temas, órgãos e papéis administrativos.
  * Idempotente. O município é fictício para a demonstração acadêmica.
  */
-import type { DbOrTx } from "./client";
-import { districts, organs, regions, roles, themes } from "./schema";
+import type { DbOrTx } from "@/server/db/client";
+import { districts, organs, regions, roles, themes } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import type { Permission } from "@/lib/permissions";
 

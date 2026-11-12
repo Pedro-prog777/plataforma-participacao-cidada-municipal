@@ -2,8 +2,8 @@
 import { count } from "drizzle-orm";
 import { closeDb, getDb } from "../src/server/db/client";
 import { runMigrations } from "../src/server/db/migrate";
-import { seedReferenceData } from "../src/server/db/seed-reference";
-import { seedDemoData } from "../src/server/db/seed-demo";
+import { seedReferenceData } from "../database/seeds/seed-reference";
+import { seedDemoData } from "../database/seeds/seed-demo";
 import { users } from "../src/server/db/schema";
 
 async function main() {

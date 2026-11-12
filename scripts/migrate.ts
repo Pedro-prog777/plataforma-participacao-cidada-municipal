@@ -1,7 +1,7 @@
 // Aplica as migrations no banco configurado (DATABASE_URL ou PGlite em PGLITE_DIR).
 import { closeDb, getDbKind } from "../src/server/db/client";
 import { runMigrations } from "../src/server/db/migrate";
-import { seedReferenceData } from "../src/server/db/seed-reference";
+import { seedReferenceData } from "../database/seeds/seed-reference";
 import { getDb } from "../src/server/db/client";
 
 async function main() {

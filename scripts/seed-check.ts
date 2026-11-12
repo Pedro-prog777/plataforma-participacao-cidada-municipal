@@ -5,8 +5,8 @@ import { sql } from "drizzle-orm";
 import * as schema from "../src/server/db/schema";
 import { setDb, type Db } from "../src/server/db/client";
 import { runMigrations } from "../src/server/db/migrate";
-import { seedReferenceData } from "../src/server/db/seed-reference";
-import { seedDemoData } from "../src/server/db/seed-demo";
+import { seedReferenceData } from "../database/seeds/seed-reference";
+import { seedDemoData } from "../database/seeds/seed-demo";
 
 async function main() {
   const client = new PGlite();

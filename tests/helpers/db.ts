@@ -10,7 +10,7 @@ import { Pool } from "pg";
 import { closeDb, setDb, type Db } from "@/server/db/client";
 import { runMigrations } from "@/server/db/migrate";
 import * as schema from "@/server/db/schema";
-import { seedReferenceData } from "@/server/db/seed-reference";
+import { seedReferenceData } from "@database/seeds/seed-reference";
 import { invalidateSettingsCache } from "@/server/lib/settings";
 import { resetRateLimits } from "@/server/lib/rate-limit";
 import { clock } from "@/server/lib/clock";

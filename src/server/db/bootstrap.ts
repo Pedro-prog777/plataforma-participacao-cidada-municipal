@@ -5,7 +5,7 @@
 import { count } from "drizzle-orm";
 import { getDb } from "./client";
 import { runMigrations } from "./migrate";
-import { seedReferenceData } from "./seed-reference";
+import { seedReferenceData } from "@database/seeds/seed-reference";
 import { users } from "./schema";
 import { demoMode } from "../lib/env";
 
@@ -18,7 +18,7 @@ export function ensureDatabase(): Promise<void> {
     await seedReferenceData(db);
     const [{ n }] = await db.select({ n: count() }).from(users);
     if (n === 0 && demoMode()) {
-      const { seedDemoData } = await import("./seed-demo");
+      const { seedDemoData } = await import("@database/seeds/seed-demo");
       await seedDemoData(db);
     }
   })().catch((e) => {

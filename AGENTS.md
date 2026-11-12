@@ -36,7 +36,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 
 ## Guia técnico
 - **Stack:** Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Drizzle ORM · PostgreSQL (PGlite em desenvolvimento) · Zod · Vitest · Playwright + axe-core.
-- **Estrutura:** `src/app` (rotas: `(site)` público/cidadão, `admin`, `api`) · `src/components` (interface) · `src/server/actions` (ações) · `src/server/auth` (guardas) · `src/server/modules` (domínio) · `src/server/lib` (infraestrutura) · `src/server/db` (schema, cliente, dados iniciais e fictícios) · `src/lib` (compartilhado) · `database/` (migrations SQL e diagrama) · `tests/` (unit, integration, security, e2e, screenshots) · `screenshots/` (capturas reais) · `docs/` (requisitos, arquitetura, seguranca, testes, trello). O projeto é um monólito Next.js: não há pastas `frontend/` e `backend/` separadas (DT-18).
+- **Estrutura:** `src/app` (rotas: `(site)` público/cidadão, `admin`, `api`) · `src/components` (interface) · `src/server/actions` (ações) · `src/server/auth` (guardas) · `src/server/modules` (domínio) · `src/server/lib` (infraestrutura) · `src/server/db` (schema, cliente, migração) · `src/lib` (compartilhado) · `database/` (migrations SQL, seeds — alias `@database/*` — e diagrama) · `tests/` (unit, integration, security, e2e, screenshots) · `screenshots/` (capturas reais) · `docs/` (requisitos, arquitetura, seguranca, testes, trello). O projeto é um monólito Next.js: não há pastas `frontend/` e `backend/` separadas (DT-18).
 - **Comandos:** `npm run dev` · `npm run check` (tipos + lint + testes) · `npm run test:e2e` · `npm run screenshots` · `npm run db:generate` (após mudar o schema) · `npm run db:reset` (recria o banco local de demonstração).
 - **Padrão de uma funcionalidade:** serviço em `modules/<módulo>` (valida com Zod, autoriza com `assertPermission`/`assertConsultationRole`, executa em transação e chama `audit`) → ação em `server/actions` (`attempt` + `withValues` + `redirect`) → página com `ActionForm`/`Field`. Erros de regra usam `DomainError`/`ValidationError` (mensagens em português simples).
 - **Tempo:** use sempre `clock.now()` (`lib/clock.ts`), nunca `new Date()` em regras — o horário do servidor é a referência (RN08) e os testes o controlam.
@@ -46,7 +46,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Documentos:** arquitetura (`docs/arquitetura/ARQUITETURA.md`), decisões e interpretações (`docs/arquitetura/DECISOES_TECNICAS.md`), dados (`docs/arquitetura/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
 
 ## Estado atual (resumo)
-Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: quadro ainda não criado (`docs/trello/`). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
+Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> (link de convite; plano e cartões em `docs/trello/`). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
 
 ---
 
