@@ -1,6 +1,6 @@
 /**
  * Parâmetros configuráveis sem alterar código (RNF12). Valores marcados como `pendente`
- * dependem de validação do cliente (*) — ver docs/PENDENCIAS_CLIENTE.md.
+ * dependem de validação do cliente (*) — ver docs/requisitos/PENDENCIAS_CLIENTE.md.
  */
 import { eq } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../db/client";

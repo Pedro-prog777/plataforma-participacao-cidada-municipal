@@ -19,7 +19,7 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
-COPY --from=build /app/drizzle ./drizzle
+COPY --from=build /app/database ./database
 COPY --from=build /app/next.config.ts ./
 USER ppcm
 EXPOSE 3000

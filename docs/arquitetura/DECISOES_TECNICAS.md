@@ -9,7 +9,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Separação de camadas:** páginas/ações → *guards* de sessão (`src/server/auth/current.ts`) → serviços de domínio (validação Zod + autorização + transação + auditoria) → Drizzle ORM. Componentes de interface não podem importar o banco (regra de lint).
 
 ## DT-02 — PostgreSQL com Drizzle ORM e migrations versionadas
-- Schema tipado em `src/server/db/schema.ts`; migrations SQL em `drizzle/` geradas pelo `drizzle-kit` e versionadas no Git.
+- Schema tipado em `src/server/db/schema.ts`; migrations SQL em `database/migrations/` geradas pelo `drizzle-kit` e versionadas no Git.
 - A migration `0001_gatilhos_somente_acrescimo.sql` cria gatilhos que **recusam UPDATE/DELETE/TRUNCATE** em votos, participações, auditoria, resultados, históricos, versões e decisões de moderação (RN28, RN29, RN39).
 
 ## DT-03 — PGlite para desenvolvimento, PostgreSQL servidor para produção e CI
@@ -28,7 +28,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 ## DT-05 — Mitigação da ordem física de gravação (risco residual)
 - **Risco:** quem tem acesso ao armazenamento do PostgreSQL poderia tentar correlacionar a ordem física de inserção das linhas de `participations` e `votes`.
 - **Mitigação implementada:** `votes.shuffle_key` aleatório com índice e `CLUSTER votes USING votes_shuffle_idx` executado no encerramento e periodicamente (a cada 15 min com consultas abertas), reordenando fisicamente a tabela.
-- **Residual documentado:** logs de WAL/backup gerados antes da reordenação ainda guardam a ordem. Em produção recomenda-se restringir acesso a WAL/backups e cifrar backups. Ver `MATRIZ_DE_RISCOS.md`.
+- **Residual documentado:** logs de WAL/backup gerados antes da reordenação ainda guardam a ordem. Em produção recomenda-se restringir acesso a WAL/backups e cifrar backups. Ver `docs/seguranca/MATRIZ_DE_RISCOS.md`.
 
 ## DT-06 — CPF: HMAC com chave fora do banco + forma mascarada
 - O CPF **não é gravado em claro**: guarda-se `HMAC-SHA256(CPF)` com `CPF_HMAC_KEY` (variável de ambiente) para unicidade e verificação, e a forma mascarada (`***.456.789-**`) para exibição ao titular.
@@ -85,4 +85,24 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - CSP com nonce por requisição (middleware), `frame-ancestors 'none'`, HSTS em produção.
 
 ## DT-17 — Testes
-- Vitest (unitários + integração no banco real em memória) e Playwright (E2E em build de produção, com axe-core para WCAG 2.2 A/AA e verificação de 320 px). Detalhes em `PLANO_DE_TESTES.md`.
+- Vitest (unitários + integração no banco real em memória) e Playwright (E2E em build de produção, com axe-core para WCAG 2.2 A/AA e verificação de 320 px). Detalhes em `docs/testes/PLANO_DE_TESTES.md`.
+
+## DT-18 — Estrutura de pastas adaptada ao Next.js
+- O modelo de entrega pedia `frontend/`, `backend/` e `database/` separados. A PPCM é um monólito Next.js (App Router): páginas, Server Actions e serviços são compilados juntos e o framework exige `src/app`. Separar em dois projetos obrigaria a reescrever a comunicação entre telas e regras, sem ganho para o requisito. A separação pedida foi mantida **por camadas dentro de `src/`**:
+
+| Pasta do modelo | Onde está | Observação |
+|---|---|---|
+| `frontend/` | `src/app` (rotas e páginas), `src/components`, `src/lib` | Interface |
+| `backend/` | `src/server` (`actions`, `auth`, `modules`, `lib`, `db`) | Regras de negócio só em `src/server/modules` |
+| `database/migrations` | `database/migrations` | Antes em `drizzle/` |
+| `database/seeds` | `src/server/db/seed-*.ts` | O servidor aplica os dados iniciais ao subir; ficam com o código |
+| `database/diagrams` | `database/diagrams` | Diagrama ER |
+| `tests/security` | `tests/security` | Entradas maliciosas e SSRF; sigilo do voto segue em `tests/integration/voting.test.ts` |
+| `screenshots/prototipos` | — | Não houve protótipo separado (Figma); as capturas são das telas reais implementadas |
+
+- Uma regra de lint impede que componentes importem serviços diretamente, preservando a fronteira entre interface e servidor.
+
+## DT-19 — Links externos, cadastro e redirecionamento
+- **Links (RF023):** só são aceitos endereços `https` com nome de domínio público; IP literal, `localhost`, sufixos internos e credenciais na URL são recusados. A rotina diária confere cada link com `HEAD`, tempo limite de 5 s e **sem seguir redirecionamentos**, para que o servidor não seja usado para alcançar a rede interna (SSRF). Link fora do ar avisa o responsável uma única vez e a página pública destaca a alternativa textual. Limite conhecido: não há resolução de DNS antes da requisição; um domínio público que aponte para endereço interno não é detectado.
+- **Cadastro (RS004):** no máximo 10 cadastros por hora por rede, contados em memória (DT-13).
+- **Redirecionamento pós-login:** o destino só é aceito se for caminho interno (`safeInternalPath`), o que evita redirecionamento aberto.

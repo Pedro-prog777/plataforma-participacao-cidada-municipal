@@ -6,10 +6,10 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Nome:** Plataforma de Participação Cidadã Municipal — **Sigla:** PPCM
 - **Instituição:** CESMAC — **Curso:** Engenharia de Software (trabalho acadêmico)
 - **Equipe:** João Pedro e Flávia Marina
-- **Documento-base:** `docs/Documento_de_Requisitos_v6.pdf` (original preservado). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo integral; `docs/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
+- **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` (original preservado). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo integral; `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
 
 ## Instruções permanentes
-1. Não implementar funcionalidade fora do documento sem registrar a decisão em `docs/DECISOES_TECNICAS.md`.
+1. Não implementar funcionalidade fora do documento sem registrar a decisão em `docs/arquitetura/DECISOES_TECNICAS.md`.
 2. Não excluir funcionalidades existentes sem justificativa registrada.
 3. Manter os identificadores originais (RFxxx, RNFxx, RSxxx, RNxx) em código, testes e documentação.
 4. Código organizado, seguro e reutilizável; regras de negócio só em `src/server/modules/*`.
@@ -21,32 +21,32 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 10. Nunca expor dados pessoais em páginas públicas, exportações, logs ou auditoria.
 11. **Nunca comprometer o sigilo dos votos** (ver invariantes abaixo).
 12. Nunca colocar credenciais, chaves ou `.env` no Git. Use `.env.example` só com campos vazios.
-13. Itens marcados com (\*) não são decisões aprovadas: mantê-los configuráveis/desligáveis (`lib/settings.ts`) e listados em `docs/PENDENCIAS_CLIENTE.md`.
+13. Itens marcados com (\*) não são decisões aprovadas: mantê-los configuráveis/desligáveis (`lib/settings.ts`) e listados em `docs/requisitos/PENDENCIAS_CLIENTE.md`.
 14. Não simular integrações externas como se fossem reais (gov.br, SMS): adaptadores simulados devem estar identificados e restritos a `DEMO_MODE`.
-15. Não fazer `git push --force`, não publicar nem tornar o repositório público sem autorização da equipe.
+15. Não fazer `git push --force`. O repositório é público por decisão da equipe (12/11/2026): antes de cada envio, conferir que não há segredos, `.env` nem dados pessoais reais; os commits usam o e-mail `noreply` do GitHub.
 
 ## Invariantes de sigilo e integridade (não negociáveis)
 - `votes` não pode ter coluna, chave, índice ou marca temporal que a ligue a cidadão, participação, sessão ou comprovante. `participations` guarda só a **data**.
 - Participação e voto são gravados na mesma transação; nunca registrar a alternativa em auditoria, logs, e-mails, notificações, URLs ou no código de confirmação.
 - Votos aceitos não são auditados individualmente; só recusas (sem alternativa).
 - Durante a votação nenhuma tela, rota ou relatório mostra contagem por alternativa, para nenhum perfil (RN16).
-- Tabelas somente de acréscimo (gatilhos em `drizzle/0001_*.sql`): `votes`, `participations`, `audit_log`, `results`, `consultation_events`, `entity_versions`, `outcome_entries`, `citizen_proposal_events`, `integrity_checks`, `moderation_decisions`. Não remover os gatilhos.
+- Tabelas somente de acréscimo (gatilhos em `database/migrations/0001_*.sql`): `votes`, `participations`, `audit_log`, `results`, `consultation_events`, `entity_versions`, `outcome_entries`, `citizen_proposal_events`, `integrity_checks`, `moderation_decisions`. Não remover os gatilhos.
 - Ninguém aprova a consulta que elaborou, editou ou revisou; contas administrativas não votam.
 - O teste `tests/integration/voting.test.ts › Sigilo do voto` deve continuar passando; ao criar nova saída de dados (relatório, exportação, log), acrescente-a a esse teste.
 
 ## Guia técnico
 - **Stack:** Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Drizzle ORM · PostgreSQL (PGlite em desenvolvimento) · Zod · Vitest · Playwright + axe-core.
-- **Estrutura:** `src/app` (rotas: `(site)` público/cidadão, `admin`, `api`) · `src/components` (interface) · `src/server/actions` (ações) · `src/server/auth` (guardas) · `src/server/modules` (domínio) · `src/server/lib` (infraestrutura) · `src/server/db` (schema, migrations, dados fictícios) · `src/lib` (compartilhado) · `drizzle/` (SQL) · `tests/` (unit, integration, e2e, screenshots) · `docs/`.
+- **Estrutura:** `src/app` (rotas: `(site)` público/cidadão, `admin`, `api`) · `src/components` (interface) · `src/server/actions` (ações) · `src/server/auth` (guardas) · `src/server/modules` (domínio) · `src/server/lib` (infraestrutura) · `src/server/db` (schema, cliente, dados iniciais e fictícios) · `src/lib` (compartilhado) · `database/` (migrations SQL e diagrama) · `tests/` (unit, integration, security, e2e, screenshots) · `screenshots/` (capturas reais) · `docs/` (requisitos, arquitetura, seguranca, testes, trello). O projeto é um monólito Next.js: não há pastas `frontend/` e `backend/` separadas (DT-18).
 - **Comandos:** `npm run dev` · `npm run check` (tipos + lint + testes) · `npm run test:e2e` · `npm run screenshots` · `npm run db:generate` (após mudar o schema) · `npm run db:reset` (recria o banco local de demonstração).
 - **Padrão de uma funcionalidade:** serviço em `modules/<módulo>` (valida com Zod, autoriza com `assertPermission`/`assertConsultationRole`, executa em transação e chama `audit`) → ação em `server/actions` (`attempt` + `withValues` + `redirect`) → página com `ActionForm`/`Field`. Erros de regra usam `DomainError`/`ValidationError` (mensagens em português simples).
 - **Tempo:** use sempre `clock.now()` (`lib/clock.ts`), nunca `new Date()` em regras — o horário do servidor é a referência (RN08) e os testes o controlam.
 - **Parâmetros:** `getSetting(chave)`; novos parâmetros entram em `SETTINGS`.
 - **Interface:** reutilize `components/ui/primitives.tsx` e `components/ui/form.tsx`; todo campo com rótulo; gráficos com tabela; contraste AA; funcionar a 320 px.
 - **Ambiente:** Windows + pasta no OneDrive causa bloqueios (`EBUSY`) em `.next`; não rode `tsc`/build e `next dev` ao mesmo tempo. Encerrar o servidor à força pode corromper `.data/pglite` (`npm run db:reset`).
-- **Documentos:** arquitetura (`docs/ARQUITETURA.md`), decisões e interpretações (`docs/DECISOES_TECNICAS.md`), dados (`docs/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
+- **Documentos:** arquitetura (`docs/arquitetura/ARQUITETURA.md`), decisões e interpretações (`docs/arquitetura/DECISOES_TECNICAS.md`), dados (`docs/arquitetura/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
 
 ## Estado atual (resumo)
-Os 68 RFs estão implementados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
+Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: quadro ainda não criado (`docs/trello/`). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
 
 ---
 

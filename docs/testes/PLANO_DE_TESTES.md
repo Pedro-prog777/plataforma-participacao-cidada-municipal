@@ -12,17 +12,32 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (10/11/2026, ambiente local Windows 11, Node 24)
+## Última execução registrada (12/11/2026, ambiente local Windows 11, Node 24)
 
 | Suíte | Resultado |
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração (6 arquivos) | **97 de 97 aprovados** |
-| E2E (3 arquivos, Chromium) | **32 de 32 aprovados** (31 na execução completa + reexecução do roteiro de votação após correção do próprio teste) |
+| Unitários + integração + segurança (8 arquivos) | **114 de 114 aprovados** |
+| E2E (3 arquivos, Chromium) | **32 de 32 aprovados** em execução única |
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
+| Capturas (`npm run screenshots`) | __CAPTURAS__ |
 
-**Não executado localmente:** integração contra PostgreSQL servidor (o ambiente não tem Docker/PostgreSQL — fica a cargo do workflow de CI, que ainda não rodou porque o repositório não foi publicado); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
+**Não executado localmente:** integração contra PostgreSQL servidor (o ambiente não tem Docker/PostgreSQL — fica a cargo do workflow de CI no GitHub Actions; o resultado da primeira execução deve ser conferido no repositório); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
+
+## Arquivos de teste
+
+| Arquivo | O que cobre |
+|---|---|
+| `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
+| `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
+| `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
+| `tests/integration/lifecycle.test.ts` | Ciclo da consulta, separação de funções, prazos, rotina automática |
+| `tests/integration/voting.test.ts` | Elegibilidade, voto único, concorrência, **sigilo do voto**, comprovante, integridade |
+| `tests/integration/participation.test.ts` | Propostas, anexos, moderação, LGPD, resultados, dados abertos |
+| `tests/integration/administration.test.ts` | Identidade (RF004), perfil (RF012, RF013), usuários e papéis (RF046, RF047), avisos (RF053, RF055), divulgação (RF062), eventos (RF068), parâmetros (RNF12) |
+| `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
+| `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px |
 
 ## Cenários obrigatórios do pedido
 
@@ -62,7 +77,7 @@
 | A07 Autenticação | Bloqueio, CAPTCHA, 2º fator, expiração de sessão, mensagens genéricas | testes 4–6; `auth.test.ts` |
 | A08 Integridade | Hash da base apurada, auditoria encadeada, verificação de arquivos | testes 15, 18, 19 |
 | A09 Registro e monitoramento | Auditoria de negados/falhas sem dados sensíveis; incidentes automáticos | `database.test.ts`, `voting.test.ts` |
-| A10 SSRF | Só a verificação de links externos faz requisições de saída (HEAD com tempo limite) | revisão de código; **sem teste automatizado** |
+| A10 SSRF | Só a verificação de links externos faz requisições de saída: `HEAD`, tempo limite, sem seguir redirecionamentos e só para `https` com domínio público (DT-19) | `security/security.test.ts`; limite: sem resolução de DNS prévia |
 
 **Limites desta verificação:** não houve teste de intrusão independente, varredura dinâmica (DAST) nem teste de carga. A proteção CSRF apoia-se na verificação de origem das Server Actions do Next.js e em `SameSite=Lax` (não há teste automatizado específico). Portanto, o sistema **não deve ser declarado “seguro” para produção** sem essas etapas e sem o RIPD (RNF06).
 

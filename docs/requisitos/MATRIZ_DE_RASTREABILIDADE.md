@@ -2,7 +2,7 @@
 
 ## 1. Matriz do documento (dependências entre requisitos)
 
-Transcrita do Documento de Requisitos v6, seção 7 — ver também `REQUISITOS_COMPLETOS.md` §7.
+Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requisitos/REQUISITOS_COMPLETOS.md` §7.
 
 | Requisito | D (depende de) | R (relaciona-se com) |
 |---|---|---|
@@ -82,7 +82,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `REQUISITOS_
 | RF001 Cadastrar cidadão | /cadastro | `modules/auth/auth.service.ts (registerCitizen)` | integration/auth.test.ts › Cadastro; e2e/citizen.spec.ts › cadastro | RS004 | Implementado |
 | RF002 Validar dados cadastrais | /cadastro, /conta/perfil/editar | `auth.service.ts (registrationSchema), profile.service.ts` | integration/auth.test.ts › todos os erros por campo; unit/rules.test.ts › CPF | — | Implementado |
 | RF003 Confirmar e-mail e ativar conta | /confirmar-email, /reenviar-confirmacao | `auth.service.ts (sendEmailConfirmation, confirmEmail, resendConfirmation)` | integration/auth.test.ts › Confirmação de e-mail | — | Implementado |
-| RF004 Verificar identidade e domicílio do cidadão | /conta/verificacao, /demo/provedor-identidade, /admin/verificacoes | `modules/identity/identity.service.ts; lib/identity-provider.ts` | integration (fluxo coberto por fixtures); e2e/citizen.spec.ts › orientação de verificação | RS004 | Implementado com simulação |
+| RF004 Verificar identidade e domicílio do cidadão | /conta/verificacao, /demo/provedor-identidade, /admin/verificacoes | `modules/identity/identity.service.ts; lib/identity-provider.ts` | integration/administration.test.ts › Verificação de identidade e domicílio; e2e/citizen.spec.ts › orientação de verificação | RS004 | Implementado com simulação |
 | RF005 Realizar login | /entrar, /entrar/segundo-fator | `auth.service.ts (login, verifySecondFactor); session.service.ts` | integration/auth.test.ts › Login; e2e/admin.spec.ts › segundo fator | RS007 | Implementado |
 | RF006 Realizar logout | menu Sair, /conta/privacidade (sessões) | `session.service.ts (revokeSession, revokeAllSessions); actions/auth.ts (logoutAction)` | integration/auth.test.ts › sessão expira por inatividade | — | Implementado |
 | RF007 Recuperar senha | /recuperar-senha, /redefinir-senha | `auth.service.ts (requestPasswordReset, resetPassword)` | integration/auth.test.ts › Recuperação | RS007 | Implementado |
@@ -90,8 +90,8 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `REQUISITOS_
 | RF009 Controlar acesso por perfil, papel e permissão | todas as rotas protegidas | `server/auth/current.ts (requireCitizen/requireAdmin); modules/access/access.service.ts` | integration/auth.test.ts › Controle de acesso; e2e/public.spec.ts › áreas protegidas; e2e/admin.spec.ts | RS006 | Implementado |
 | RF010 Controlar tentativas de autenticação | /entrar (CAPTCHA) | `auth.service.ts (recordAuthFailure, requiresCaptcha); lib/captcha.ts` | integration/auth.test.ts › bloqueio 15 min; CAPTCHA por IP | — | Implementado |
 | RF011 Confirmar identidade antes do voto | /consultas/[slug]/participar (passo 2) | `modules/voting/voting.service.ts (requestVoteCode)` | integration/voting.test.ts › código; e2e/citizen.spec.ts | — | Implementado com simulação |
-| RF012 Visualizar perfil | /conta | `modules/profile/profile.service.ts (getProfile, eligibilitySummary)` | e2e (navegação) | RS005 | Implementado |
-| RF013 Atualizar dados do perfil | /conta/perfil/editar | `profile.service.ts (updateProfile); identity.service.ts (correção documental)` | integration (auditoria de campos) | — | Implementado |
+| RF012 Visualizar perfil | /conta | `modules/profile/profile.service.ts (getProfile, eligibilitySummary)` | integration/administration.test.ts › Visualização do perfil | RS005 | Implementado |
+| RF013 Atualizar dados do perfil | /conta/perfil/editar | `profile.service.ts (updateProfile); identity.service.ts (correção documental)` | integration/administration.test.ts › Atualização do perfil | — | Implementado |
 | RF014 Acompanhar participações e propostas | /conta/participacoes, /conta/participacoes/[id] | `voting.service.ts (myParticipations)` | integration/voting.test.ts › histórico sem a opção votada; e2e/citizen.spec.ts | — | Implementado |
 | RF015 Exercer direitos do titular de dados (LGPD) | /conta/privacidade, /api/conta/dados/[id] | `profile.service.ts (requestDataCopy, deactivateAccount)` | integration/participation.test.ts › LGPD; integration/auth.test.ts › desativação | — | Implementado |
 | RF016 Listar consultas públicas | /consultas, / | `modules/consultations/queries.service.ts (listPublicConsultations)` | integration/lifecycle.test.ts › não aparece antes de publicada; e2e/public.spec.ts | — | Implementado |
@@ -101,7 +101,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `REQUISITOS_
 | RF020 Enviar proposta cidadã | /conta/propostas/nova | `modules/proposals/citizen-proposals.service.ts (submitCitizenProposal, findSimilar)` | integration/participation.test.ts › Propostas cidadãs | RS011, RS012 | Implementado |
 | RF021 Analisar e responder proposta cidadã | /admin/propostas, /admin/propostas/[id] | `citizen-proposals.service.ts (analyzeProposal); scheduler (prazo de ajuste)` | integration/participation.test.ts › percorre os estados | — | Implementado |
 | RF022 Cadastrar proposta municipal | /admin/propostas-municipais | `modules/proposals/municipal-proposals.service.ts` | integration/lifecycle.test.ts | — | Implementado |
-| RF023 Anexar documentos e materiais audiovisuais | /admin/consultas/[id]/anexos, /admin/propostas-municipais/[id], /api/anexos/[id] | `modules/attachments/attachments.service.ts; lib/files.ts` | integration/participation.test.ts › Anexos; unit/rules.test.ts › tipo real e EICAR | RS012 | Implementado |
+| RF023 Anexar documentos e materiais audiovisuais | /admin/consultas/[id]/anexos, /admin/propostas-municipais/[id], /api/anexos/[id] | `modules/attachments/attachments.service.ts; lib/files.ts` | integration/participation.test.ts › Anexos; unit/rules.test.ts › tipo real e EICAR; security/security.test.ts › Links externos e SSRF | RS012 | Implementado |
 | RF024 Editar proposta e consulta em elaboração | /admin/consultas/[id]/editar | `lifecycle.service.ts (updateConsultation); common.ts (saveVersion)` | integration/lifecycle.test.ts › edição simultânea | — | Implementado |
 | RF025 Cadastrar consulta pública | /admin/consultas/nova | `lifecycle.service.ts (createConsultation)` | integration/lifecycle.test.ts › período mínimo | — | Implementado |
 | RF026 Definir alternativas de resposta | /admin/consultas/[id]/alternativas | `lifecycle.service.ts (setAlternatives)` | integration/lifecycle.test.ts › alternativas | — | Implementado |
@@ -124,29 +124,29 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `REQUISITOS_
 | RF043 Homologar e publicar resultado final | /admin/consultas/[id]/resultado | `results.service.ts (publishFinalResult, publishRectification)` | integration/lifecycle.test.ts › resultado e retificação; e2e/admin.spec.ts | RS003 | Implementado |
 | RF044 Visualizar resultado da consulta | /consultas/[slug]/resultado, /resultados | `results.service.ts (publicResults)` | e2e/public.spec.ts › resultado publicado; consulta cancelada | — | Implementado |
 | RF045 Exportar resultados em formato aberto | /dados-abertos, /api/dados-abertos/[dataset] | `modules/results/open-data.service.ts` | integration/voting.test.ts › exportação; e2e/public.spec.ts | RS005 | Implementado |
-| RF046 Gerenciar usuários | /admin/usuarios, /admin/usuarios/convidar, /convite | `modules/admin/users.service.ts; auth.service.ts (acceptInvite)` | integration (contas administrativas por fixture) | — | Implementado |
-| RF047 Gerenciar papéis e permissões | /admin/papeis, /admin/usuarios/[id] | `users.service.ts (saveRole, deleteRole, setUserRoles)` | e2e/admin.spec.ts › menu por permissão | — | Implementado |
+| RF046 Gerenciar usuários | /admin/usuarios, /admin/usuarios/convidar, /convite | `modules/admin/users.service.ts; auth.service.ts (acceptInvite)` | integration/administration.test.ts › Gestão de usuários | — | Implementado |
+| RF047 Gerenciar papéis e permissões | /admin/papeis, /admin/usuarios/[id] | `users.service.ts (saveRole, deleteRole, setUserRoles)` | integration/administration.test.ts › Papéis e permissões; e2e/admin.spec.ts › menu por permissão | — | Implementado |
 | RF048 Monitorar consultas em andamento | /admin/monitoramento | `modules/admin/monitoring.service.ts (monitoringPanel)` | integration/voting.test.ts › painel sem alternativas; e2e/admin.spec.ts | RS008 | Implementado |
 | RF049 Gerar relatórios e estatísticas | /admin/relatorios, /api/admin/relatorio | `monitoring.service.ts (generateReport)` | integration/voting.test.ts › relatório sem alternativas | RS002 | Implementado |
 | RF050 Disponibilizar portal público de transparência | /transparencia, /indicadores, /como-funciona | `queries.service.ts (portalIndicators)` | e2e/public.spec.ts | — | Implementado |
 | RF051 Exibir histórico público da consulta | /consultas/[slug]/historico | `consultations/common.ts (recordPublicEvent) + gatilho somente acréscimo` | integration/lifecycle.test.ts › histórico | — | Implementado |
 | RF052 Gerenciar preferências de notificação | /conta/notificacoes, /avisos/descadastrar | `modules/notifications/notifications.service.ts` | integration/participation.test.ts › preferências | — | Implementado |
-| RF053 Notificar nova consulta e abertura | e-mail e /conta/avisos | `notifications/dispatch.ts (notifyPublished, notifyOpened); processOutbox` | integration (avisos gerados no ciclo) | — | Implementado |
+| RF053 Notificar nova consulta e abertura | e-mail e /conta/avisos | `notifications/dispatch.ts (notifyPublished, notifyOpened); processOutbox` | integration/administration.test.ts › Avisos de consulta | — | Implementado |
 | RF054 Notificar alterações, suspensão e cancelamento | e-mail e /conta/avisos | `dispatch.ts (notifyChange)` | integration/lifecycle.test.ts | — | Implementado |
-| RF055 Notificar lembrete, resultado e encaminhamentos | e-mail e /conta/avisos | `scheduler.service.ts (sendReminders); dispatch.ts (notifyVoters)` | integration/lifecycle.test.ts | — | Implementado |
+| RF055 Notificar lembrete, resultado e encaminhamentos | e-mail e /conta/avisos | `scheduler.service.ts (sendReminders); dispatch.ts (notifyVoters)` | integration/lifecycle.test.ts; integration/administration.test.ts › Avisos de consulta | — | Implementado |
 | RF056 Consultar acervo de consultas encerradas | /consultas/encerradas | `queries.service.ts (archive)` | e2e/public.spec.ts › consulta cancelada | — | Implementado |
 | RF057 Registrar trilha de auditoria | — | `modules/audit/audit.service.ts + gatilhos` | integration/database.test.ts | RS013 | Implementado |
 | RF058 Consultar trilha de auditoria | /admin/auditoria, /api/admin/auditoria | `audit.service.ts (searchAudit, verifyAuditChain)` | integration/database.test.ts › detecta adulteração; e2e/admin.spec.ts | RS013 | Implementado |
 | RF059 Verificar integridade da votação e da apuração | /admin/consultas/[id]/resultado | `results.service.ts (verifyIntegrity)` | integration/voting.test.ts › integridade | — | Implementado |
 | RF060 Tratar inconsistências e incidentes | /admin/incidentes | `modules/integrity/incidents.service.ts` | integration/voting.test.ts › incidente por divergência e alternativa inexistente | — | Implementado |
 | RF061 Definir responsáveis e papéis da consulta | /admin/consultas/[id]/responsaveis | `lifecycle.service.ts (setAssignments); access.service.ts (assertConsultationRole)` | integration/lifecycle.test.ts › combinação vedada | RS006 | Implementado |
-| RF062 Divulgar consulta | /admin/consultas/[id]/divulgacao | `modules/dissemination/dissemination.service.ts (QR Code)` | manual (tela) | — | Implementado |
+| RF062 Divulgar consulta | /admin/consultas/[id]/divulgacao | `modules/dissemination/dissemination.service.ts (QR Code)` | integration/administration.test.ts › Divulgação | — | Implementado |
 | RF063 Registrar e publicar encaminhamentos | /admin/consultas/[id]/encaminhamentos, /encaminhamentos | `modules/outcomes/outcomes.service.ts` | integration/lifecycle.test.ts › encaminhamentos | — | Implementado |
 | RF064 Publicar comentários e perguntas | /consultas/[slug] e /propostas/[protocolo] (seção Comentários) | `modules/moderation/moderation.service.ts (postComment, officialAnswer)` | integration/participation.test.ts › comentários | RS005, RS010, RS011 | Implementado — condicionado (*), desligado por padrão |
 | RF065 Denunciar conteúdo | /propostas/[protocolo], comentários | `moderation.service.ts (reportContent)` | integration/participation.test.ts › denúncias | — | Implementado |
 | RF066 Moderar conteúdo e revisar decisões | /admin/moderacao, /conta/avisos (pedido de revisão) | `moderation.service.ts (decideModeration, requestModerationReview)` | integration/participation.test.ts › moderação e revisão | RS003 | Implementado |
 | RF067 Apoiar proposta cidadã | /propostas/[protocolo] (Apoiar) | `citizen-proposals.service.ts (supportProposal)` | integration/participation.test.ts › Apoios | — | Implementado — condicionado (*), desligado por padrão |
-| RF068 Divulgar evento participativo e receber perguntas | /eventos/[id], /admin/eventos | `modules/events/events.service.ts` | manual (tela) | — | Implementado — condicionado (*), desligado por padrão |
+| RF068 Divulgar evento participativo e receber perguntas | /eventos/[id], /admin/eventos | `modules/events/events.service.ts` | integration/administration.test.ts › Eventos participativos | — | Implementado — condicionado (*), desligado por padrão |
 
 ## 3. Requisitos de segurança → controles implementados → testes
 

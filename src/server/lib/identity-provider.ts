@@ -35,7 +35,7 @@ export class OfficialGovBrProvider implements IdentityProvider {
   readonly name = "gov.br";
   readonly simulated = false;
   authorizationUrl(): string {
-    throw new Error("Integração oficial com o gov.br não configurada: requer credenciamento junto ao Login Único. Veja docs/DECISOES_TECNICAS.md (DT-09).");
+    throw new Error("Integração oficial com o gov.br não configurada: requer credenciamento junto ao Login Único. Veja docs/arquitetura/DECISOES_TECNICAS.md (DT-09).");
   }
 }
 

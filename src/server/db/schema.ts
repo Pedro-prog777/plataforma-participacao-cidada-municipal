@@ -1,5 +1,5 @@
 /**
- * Modelo de dados da PPCM (PostgreSQL). Documentado em docs/MODELO_DE_DADOS.md.
+ * Modelo de dados da PPCM (PostgreSQL). Documentado em docs/arquitetura/MODELO_DE_DADOS.md.
  *
  * INVARIANTE DE SIGILO (RN07, RS002, RNF07):
  *  - `participations` guarda QUEM participou (cidadão + consulta + DATA, sem hora) e o hash do comprovante.

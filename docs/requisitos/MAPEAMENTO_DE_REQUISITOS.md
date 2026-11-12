@@ -1,8 +1,8 @@
 # Mapeamento de requisitos — PPCM
 
-> Gerado a partir da transcrição do Documento de Requisitos v6 (`REQUISITOS_COMPLETOS.md`) e da tabela de implementação mantida pela equipe.
+> Gerado a partir da transcrição do Documento de Requisitos v6 (`docs/requisitos/REQUISITOS_COMPLETOS.md`) e da tabela de implementação mantida pela equipe.
 > **Critérios de aceitação** = fluxos alternativos e resultados descritos no próprio documento. **Situação** reflete o código desta versão.
-> Legenda: (*) item ainda a validar com o cliente — ver `PENDENCIAS_CLIENTE.md`.
+> Legenda: (*) item ainda a validar com o cliente — ver `docs/requisitos/PENDENCIAS_CLIENTE.md`.
 > Caminhos de código relativos a `src/server/`; serviços de domínio ficam em `src/server/modules/<módulo>/` e as telas em `src/app/`.
 
 ## Resumo
@@ -144,7 +144,7 @@
   - Verificação documental: Documentos (até 5 MB) ficam "Em análise" até aprovação ou recusa motivada.
   - CPF divergente: Recusa registrada na auditoria.
   - Resultado esperado: Conta verificada ou recusa motivada; documentos com acesso restrito.
-- **Casos de teste:** integration (fluxo coberto por fixtures); e2e/citizen.spec.ts › orientação de verificação
+- **Casos de teste:** integration/administration.test.ts › Verificação de identidade e domicílio; e2e/citizen.spec.ts › orientação de verificação
 - **Situação:** Implementado com simulação — Provedor gov.br SIMULADO (DT-09); análise documental real.
 
 ### RF005 — Realizar login
@@ -250,7 +250,7 @@
 - **Requisitos de segurança relacionados:** RS005
 - **Critérios de aceitação:**
   - Conforme o fluxo principal.
-- **Casos de teste:** e2e (navegação)
+- **Casos de teste:** integration/administration.test.ts › Visualização do perfil
 - **Situação:** Implementado
 
 ### RF013 — Atualizar dados do perfil
@@ -264,7 +264,7 @@
 - **Critérios de aceitação:**
   - Novo e-mail: Vale após confirmação; o anterior é avisado.
   - Novo endereço: Exige nova comprovação; votos registrados não são afetados.
-- **Casos de teste:** integration (auditoria de campos)
+- **Casos de teste:** integration/administration.test.ts › Atualização do perfil
 - **Situação:** Implementado — Nome civil/nascimento só por verificação documental.
 
 ### RF014 — Acompanhar participações e propostas
@@ -405,7 +405,7 @@
   - Consulta publicada: Só acréscimo justificado (RF032).
   - Arquivo inválido ou sem alternativa: Recusado e registrado.
   - Link indisponível: Alerta o responsável e mostra a alternativa textual.
-- **Casos de teste:** integration/participation.test.ts › Anexos; unit/rules.test.ts › tipo real e EICAR
+- **Casos de teste:** integration/participation.test.ts › Anexos; unit/rules.test.ts › tipo real e EICAR; security/security.test.ts › Links externos e SSRF
 - **Situação:** Implementado — Antivírus: ClamAV quando configurado; verificação embutida na demonstração (DT-11).
 - **Pendência com o cliente (*):** Quais formas de participação entram nesta versão.
 
@@ -724,7 +724,7 @@
 - **Critérios de aceitação:**
   - Bloqueio: Encerra sessões; atos anteriores permanecem válidos.
   - Remover o último gestor ou bloquear a si mesmo: Recusado.
-- **Casos de teste:** integration (contas administrativas por fixture)
+- **Casos de teste:** integration/administration.test.ts › Gestão de usuários
 - **Situação:** Implementado
 
 ### RF047 — Gerenciar papéis e permissões
@@ -737,7 +737,7 @@
 - **Requisitos de segurança relacionados:** —
 - **Critérios de aceitação:**
   - Exclusão de papel em uso: Recusada até a migração das contas.
-- **Casos de teste:** e2e/admin.spec.ts › menu por permissão
+- **Casos de teste:** integration/administration.test.ts › Papéis e permissões; e2e/admin.spec.ts › menu por permissão
 - **Situação:** Implementado
 
 ### RF048 — Monitorar consultas em andamento
@@ -816,7 +816,7 @@
 - **Requisitos de segurança relacionados:** —
 - **Critérios de aceitação:**
   - Falha de envio: Até 3 tentativas; o aviso permanece na central.
-- **Casos de teste:** integration (avisos gerados no ciclo)
+- **Casos de teste:** integration/administration.test.ts › Avisos de consulta
 - **Situação:** Implementado — SMTP real se SMTP_URL; senão caixa simulada.
 
 ### RF054 — Notificar alterações, suspensão e cancelamento
@@ -842,7 +842,7 @@
 - **Requisitos de segurança relacionados:** —
 - **Critérios de aceitação:**
   - Consulta suspensa no horário do lembrete: Adiado para após a retomada.
-- **Casos de teste:** integration/lifecycle.test.ts
+- **Casos de teste:** integration/lifecycle.test.ts; integration/administration.test.ts › Avisos de consulta
 - **Situação:** Implementado
 
 ### RF056 — Consultar acervo de consultas encerradas
@@ -936,7 +936,7 @@
 - **Critérios de aceitação:**
   - Proximidade do encerramento: Sugere nova divulgação a 3 dias do fim.
   - Texto livre divergente da pergunta: Exige revisão.
-- **Casos de teste:** manual (tela)
+- **Casos de teste:** integration/administration.test.ts › Divulgação
 - **Situação:** Implementado — Publicação externa manual, como prevê o documento.
 - **Pendência com o cliente (*):** Canais de divulgação da Prefeitura.
 
@@ -1025,6 +1025,6 @@
 - **Critérios de aceitação:**
   - Pergunta por telefone: Registrada com protocolo.
   - Transmissão indisponível: Aviso com data da gravação.
-- **Casos de teste:** manual (tela)
+- **Casos de teste:** integration/administration.test.ts › Eventos participativos
 - **Situação:** Implementado — condicionado (*), desligado por padrão — Chave recursos.eventos. Sem transmissão de vídeo.
 - **Pendência com o cliente (*):** Quais formas de participação entram nesta versão.

@@ -3,7 +3,7 @@
  *  - DATABASE_URL definido  → PostgreSQL real via node-postgres (produção, docker compose, CI).
  *  - DATABASE_URL vazio     → PGlite (PostgreSQL 17 compilado para WebAssembly) em PGLITE_DIR,
  *                             para desenvolvimento e demonstração sem instalar servidor.
- * Ver docs/DECISOES_TECNICAS.md (DT-03).
+ * Ver docs/arquitetura/DECISOES_TECNICAS.md (DT-03).
  */
 import fs from "node:fs";
 import path from "node:path";
