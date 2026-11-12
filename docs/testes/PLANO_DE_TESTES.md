@@ -21,7 +21,7 @@
 | Unitários + integração + segurança (8 arquivos) | **114 de 114 aprovados** |
 | E2E (3 arquivos, Chromium) | **32 de 32 aprovados** em execução única |
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
-| Capturas (`npm run screenshots`) | __CAPTURAS__ |
+| Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
 
 **Não executado localmente:** integração contra PostgreSQL servidor (o ambiente não tem Docker/PostgreSQL — fica a cargo do workflow de CI no GitHub Actions; o resultado da primeira execução deve ser conferido no repositório); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
 
