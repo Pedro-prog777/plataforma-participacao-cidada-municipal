@@ -56,20 +56,24 @@ export default async function AdminDashboard() {
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <Section title="Minhas tarefas" description="Consultas em que você está designado(a) e que aguardam sua ação.">
           <Table
-            head={["Consulta", "Situação", "Seu papel", ""]}
-            rows={myTasks.map(({ role, c }) => [
-              c!.title,
-              <StatusBadge key="s" status={c!.status} />,
-              CONSULTATION_ROLES[role].label,
-              <Link key="l" href={`/admin/consultas/${c!.id}`} className="font-semibold text-brand-700 hover:underline">
-                Abrir
-              </Link>,
-            ])}
+            head={["Consulta", "Situação", "Seus papéis", ""]}
+            rows={Array.from(new Set(myTasks.map((t) => t.c!.id))).map((cid) => {
+              const c = myTasks.find((t) => t.c!.id === cid)!.c!;
+              return [
+                c.title,
+                <StatusBadge key="s" status={c.status} />,
+                myTasks.filter((t) => t.c!.id === cid).map((t) => CONSULTATION_ROLES[t.role].label).join(", "),
+                <Link key="l" href={`/admin/consultas/${c.id}`} className="font-semibold text-brand-700 hover:underline">
+                  Abrir
+                </Link>,
+              ];
+            })}
             empty="Nenhuma tarefa pendente para você."
           />
         </Section>
         <Section title="Filas">
           <Card className="divide-y divide-line p-0">
+            {!["propostas_cidadas.analisar", "moderacao.moderar", "identidade.analisar", "incidentes.tratar"].some((p) => can(a, p as "moderacao.moderar")) && <p className="px-5 py-4 text-sm text-muted">Nenhuma fila de atendimento para os seus papéis.</p>}
             {[
               ["propostas_cidadas.analisar", "/admin/propostas", "Propostas cidadãs aguardando análise", propCount],
               ["moderacao.moderar", "/admin/moderacao", "Conteúdos denunciados", modCount],

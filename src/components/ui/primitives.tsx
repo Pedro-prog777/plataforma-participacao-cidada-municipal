@@ -10,7 +10,7 @@ export function cx(...c: (string | false | null | undefined)[]) {
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "civic";
 const variants: Record<Variant, string> = {
   primary: "btn-primary bg-brand-700 text-white hover:bg-brand-800 shadow-sm",
-  civic: "bg-civic-600 text-white hover:bg-civic-700 shadow-sm",
+  civic: "bg-civic-700 text-white hover:bg-[#873d04] shadow-sm",
   secondary: "bg-white text-brand-800 ring-1 ring-inset ring-brand-200 hover:bg-brand-50",
   ghost: "text-brand-700 hover:bg-brand-50",
   danger: "bg-bad-700 text-white hover:bg-red-800",
@@ -27,11 +27,24 @@ export function Button({ variant = "primary", icon, className, children, ...rest
 }
 
 export function LinkButton({ variant = "primary", icon, iconRight, className, children, ...rest }: ComponentProps<typeof Link> & { variant?: Variant; icon?: IconName; iconRight?: IconName }) {
-  return (
-    <Link className={cx(base, variants[variant], "no-underline", className)} {...rest}>
+  const content = (
+    <>
       {icon && <Icon name={icon} className="size-4" />}
       {children}
       {iconRight && <Icon name={iconRight} className="size-4" />}
+    </>
+  );
+  // Rotas de arquivo (/api/...) são downloads: âncora simples, sem o pré-carregamento do roteador.
+  if (typeof rest.href === "string" && rest.href.startsWith("/api/")) {
+    return (
+      <a href={rest.href} className={cx(base, variants[variant], "no-underline", className)}>
+        {content}
+      </a>
+    );
+  }
+  return (
+    <Link className={cx(base, variants[variant], "no-underline", className)} {...rest}>
+      {content}
     </Link>
   );
 }
@@ -47,7 +60,7 @@ const tones: Record<Tone, string> = {
 };
 
 export function Badge({ tone = "neutral", children, className }: { tone?: Tone; children: ReactNode; className?: string }) {
-  return <span className={cx("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset", tones[tone], className)}>{children}</span>;
+  return <span className={cx("inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset", tones[tone], className)}>{children}</span>;
 }
 
 export function Card({ children, className, as: As = "div", ...rest }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" | "aside" } & Record<string, unknown>) {

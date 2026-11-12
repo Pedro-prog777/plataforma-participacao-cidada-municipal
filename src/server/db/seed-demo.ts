@@ -131,7 +131,7 @@ export async function seedDemoData(db: Db) {
     const d = allDistricts[i % allDistricts.length].name;
     crowd.push(await mkCitizen(`${FIRST[i % FIRST.length]} ${LAST[(i * 7) % LAST.length]} (fictício)`, `participante${i + 1}@exemplo.com`, d, { verified: i % 9 !== 0 }));
   }
-  const voters = [named.maria, named.carla, ...crowd.filter((c) => c.verificationLevel === "verificado")];
+  const voters = [named.maria, ...crowd.filter((c) => c.verificationLevel === "verificado")];
 
   const allOk = Object.fromEntries(Object.keys(REVIEW_ITEMS).map((k) => [k, true]));
   const team = { revisor: [admins.revisor.id], aprovador: [admins.aprovadora.id], responsavel: [admins.responsavel.id], publicacao_resultados: [admins.responsavel.id], encaminhamentos: [admins.responsavel.id], divulgacao: [admins.responsavel.id], acompanhamento: [admins.responsavel.id] };

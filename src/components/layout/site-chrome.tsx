@@ -77,7 +77,7 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
               <span className="relative">
                 <Icon name={user.kind === "admin" ? "shield" : "user"} className="size-5" />
                 {user.unread > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center rounded-full bg-civic-600 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center rounded-full bg-civic-700 px-1 text-[10px] font-bold text-white">
                     {user.unread}
                     <span className="sr-only"> avisos não lidos</span>
                   </span>

@@ -12,7 +12,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Permite um diretório de build separado (ex.: testes E2E sem conflitar com o servidor de desenvolvimento).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
+  // No build dos testes E2E a verificação de tipos e o lint já rodaram antes (npm run check).
+  typescript: { ignoreBuildErrors: process.env.NEXT_DIST_DIR === ".next-e2e" },
+  eslint: { ignoreDuringBuilds: process.env.NEXT_DIST_DIR === ".next-e2e" },
   reactStrictMode: true,
   serverExternalPackages: ["@electric-sql/pglite", "@node-rs/argon2", "pg", "pdf-lib", "qrcode"],
   experimental: {
