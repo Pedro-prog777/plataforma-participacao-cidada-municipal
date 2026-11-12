@@ -8,7 +8,7 @@ async function shot(page: Page, name: string, path?: string) {
   await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => undefined);
   await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   const n = Number(name.slice(0, 2));
-  const area = n < 20 ? "publica" : n < 40 ? "cidadao" : n < 70 ? "administracao" : "celular";
+  const area = n < 20 ? "area-publica" : n < 40 ? "cidadao" : n < 70 ? "administrador" : "celular";
   await page.screenshot({ path: `${OUT}/${area}/${name}.png`, fullPage: true });
 }
 async function slug(page: Page, q: string) {
@@ -57,7 +57,9 @@ test("área do cidadão", async ({ page }) => {
   await shot(page, "25-avisos", "/conta/avisos");
   await shot(page, "26-preferencias", "/conta/notificacoes");
   await shot(page, "27-privacidade", "/conta/privacidade");
-  // Votação
+  // Votação: a Carla ainda não participou de nenhuma consulta nos dados fictícios.
+  await page.context().clearCookies();
+  await loginCitizen(page, "carla@exemplo.com");
   const ciclo = await slug(page, "ciclofaixa");
   await page.goto(`${ciclo}/participar`);
   await shot(page, "28-votacao-escolher");
@@ -65,7 +67,7 @@ test("área do cidadão", async ({ page }) => {
   await page.getByRole("button", { name: "Revisar minha escolha" }).click();
   await page.getByLabel("Código de confirmação").waitFor();
   await shot(page, "29-votacao-revisar");
-  await page.getByLabel("Código de confirmação").fill(await lastCode(page, "maria@exemplo.com"));
+  await page.getByLabel("Código de confirmação").fill(await lastCode(page, "carla@exemplo.com"));
   await page.getByRole("button", { name: "Confirmar meu voto" }).click();
   await page.getByRole("heading", { name: "Seu voto foi registrado" }).waitFor();
   await shot(page, "30-voto-registrado");
@@ -92,6 +94,7 @@ test("administração", async ({ page }) => {
   await shot(page, "49-consulta-visao-geral", arbor);
   await shot(page, "50-responsaveis", `${arbor}/responsaveis`);
 
+  await page.context().clearCookies();
   await loginAdmin(page, "elaboradora");
   await shot(page, "51-criar-consulta", "/admin/consultas/nova");
   const arbor2 = await adminId(page, "arborizacao");
@@ -99,6 +102,7 @@ test("administração", async ({ page }) => {
   await shot(page, "53-publico-alvo", `${arbor2}/publico-alvo`);
   await shot(page, "54-propostas-municipais", "/admin/propostas-municipais");
 
+  await page.context().clearCookies();
   await loginAdmin(page, "aprovadora");
   const acad = await adminId(page, "academia");
   await shot(page, "55-aprovacao", `${acad}/aprovacao`);
