@@ -106,3 +106,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Links (RF023):** só são aceitos endereços `https` com nome de domínio público; IP literal, `localhost`, sufixos internos e credenciais na URL são recusados. A rotina diária confere cada link com `HEAD`, tempo limite de 5 s e **sem seguir redirecionamentos**, para que o servidor não seja usado para alcançar a rede interna (SSRF). Link fora do ar avisa o responsável uma única vez e a página pública destaca a alternativa textual. Limite conhecido: não há resolução de DNS antes da requisição; um domínio público que aponte para endereço interno não é detectado.
 - **Cadastro (RS004):** no máximo 10 cadastros por hora por rede, contados em memória (DT-13).
 - **Redirecionamento pós-login:** o destino só é aceito se for caminho interno (`safeInternalPath`), o que evita redirecionamento aberto.
+
+## DT-20 — Quadro Trello montado por script
+- O acompanhamento no Trello não faz parte dos requisitos do sistema; é ferramenta de gestão do projeto. A organização do quadro fica versionada em `docs/trello/quadro.json` e é aplicada por `scripts/trello-sync.mjs` (`npm run trello:sync`), que cria listas, etiquetas, cartões, checklists, links para o GitHub e anexa as capturas de `screenshots/`.
+- O script só acrescenta (não apaga nem altera o que existe) e pode ser repetido. As credenciais vêm de variáveis de ambiente ou de `.env.trello`, ignorado pelo Git; a chave e o token nunca aparecem em mensagens de erro.
