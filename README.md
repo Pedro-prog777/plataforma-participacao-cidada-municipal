@@ -10,7 +10,7 @@ Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 | **Instituição** | CESMAC |
 | **Curso** | Engenharia de Software |
 | **Repositório** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> |
-| **Quadro Trello** | Ainda não criado — ver [Acompanhamento do Desenvolvimento](#acompanhamento-do-desenvolvimento) |
+| **Quadro Trello** | [Plataforma de Participação Cidadã Municipal (PPCM)](https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm) — acesso por convite |
 | **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) |
 
 > **Demonstração acadêmica.** O município, as pessoas e todos os dados são fictícios. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
@@ -126,9 +126,10 @@ plataforma-participacao-cidada-municipal/
 │       ├── auth/              Sessão e guardas de acesso
 │       ├── modules/           Regras de negócio por módulo
 │       ├── lib/               Criptografia, arquivos, parâmetros, relógio
-│       └── db/                Schema, conexão e dados iniciais
+│       └── db/                Schema, conexão e migração
 ├── database/
 │   ├── migrations/            SQL das tabelas e dos gatilhos de imutabilidade
+│   ├── seeds/                 Dados de referência e dados fictícios de demonstração
 │   └── diagrams/              Diagrama entidade-relacionamento
 ├── tests/
 │   ├── unit/                  Regras isoladas
@@ -222,7 +223,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Item | Situação |
 |---|---|
 | **GitHub** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> — código, documentação, testes e capturas; histórico de commits por etapa |
-| **Trello** | **Quadro ainda não criado.** A ferramenta usada no desenvolvimento não tinha acesso ao Trello, então nenhum link é informado aqui. O plano do quadro e os 29 cartões prontos para importação estão em [docs/trello/](docs/trello/). Quando o quadro for criado, o link deve ser colocado nesta linha e em `docs/trello/PLANO_TRELLO.md`. |
+| **Trello** | <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> — quadro criado pela equipe; o link é de convite e pede login no Trello. O plano do quadro e os 29 cartões preparados para importação estão em [docs/trello/](docs/trello/). |
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 
@@ -240,7 +241,6 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 - Medição de desempenho e disponibilidade (RNF09, RNF10) e teste em outros navegadores e com leitores de tela (RNF01, RNF11).
 - Execução com Docker e restauração de backup (preparados, não exercitados).
 - Teste de intrusão independente e relatório de impacto à proteção de dados (RNF06). **O sistema não deve ser usado em produção sem essas etapas.**
-- Criação do quadro Trello.
 
 ## Documentação
 

@@ -1,8 +1,8 @@
 # Plano do quadro Trello — PPCM
 
-> **Situação real (12/11/2026):** não há integração com o Trello no ambiente de desenvolvimento e não foi possível localizar nem criar um quadro. **Nenhum quadro foi criado e não existe link a informar.** Este plano e o arquivo `docs/trello/TRELLO_IMPORT.csv` deixam tudo pronto para a montagem manual.
+> **Link do quadro:** <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm>
 >
-> **Link do quadro:** _a preencher pela equipe depois de criar o quadro_ (colocar também no `README.md`, seção “Acompanhamento do Desenvolvimento”).
+> O quadro foi criado pela equipe; o link é de convite e pede login no Trello. A ferramenta usada no desenvolvimento não tem acesso ao Trello, portanto **os cartões e as capturas não foram lançados automaticamente**: este plano e o arquivo `docs/trello/TRELLO_IMPORT.csv` servem para a equipe montá-los.
 >
 > **Repositório:** <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>
 
@@ -12,7 +12,7 @@
 1. Planejamento · 2. Análise de requisitos · 3. Protótipos · 4. Backlog · 5. Em desenvolvimento · 6. Revisão de código · 7. Segurança · 8. Testes · 9. Concluído · 10. Pendências de validação
 
 ## Como montar
-1. Crie o quadro e as 10 listas.
+1. No quadro, crie as 10 listas.
 2. Importe `docs/trello/TRELLO_IMPORT.csv` (separador `;`, UTF-8) com um Power-Up de importação de CSV (ex.: “Import to Trello”), mapeando: `Lista` → lista, `Cartão` → título, `Descrição` → descrição, `Etiquetas` → etiqueta, `Checklist` → itens separados por ` | `. Sem Power-Up, crie os 29 cartões copiando do CSV.
 3. Anexe as capturas reais de `screenshots/` aos cartões de protótipo:
    - **Protótipos — Área pública:** `screenshots/area-publica/*.png`
