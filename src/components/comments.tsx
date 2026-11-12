@@ -40,7 +40,7 @@ export async function CommentsSection({ targetType, targetId, back, canPost }: {
             {answers
               .filter((a) => a.c.parentId === c.id)
               .map((a) => (
-                <div key={a.c.id} className="mt-3 rounded-lg border-l-4 border-brand-600 bg-brand-50 p-3 text-sm">
+                <div key={a.c.id} className="mt-3 rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm">
                   <Badge tone="primary">Resposta oficial</Badge>
                   <p className="prose-civic mt-1">{a.c.body}</p>
                 </div>

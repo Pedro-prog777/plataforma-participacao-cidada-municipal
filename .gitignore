@@ -41,3 +41,4 @@ npm-debug.log*
 # ferramentas locais
 .playwright-mcp/
 .data-dev.log
+.next-e2e/
