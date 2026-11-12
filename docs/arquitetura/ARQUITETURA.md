@@ -111,4 +111,4 @@ A cada minuto (`src/instrumentation-node.ts`): abre consultas agendadas no horá
 
 - `Dockerfile` (build standalone) e `docker-compose.yml` (PostgreSQL 16 + aplicação). Variáveis em `.env.example`.
 - Produção: definir `DATABASE_URL`, `CPF_HMAC_KEY`, `DATA_ENCRYPTION_KEY`, `APP_SIGNING_KEY`, `APP_URL` com https, `DEMO_MODE=false`, `SMTP_URL` e, se possível, `CLAMAV_HOST`.
-- Backups: `pg_dump` diário com teste periódico de restauração (RNF14) — ver `MODELO_DE_DADOS.md`.
+- Backups: `pg_dump` diário com teste periódico de restauração (RNF14) — ver `docs/arquitetura/MODELO_DE_DADOS.md`.

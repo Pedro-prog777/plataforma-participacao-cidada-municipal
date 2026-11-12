@@ -1,6 +1,10 @@
 # Plano do quadro Trello — PPCM
 
-> **Situação real:** não há integração (MCP) com o Trello neste ambiente. **Nenhum quadro foi criado.** Este plano e o arquivo `TRELLO_IMPORT.csv` deixam tudo pronto para montagem manual.
+> **Situação real (12/11/2026):** não há integração com o Trello no ambiente de desenvolvimento e não foi possível localizar nem criar um quadro. **Nenhum quadro foi criado e não existe link a informar.** Este plano e o arquivo `docs/trello/TRELLO_IMPORT.csv` deixam tudo pronto para a montagem manual.
+>
+> **Link do quadro:** _a preencher pela equipe depois de criar o quadro_ (colocar também no `README.md`, seção “Acompanhamento do Desenvolvimento”).
+>
+> **Repositório:** <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>
 
 **Nome do quadro:** PPCM — Desenvolvimento da Plataforma de Participação Cidadã Municipal
 
@@ -9,13 +13,14 @@
 
 ## Como montar
 1. Crie o quadro e as 10 listas.
-2. Importe `docs/TRELLO_IMPORT.csv` (separador `;`, UTF-8) com um Power-Up de importação de CSV (ex.: “Import to Trello”), mapeando: `Lista` → lista, `Cartão` → título, `Descrição` → descrição, `Etiquetas` → etiqueta, `Checklist` → itens separados por ` | `. Sem Power-Up, crie os 29 cartões copiando do CSV.
+2. Importe `docs/trello/TRELLO_IMPORT.csv` (separador `;`, UTF-8) com um Power-Up de importação de CSV (ex.: “Import to Trello”), mapeando: `Lista` → lista, `Cartão` → título, `Descrição` → descrição, `Etiquetas` → etiqueta, `Checklist` → itens separados por ` | `. Sem Power-Up, crie os 29 cartões copiando do CSV.
 3. Anexe as capturas reais de `screenshots/` aos cartões de protótipo:
-   - **Protótipos — Área pública:** `screenshots/publica/*.png`
+   - **Protótipos — Área pública:** `screenshots/area-publica/*.png`
    - **Protótipos — Área do cidadão:** `screenshots/cidadao/*.png`
-   - **Protótipos — Administração:** `screenshots/administracao/*.png`
+   - **Protótipos — Administração:** `screenshots/administrador/*.png`
    - celular: `screenshots/celular/*.png`
-4. Após publicar no GitHub, acrescente os links de commits e arquivos nos cartões.
+4. Acrescente nos cartões os links de commits e arquivos do repositório no GitHub.
+5. Deixe o quadro **público** (ou convide o professor) e copie o link para o `README.md`.
 
 ## Cartões preparados (29)
 
@@ -26,10 +31,10 @@
 | Concluído | Módulos 1 a 11 (cada um com requisitos e checklist) |
 | Segurança | Revisão OWASP Top 10 |
 | Testes | Unitários e integração; E2E e acessibilidade |
-| Revisão de código | Publicação no GitHub (aguarda autorização) |
+| Concluído | Publicação no GitHub (repositório público) |
 | Pendências de validação | 9 cartões, um por decisão do cliente (*) |
 
 ## Ajustes recomendados ao importar (para refletir o estado real)
 - Mover para **Backlog**: medição de desempenho/disponibilidade (RNF09, RNF10), inspeção com leitores de tela (RNF01/RNF11), consentimento parental (RS010), integração oficial gov.br, provedor de SMS, RIPD (RNF06).
-- Os módulos em “Concluído” estão implementados e testados conforme `STATUS_DO_DESENVOLVIMENTO.md`; os recursos condicionados (RF064, RF067, RF068) ficam desligados até a validação.
+- Os módulos em “Concluído” estão implementados e testados conforme `docs/STATUS_DO_DESENVOLVIMENTO.md`; os recursos condicionados (RF064, RF067, RF068) ficam desligados até a validação.
 - Responsáveis: João Pedro e Flávia Marina (atribuir conforme a divisão da equipe).

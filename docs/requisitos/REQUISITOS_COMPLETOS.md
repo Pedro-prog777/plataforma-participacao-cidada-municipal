@@ -1,8 +1,8 @@
 # Requisitos completos — PPCM
 
 > Transcrição integral do **Documento de Requisitos v6** da Plataforma de Participação Cidadã Municipal (PPCM) — CESMAC, Engenharia de Software — João Pedro e Flávia Marina.
-> Original preservado em [`docs/Documento_de_Requisitos_v6.pdf`](Documento_de_Requisitos_v6.pdf). Os RF001–RF068 foram extraídos do PDF por script (sem reescrita); as tabelas das seções 4–8 foram transcritas e conferidas (totais de pontos de função batem: 120/15/64/150/35 = 384).
-> Itens marcados com **(\*)** ainda precisam ser aprovados pelo cliente — ver [`PENDENCIAS_CLIENTE.md`](PENDENCIAS_CLIENTE.md).
+> Original preservado em [`docs/requisitos/Documento_de_Requisitos_v6.pdf`](Documento_de_Requisitos_v6.pdf). Os RF001–RF068 foram extraídos do PDF por script (sem reescrita); as tabelas das seções 4–8 foram transcritas e conferidas (totais de pontos de função batem: 120/15/64/150/35 = 384).
+> Itens marcados com **(\*)** ainda precisam ser aprovados pelo cliente — ver [`docs/requisitos/PENDENCIAS_CLIENTE.md`](PENDENCIAS_CLIENTE.md).
 
 ## 1. Introdução
 
