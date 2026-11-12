@@ -15,6 +15,7 @@ import { notifyOpened, notifyReminder, notifyVoters } from "../notifications/dis
 import { recordPublicEvent } from "../consultations/common";
 import { estimateEligible } from "../consultations/lifecycle.service";
 import { tallyConsultation, verifyIntegrity } from "../results/results.service";
+import { checkExternalLinks } from "../attachments/attachments.service";
 
 export async function openDueConsultations(db: DbOrTx = getDb()) {
   const now = clock.now();
@@ -131,6 +132,7 @@ export async function purgeExpiredExports(db: DbOrTx = getDb()) {
   await db.delete(dataExports).where(lt(dataExports.expiresAt, clock.now()));
 }
 
+let lastLinkCheck = Date.now();
 let running = false;
 export async function runSchedulerTick(db: DbOrTx = getDb()) {
   if (running) return { skipped: true };
@@ -145,6 +147,11 @@ export async function runSchedulerTick(db: DbOrTx = getDb()) {
     await purgeExpiredExports(db);
     const [{ n }] = (await db.execute(sql`select count(*)::int as n from consultations where status = 'aberta'`)).rows as { n: number }[];
     if (n > 0) summary.shuffled = await shuffleVotes(db);
+    // Links externos: uma vez por dia (RF023).
+    if (Date.now() - lastLinkCheck > 24 * HOUR) {
+      lastLinkCheck = Date.now();
+      summary.linksChanged = await checkExternalLinks(db).catch(() => 0);
+    }
     summary.outbox = await processOutbox(db);
     summary.db = getDbKind();
   } catch (e) {

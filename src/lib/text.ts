@@ -38,3 +38,31 @@ export function truncate(value: string, max: number): string {
 export function pluralize(n: number, one: string, many: string): string {
   return `${n.toLocaleString("pt-BR")} ${n === 1 ? one : many}`;
 }
+
+/**
+ * Aceita apenas URL https com nome de domínio público. Recusa IP literal, localhost e
+ * sufixos internos — o servidor verifica periodicamente os links (RF023) e não pode ser
+ * usado para alcançar endereços internos (SSRF).
+ */
+export function isPublicHttpsUrl(value: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(value);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== "https:" || u.username || u.password) return false;
+  const host = u.hostname.toLowerCase();
+  if (!host.includes(".") || host.endsWith(".")) return false;
+  if (/^[\d.]+$/.test(host) || host.includes(":") || host.startsWith("[")) return false; // IPv4/IPv6 literal
+  if (/(^|\.)(localhost|local|internal|intranet|lan|home|corp|test|invalid|example)$/.test(host)) return false;
+  return true;
+}
+
+/** Destino de redirecionamento interno seguro (evita redirecionamento aberto). */
+export function safeInternalPath(next: string | null | undefined, fallback: string): string {
+  const n = String(next ?? "");
+  const hasControl = Array.from(n).some((ch) => ch.charCodeAt(0) < 32);
+  const ok = n.startsWith("/") && !n.startsWith("//") && !n.includes("\\") && !hasControl;
+  return ok ? n : fallback;
+}
