@@ -4,7 +4,7 @@
 >
 > **Repositório:** <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>
 
-**Situação em 13/11/2026:** o quadro foi criado pela equipe e está público, com as três listas padrão do Trello e ainda sem cartões. A organização abaixo está pronta em `docs/trello/quadro.json` e é aplicada pelo comando `npm run trello:sync`, que precisa de uma chave e de um token do Trello da própria equipe. **Enquanto o comando não for executado com essas credenciais, os cartões ainda não estão no quadro.**
+**Situação em 13/11/2026:** o quadro está montado. O comando `npm run trello:sync` foi executado com a chave e o token da equipe e criou 10 listas, 41 cartões, 41 checklists, 68 links para o GitHub e anexou as 57 capturas de tela. O resultado foi conferido pelo acesso público, sem login. A organização fica versionada em `docs/trello/quadro.json`; para acrescentar cartões, edite a definição e execute o comando de novo (ele não duplica o que já existe).
 
 ## Como o quadro fica organizado
 
@@ -23,9 +23,9 @@
 
 São 41 cartões. Cada um tem descrição, etiqueta, checklist (marcada só no que está realmente feito) e links para os arquivos correspondentes no GitHub. As listas "A fazer", "Em andamento" e "Concluído", que já existem no quadro, são aproveitadas. Não houve protótipo separado em ferramenta de design: os cartões de protótipo trazem as telas reais do sistema.
 
-## Passo a passo para montar o quadro
+## Passo a passo para montar ou atualizar o quadro
 
-Tempo estimado: 10 minutos. Tudo é feito uma única vez.
+Já foi feito uma vez em 13/11/2026. Repita a partir da Etapa 3 (novo token) quando quiser aplicar mudanças do `quadro.json`.
 
 ### Etapa 1 — Criar a chave de API (no site do Trello)
 
