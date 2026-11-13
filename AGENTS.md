@@ -46,7 +46,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Documentos:** arquitetura (`docs/arquitetura/ARQUITETURA.md`), decisões e interpretações (`docs/arquitetura/DECISOES_TECNICAS.md`), dados (`docs/arquitetura/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
 
 ## Estado atual (resumo)
-Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> (link de convite; plano e cartões em `docs/trello/`). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
+Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: <https://trello.com/b/AQX3bDST> (quadro público; plano, cartões e passo a passo em `docs/trello/`). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
 
 ---
 

@@ -10,7 +10,7 @@ Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 | **Instituição** | CESMAC |
 | **Curso** | Engenharia de Software |
 | **Repositório** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> |
-| **Quadro Trello** | [Plataforma de Participação Cidadã Municipal (PPCM)](https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm) — acesso por convite |
+| **Quadro Trello** | <https://trello.com/b/AQX3bDST> (público) |
 | **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) |
 
 > **Demonstração acadêmica.** O município, as pessoas e todos os dados são fictícios. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
@@ -81,7 +81,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
 
 **Área do cidadão**
-- Cadastro com validação de CPF, confirmação de e-mail, recuperação e troca de senha.
+- Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
 - Verificação de identidade (provedor simulado ou análise de documentos).
 - Votação em 3 passos com código de confirmação e comprovante.
 - Envio e acompanhamento de propostas, central de avisos e preferências de notificação.
@@ -187,16 +187,16 @@ npm run test:e2e     # testes no navegador, em build de produção, com acessibi
 npm run screenshots  # regenera as capturas das telas
 ```
 
-Última execução (12/11/2026, Windows 11, Node 24):
+Última execução (13/11/2026, Windows 11, Node 24):
 
 | Verificação | Resultado |
 |---|---|
 | Tipos (TypeScript) | sem erros |
 | Lint (ESLint) | sem erros |
-| Unitários, integração e segurança (Vitest, 8 arquivos) | **114 de 114 aprovados** |
-| Ponta a ponta com acessibilidade (Playwright, Chromium) | **32 de 32 aprovados** |
+| Unitários, integração e segurança (Vitest, 9 arquivos) | **122 de 122 aprovados** |
+| Ponta a ponta com acessibilidade (Playwright, Chromium) | **33 de 33 aprovados** |
 | Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades |
-| Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada**: 114 de 114 e 32 de 32 — [execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027) |
+| Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada** a cada envio — [execuções](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions) |
 
 Cenários, cobertura por requisito e o que **não** foi testado (carga, leitores de tela, outros navegadores, teste de intrusão) estão em [PLANO_DE_TESTES.md](docs/testes/PLANO_DE_TESTES.md).
 
@@ -223,7 +223,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Item | Situação |
 |---|---|
 | **GitHub** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> — código, documentação, testes e capturas; histórico de commits por etapa |
-| **Trello** | <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> — quadro criado pela equipe; o link é de convite e pede login no Trello. A organização do quadro (10 listas, 41 cartões com documentação, requisitos, telas, segurança, testes e pendências) está em [docs/trello/](docs/trello/) e é aplicada com `npm run trello:sync`, usando uma chave do Trello da equipe. |
+| **Trello** | <https://trello.com/b/AQX3bDST> — quadro público criado pela equipe. A organização (10 listas, 41 cartões com documentação, requisitos, telas, segurança, testes e pendências, mais as capturas) está em [docs/trello/](docs/trello/) e é aplicada com `npm run trello:sync`, usando uma chave do Trello da equipe; o passo a passo está em [PLANO_TRELLO.md](docs/trello/PLANO_TRELLO.md). |
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 

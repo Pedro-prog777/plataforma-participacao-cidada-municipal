@@ -1,11 +1,11 @@
 {
-  "quadro": "6af5eab7a85ea3fed1422ceb",
+  "quadro": "6af5f6d9e95f0feca41584e1",
   "listas": [
     "Planejamento e documentação",
     "Análise de requisitos",
     "Protótipos (telas)",
-    "Backlog",
-    "Em desenvolvimento",
+    "A fazer",
+    "Em andamento",
     "Revisão de código",
     "Segurança",
     "Testes",
@@ -547,7 +547,7 @@
       "pastaDeImagens": "screenshots/celular"
     },
     {
-      "lista": "Backlog",
+      "lista": "A fazer",
       "nome": "Integração oficial gov.br e provedor de SMS",
       "descricao": "Hoje simulados e identificados como demonstração. Dependem de credenciamento junto ao governo e da escolha de um provedor de SMS.",
       "etiquetas": [
@@ -576,7 +576,7 @@
       "pastaDeImagens": null
     },
     {
-      "lista": "Backlog",
+      "lista": "A fazer",
       "nome": "Medição de desempenho e disponibilidade (RNF09, RNF10)",
       "descricao": "Metas do documento ainda não medidas sob carga.",
       "etiquetas": [
@@ -605,7 +605,7 @@
       "pastaDeImagens": null
     },
     {
-      "lista": "Backlog",
+      "lista": "A fazer",
       "nome": "Leitores de tela e outros navegadores (RNF01, RNF11)",
       "descricao": "A acessibilidade foi verificada com axe-core no Chromium. Falta inspeção manual com NVDA e TalkBack e teste em Firefox, Safari e Edge.",
       "etiquetas": [
@@ -634,7 +634,7 @@
       "pastaDeImagens": null
     },
     {
-      "lista": "Backlog",
+      "lista": "A fazer",
       "nome": "Docker, backup e restauração (RNF14)",
       "descricao": "Arquivos de Docker prontos, mas não executados; estratégia de backup documentada, não exercitada.",
       "etiquetas": [
@@ -663,7 +663,7 @@
       "pastaDeImagens": null
     },
     {
-      "lista": "Backlog",
+      "lista": "A fazer",
       "nome": "Teste de intrusão e relatório de impacto (RNF06)",
       "descricao": "Antes de qualquer uso real: teste de intrusão independente e relatório de impacto à proteção de dados (LGPD).",
       "etiquetas": [
@@ -788,7 +788,7 @@
     {
       "lista": "Testes",
       "nome": "Testes unitários, de integração e de segurança",
-      "descricao": "Vitest: 114 de 114 aprovados (8 arquivos), em banco PostgreSQL. Comando: npm run check.",
+      "descricao": "Vitest: 122 de 122 aprovados (9 arquivos), em banco PostgreSQL. Comando: npm run check.",
       "etiquetas": [
         "Testes"
       ],
@@ -806,7 +806,7 @@
           "feito": true
         },
         {
-          "nome": "114 de 114 aprovados",
+          "nome": "122 de 122 aprovados",
           "feito": true
         }
       ],
@@ -825,7 +825,7 @@
     {
       "lista": "Testes",
       "nome": "Testes no navegador e acessibilidade",
-      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 32 de 32 aprovados. Comando: npm run test:e2e.",
+      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 33 de 33 aprovados. Comando: npm run test:e2e.",
       "etiquetas": [
         "Testes"
       ],
@@ -847,7 +847,7 @@
           "feito": true
         },
         {
-          "nome": "32 de 32 aprovados",
+          "nome": "33 de 33 aprovados",
           "feito": true
         }
       ],

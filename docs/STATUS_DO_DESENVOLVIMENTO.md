@@ -1,13 +1,13 @@
 # Status do desenvolvimento — PPCM
 
-Atualizado em 12/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
+Atualizado em 13/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
 
 ## Resumo
 
 - **Requisitos funcionais:** 68 implementados e cobertos por teste automatizado (68 no total); RF004, RF005 e RF011 com provedor de identidade/SMS simulados. RF064, RF067 e RF068 existem, mas ficam desligados até a validação do cliente.
-- **Testes:** 114/114 unitários, de integração e de segurança; 32/32 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
+- **Testes:** 122/122 unitários, de integração e de segurança; 33/33 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
-- **Trello:** quadro criado pela equipe — <https://trello.com/invite/b/6af5eab7a85ea3fed1422ceb/ATTI524f049c496b020899b71b8eee407bf74ACB1531/plataforma-de-participacao-cidada-municipal-ppcm> (link de convite). A organização do quadro está em `docs/trello/quadro.json` (10 listas, 41 cartões, 57 capturas) e é aplicada por `npm run trello:sync`, que exige chave e token do Trello da equipe; sem essas credenciais os cartões ainda não foram lançados.
+- **Trello:** quadro público criado pela equipe — <https://trello.com/b/AQX3bDST>. Em 13/11/2026 tinha só as listas padrão, sem cartões. A organização está em `docs/trello/quadro.json` (10 listas, 41 cartões, 57 capturas) e é aplicada por `npm run trello:sync`, que exige chave e token do Trello da equipe (passo a passo em `docs/trello/PLANO_TRELLO.md`).
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
 ## O que funciona (verificado)
@@ -133,6 +133,9 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Vulnerabilidades em nodemailer 7 e postcss embutido → atualização e `overrides`.
 - Roteiro de capturas falhava em dois blocos (cidadã que já tinha votado; sessão administrativa não encerrada entre logins) e o botão de download disparava pré-carregamento de rotas `/api` → roteiro e componente corrigidos.
 - Primeira execução do CI falhou no `npm ci`: `package-lock.json` fora de sincronia para o npm 10 (faltava `esbuild` 0.28 exigido pelo `vite`) → lock regenerado; segunda execução aprovada.
+- Campo de seleção (bairro) voltava vazio quando o servidor devolvia o formulário com erro → o campo é recriado com o valor enviado. Achado pelo teste novo do cadastro.
+- Colar um valor com caracteres a mais em campo com máscara perdia dígitos por causa do limite de tamanho → a máscara passou a limitar os dígitos.
+- Topo do site ocupava cerca de 240 px no celular e cortava o nome do portal → barra de acessibilidade e faixa de demonstração em uma linha cada (122 px).
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada
