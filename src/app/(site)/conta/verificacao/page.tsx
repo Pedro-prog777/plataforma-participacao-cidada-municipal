@@ -70,7 +70,7 @@ export default async function VerificacaoPage() {
                 <summary className="cursor-pointer font-semibold text-brand-700">Pedir correção de nome civil ou data de nascimento</summary>
                 <div className="mt-3 space-y-3">
                   <Field label="Nome civil correto" name="fullName" />
-                  <Field label="Data de nascimento correta" name="birthDate" placeholder="DD/MM/AAAA" />
+                  <Field label="Data de nascimento correta" name="birthDate" mask="data" inputMode="numeric" placeholder="DD/MM/AAAA" />
                 </div>
               </details>
               <SubmitButton>Enviar para análise</SubmitButton>

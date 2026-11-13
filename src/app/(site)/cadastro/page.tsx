@@ -20,26 +20,29 @@ export default async function CadastroPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_18rem]">
         <Card>
           <ActionForm action={registerAction}>
+            <p className="text-sm text-muted">
+              Leva poucos minutos. Os campos com <span className="font-semibold text-bad-700">*</span> são obrigatórios; a pontuação do CPF, da data, do celular e do CEP entra sozinha.
+            </p>
             <fieldset className="space-y-4">
               <legend className="mb-2 text-lg font-bold text-brand-900">Identificação</legend>
               <Field label="Nome completo" name="fullName" required autoComplete="name" maxLength={150} />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="CPF" name="cpf" required inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" maxLength={14} hint="Usado só para garantir uma conta por pessoa e verificar sua identidade. Nunca é exibido." />
-                <Field label="Data de nascimento" name="birthDate" required placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" maxLength={10} hint="Usada apenas em consultas com critério de idade justificado." />
+                <Field label="CPF" name="cpf" required mask="cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" hint="Usado só para garantir uma conta por pessoa e verificar sua identidade. Nunca é exibido." />
+                <Field label="Data de nascimento" name="birthDate" required mask="data" placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" hint="Usada apenas em consultas com critério de idade justificado." />
               </div>
             </fieldset>
             <fieldset className="space-y-4">
               <legend className="mb-2 text-lg font-bold text-brand-900">Contato</legend>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="E-mail" name="email" type="email" required autoComplete="email" />
-                <Field label="Celular" name="phone" inputMode="tel" autoComplete="tel" placeholder="(00) 00000-0000" />
+                <Field label="Celular" name="phone" mask="celular" inputMode="tel" autoComplete="tel-national" placeholder="(00) 00000-0000" />
               </div>
             </fieldset>
             <fieldset className="space-y-4">
               <legend className="mb-2 text-lg font-bold text-brand-900">Endereço no município</legend>
               <p className="-mt-2 text-sm text-muted">Usado para consultas restritas a bairros ou regiões.</p>
               <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
-                <Field label="CEP" name="cep" required inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" maxLength={9} />
+                <Field label="CEP" name="cep" required mask="cep" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" />
                 <Field label="Logradouro" name="street" required autoComplete="address-line1" />
               </div>
               <div className="grid gap-4 sm:grid-cols-[8rem_1fr_1fr]">
@@ -53,7 +56,10 @@ export default async function CadastroPage() {
                   options={[...ref.districts.map((d) => ({ value: d.id, label: `${d.name} (${regionName(d.regionId)})` })), { value: "fora", label: `Moro fora de ${env.municipio.replace(/^Município de /, "")}` }]}
                 />
               </div>
-              <Field label="Se mora fora, informe o município/UF" name="externalCity" hint="Preencha apenas se escolheu “moro fora”. O cadastro é aceito; a elegibilidade é verificada em cada consulta." />
+              {/* Só aparece quando a pessoa escolhe “Moro fora” no bairro (regra em globals.css, sem JavaScript). */}
+              <div className="so-quem-mora-fora">
+                <Field label="Município e UF onde você mora" name="externalCity" required hint="O cadastro é aceito; a elegibilidade é verificada em cada consulta." />
+              </div>
             </fieldset>
             <fieldset className="space-y-4">
               <legend className="mb-2 text-lg font-bold text-brand-900">Senha</legend>

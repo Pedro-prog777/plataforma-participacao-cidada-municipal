@@ -12,14 +12,14 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (12/11/2026, ambiente local Windows 11, Node 24)
+## Última execução registrada (13/11/2026, ambiente local Windows 11, Node 24)
 
 | Suíte | Resultado |
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração + segurança (8 arquivos) | **114 de 114 aprovados** |
-| E2E (3 arquivos, Chromium) | **32 de 32 aprovados** em execução única |
+| Unitários + integração + segurança (9 arquivos) | **122 de 122 aprovados** |
+| E2E (3 arquivos, Chromium) | **33 de 33 aprovados** em execução única |
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
 | Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
 
@@ -32,6 +32,7 @@
 | Arquivo | O que cobre |
 |---|---|
 | `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
+| `tests/unit/masks.test.ts` | Pontuação automática de CPF, data, celular e CEP (digitação, colagem e posição do cursor) |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
 | `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
 | `tests/integration/lifecycle.test.ts` | Ciclo da consulta, separação de funções, prazos, rotina automática |

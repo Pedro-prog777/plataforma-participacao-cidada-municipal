@@ -31,9 +31,9 @@ export function ContrastToggle() {
           /* ignora */
         }
       }}
-      className="rounded px-1.5 py-0.5 hover:underline"
+      className="rounded px-1.5 py-1 hover:underline"
     >
-      Alto contraste [5]
+      Alto contraste<span className="hidden lg:inline"> [5]</span>
     </button>
   );
 }

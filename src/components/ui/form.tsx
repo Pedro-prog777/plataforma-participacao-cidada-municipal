@@ -6,6 +6,7 @@
 import { createContext, useActionState, useContext, useId, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { Alert, Button, cx } from "./primitives";
+import { caretAfterDigits, maskValue, type MaskKind } from "@/lib/masks";
 
 export type FormState = { ok?: boolean; message?: string; fieldErrors?: Record<string, string[]>; data?: Record<string, unknown>; values?: Record<string, string> };
 type Action = (state: FormState, fd: FormData) => Promise<FormState>;
@@ -89,15 +90,16 @@ export function FieldShell({ label, hint, required, children, name, className, f
           <span className="font-normal text-muted"> (opcional)</span>
         )}
       </label>
-      {hint && (
-        <p id={hintId} className="text-xs text-muted">
-          {hint}
-        </p>
-      )}
       {children({ id: inputId, describedBy, invalid: errors.length > 0, value })}
       {errors.length > 0 && (
         <p id={errId} className="flex items-start gap-1 text-sm font-medium text-bad-700">
           {errors.join(" ")}
+        </p>
+      )}
+      {/* A dica fica abaixo do campo: campos lado a lado permanecem alinhados mesmo com dicas de tamanhos diferentes. */}
+      {hint && (
+        <p id={hintId} className="text-xs text-muted">
+          {hint}
         </p>
       )}
     </div>
@@ -107,7 +109,17 @@ export function FieldShell({ label, hint, required, children, name, className, f
 const inputCls = (invalid: boolean) =>
   cx("block w-full rounded-lg border bg-white px-3 py-2.5 text-base text-ink shadow-sm placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-200", invalid ? "border-bad-700" : "border-slate-300");
 
-export function Field({ label, hint, name, required, className, id: forcedId, ...input }: { label: ReactNode; hint?: ReactNode; name: string; required?: boolean; className?: string } & Omit<ComponentProps<"input">, "name">) {
+export function Field({
+  label,
+  hint,
+  name,
+  required,
+  className,
+  id: forcedId,
+  mask,
+  ...input
+}: { label: ReactNode; hint?: ReactNode; name: string; required?: boolean; className?: string; /** Pontuação automática enquanto a pessoa digita. */ mask?: MaskKind } & Omit<ComponentProps<"input">, "name">) {
+  const initial = (v: unknown) => (mask && typeof v === "string" ? maskValue(mask, v) : (v as string | undefined));
   return (
     <FieldShell label={label} hint={hint} name={name} required={required} className={className} forcedId={forcedId}>
       {({ id, describedBy, invalid, value }) => (
@@ -119,7 +131,20 @@ export function Field({ label, hint, name, required, className, id: forcedId, ..
           aria-required={required || undefined}
           className={inputCls(invalid)}
           {...input}
-          defaultValue={input.type === "password" ? undefined : (value ?? input.defaultValue)}
+          defaultValue={input.type === "password" ? undefined : initial(value ?? input.defaultValue)}
+          onChange={(e) => {
+            if (mask) {
+              const el = e.currentTarget;
+              const digitsBefore = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, "").length;
+              const next = maskValue(mask, el.value);
+              if (next !== el.value) {
+                el.value = next;
+                const pos = caretAfterDigits(next, digitsBefore);
+                el.setSelectionRange(pos, pos);
+              }
+            }
+            input.onChange?.(e);
+          }}
         />
       )}
     </FieldShell>
@@ -149,7 +174,9 @@ export function SelectField({
   return (
     <FieldShell label={label} hint={hint} name={name} required={required} className={className}>
       {({ id, describedBy, invalid, value }) => (
-        <select id={id} name={name} aria-describedby={describedBy} aria-invalid={invalid || undefined} aria-required={required || undefined} className={inputCls(invalid)} {...input} defaultValue={value ?? input.defaultValue ?? ""}>
+        // A chave recria o campo quando o servidor devolve o formulário com erro: o React não
+        // reaplica defaultValue em <select> já montado e a escolha se perdia.
+        <select key={value ?? "inicial"} id={id} name={name} aria-describedby={describedBy} aria-invalid={invalid || undefined} aria-required={required || undefined} className={inputCls(invalid)} {...input} defaultValue={value ?? input.defaultValue ?? ""}>
           {placeholder !== undefined && <option value="">{placeholder}</option>}
           {options.map((o) => (
             <option key={o.value} value={o.value}>

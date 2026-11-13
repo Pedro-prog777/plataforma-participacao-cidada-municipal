@@ -13,6 +13,32 @@ test("cadastro com CPF inválido mostra todos os erros por campo (RF001, RF002)"
   await expect(page.getByLabel("Nome completo")).toHaveValue("Teste E2E");
 });
 
+test("cadastro: a pontuação de CPF, data, celular e CEP entra sozinha; município só para quem mora fora (RF001)", async ({ page }) => {
+  await page.goto("/cadastro");
+  const campo = (nome: RegExp) => page.getByRole("textbox", { name: nome });
+  await campo(/^CPF/).pressSequentially("12345678909");
+  await campo(/Data de nascimento/).pressSequentially("10051990");
+  await campo(/Celular/).pressSequentially("82999990000");
+  await campo(/^CEP/).pressSequentially("57000111");
+  await expect(campo(/^CPF/)).toHaveValue("123.456.789-09");
+  await expect(campo(/Data de nascimento/)).toHaveValue("10/05/1990");
+  await expect(campo(/Celular/)).toHaveValue("(82) 99999-0000");
+  await expect(campo(/^CEP/)).toHaveValue("57000-111");
+  // Letras são ignoradas e o excesso de dígitos é descartado.
+  await campo(/^CEP/).fill("57a000-11199");
+  await expect(campo(/^CEP/)).toHaveValue("57000-111");
+
+  const municipio = page.getByLabel("Município e UF onde você mora");
+  await expect(municipio).toBeHidden();
+  await page.getByLabel("Bairro").selectOption("fora");
+  await expect(municipio).toBeVisible();
+  // Os valores formatados voltam preenchidos depois de um erro do servidor.
+  await page.getByRole("button", { name: "Criar conta" }).click();
+  await expect(page.getByText(/aceitar os Termos de Uso/)).toBeVisible();
+  await expect(campo(/Celular/)).toHaveValue("(82) 99999-0000");
+  await expect(municipio).toBeVisible();
+});
+
 test("login com dados incorretos mostra mensagem genérica (RF005)", async ({ page }) => {
   await page.goto("/entrar");
   await page.getByLabel("CPF ou e-mail").fill("maria@exemplo.com");
