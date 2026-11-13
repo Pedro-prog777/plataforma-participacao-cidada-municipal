@@ -18,21 +18,25 @@ export function Emblem({ className = "size-10" }: { className?: string }) {
 
 export function AccessibilityBar({ municipio }: { municipio: string }) {
   return (
-    <div className="bg-brand-950 text-xs text-white">
-      <div className="container-page flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1.5">
-        <span className="font-medium">Prefeitura de {municipio.replace(/^Município de /, "")}</span>
-        <nav aria-label="Acessibilidade" className="flex flex-wrap items-center gap-x-3">
-          <a href="#conteudo" accessKey="1" className="rounded px-1.5 py-0.5 hover:underline">
+    <div className="relative bg-brand-950 text-xs text-white">
+      <div className="container-page flex items-center justify-between gap-x-4 py-1">
+        <span className="min-w-0 truncate font-medium">
+          {/* No celular aparece só o nome do município; leitores de tela recebem o texto completo. */}
+          <span className="sr-only sm:not-sr-only">Prefeitura de </span>
+          {municipio.replace(/^Município de /, "")}
+        </span>
+        <nav aria-label="Acessibilidade" className="flex shrink-0 items-center gap-x-1 whitespace-nowrap lg:gap-x-3">
+          <a href="#conteudo" accessKey="1" className="atalho">
             Ir para o conteúdo [1]
           </a>
-          <a href="#menu" accessKey="2" className="rounded px-1.5 py-0.5 hover:underline">
+          <a href="#menu" accessKey="2" className="atalho">
             Ir para o menu [2]
           </a>
-          <a href="#rodape" accessKey="4" className="rounded px-1.5 py-0.5 hover:underline">
+          <a href="#rodape" accessKey="4" className="atalho">
             Ir para o rodapé [4]
           </a>
           <ContrastToggle />
-          <Link href="/acessibilidade" className="rounded px-1.5 py-0.5 hover:underline">
+          <Link href="/acessibilidade" className="rounded px-1.5 py-1 hover:underline">
             Acessibilidade
           </Link>
         </nav>
@@ -52,12 +56,12 @@ const NAV = [
 export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "admin"; unread: number } | null }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="container-page flex items-center justify-between gap-4 py-3">
-        <Link href="/" className="flex min-w-0 items-center gap-3 no-underline">
-          <Emblem />
+      <div className="container-page flex items-center justify-between gap-2 py-2 sm:gap-4 sm:py-3">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5 no-underline sm:gap-3">
+          <Emblem className="size-9 shrink-0 sm:size-10" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate text-base font-bold text-brand-900 sm:text-lg">Participação Cidadã</span>
-            <span className="block truncate text-xs text-muted">Consultas públicas e propostas</span>
+            <span className="hidden truncate text-xs text-muted sm:block">Consultas públicas e propostas</span>
           </span>
         </Link>
         <nav id="menu" aria-label="Menu principal" className="hidden lg:block">
@@ -71,7 +75,7 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
             ))}
           </ul>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {user ? (
             <Link href={user.kind === "admin" ? "/admin" : "/conta"} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand-800 hover:bg-brand-50">
               <span className="relative">
@@ -87,10 +91,11 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
             </Link>
           ) : (
             <>
-              <Link href="/entrar" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-brand-800 hover:bg-brand-50 sm:inline-flex">
+              {/* No celular cabe um só botão ao lado do nome: "Entrar"; "Criar conta" abre o menu. */}
+              <Link href="/entrar" className="hidden min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-brand-800 hover:bg-brand-50 min-[360px]:inline-flex">
                 Entrar
               </Link>
-              <Link href="/cadastro" className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white hover:bg-brand-800">
+              <Link href="/cadastro" className="hidden min-h-11 items-center whitespace-nowrap rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white hover:bg-brand-800 sm:inline-flex">
                 Criar conta
               </Link>
             </>
@@ -102,6 +107,16 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
             </summary>
             <nav aria-label="Menu principal (celular)" className="absolute right-0 top-12 w-64 rounded-xl border border-line bg-white p-2 shadow-lg">
               <ul>
+                {!user && (
+                  <li className="mb-2 border-b border-line pb-2 sm:hidden">
+                    <Link href="/cadastro" className="flex min-h-11 items-center justify-center rounded-lg bg-brand-700 px-4 font-semibold text-white hover:bg-brand-800">
+                      Criar conta
+                    </Link>
+                    <Link href="/entrar" className="mt-1 block rounded-md px-3 py-2.5 text-center font-semibold text-brand-800 hover:bg-brand-50">
+                      Já tenho conta: entrar
+                    </Link>
+                  </li>
+                )}
                 {NAV.map((n) => (
                   <li key={n.href}>
                     <Link href={n.href} className="block rounded-md px-3 py-2.5 font-semibold text-brand-800 hover:bg-brand-50">
@@ -109,13 +124,6 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
                     </Link>
                   </li>
                 ))}
-                {!user && (
-                  <li>
-                    <Link href="/entrar" className="block rounded-md px-3 py-2.5 font-semibold text-brand-800 hover:bg-brand-50">
-                      Entrar
-                    </Link>
-                  </li>
-                )}
                 <li>
                   <Link href="/comprovante" className="block rounded-md px-3 py-2.5 font-semibold text-brand-800 hover:bg-brand-50">
                     Verificar comprovante
@@ -183,14 +191,18 @@ export function MainContainer({ children, wide }: { children: ReactNode; wide?: 
 
 export function DemoBanner() {
   return (
-    <div className="border-b border-amber-300 bg-civic-50 text-sm text-warn-800">
-      <div className="container-page flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
-        <Icon name="info" className="size-4" />
-        <span>
+    <div className="border-b border-amber-300 bg-civic-50 text-xs text-warn-800 sm:text-sm">
+      <div className="container-page flex flex-wrap items-center gap-x-2 gap-y-0.5 py-1.5 sm:gap-x-3">
+        <Icon name="info" className="size-4 shrink-0" />
+        {/* Texto curto em telas estreitas (uma linha); completo a partir de 1024 px. */}
+        <span className="lg:hidden">
+          <strong>Demonstração:</strong> dados fictícios.
+        </span>
+        <span className="hidden lg:inline">
           <strong>Demonstração acadêmica.</strong> Dados fictícios; e-mails e o provedor de identidade são simulados.
         </span>
         <Link href="/demo" className="font-semibold underline">
-          Contas e ferramentas de teste
+          Contas <span className="hidden lg:inline">e ferramentas </span>de teste
         </Link>
       </div>
     </div>

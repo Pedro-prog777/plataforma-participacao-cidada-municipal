@@ -79,7 +79,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 
 | RF | Telas / rotas | Módulo | Testes | RS | Situação |
 |---|---|---|---|---|---|
-| RF001 Cadastrar cidadão | /cadastro | `modules/auth/auth.service.ts (registerCitizen)` | integration/auth.test.ts › Cadastro; e2e/citizen.spec.ts › cadastro | RS004 | Implementado |
+| RF001 Cadastrar cidadão | /cadastro | `modules/auth/auth.service.ts (registerCitizen)` | integration/auth.test.ts › Cadastro; unit/masks.test.ts; e2e/citizen.spec.ts › cadastro | RS004 | Implementado |
 | RF002 Validar dados cadastrais | /cadastro, /conta/perfil/editar | `auth.service.ts (registrationSchema), profile.service.ts` | integration/auth.test.ts › todos os erros por campo; unit/rules.test.ts › CPF | — | Implementado |
 | RF003 Confirmar e-mail e ativar conta | /confirmar-email, /reenviar-confirmacao | `auth.service.ts (sendEmailConfirmation, confirmEmail, resendConfirmation)` | integration/auth.test.ts › Confirmação de e-mail | — | Implementado |
 | RF004 Verificar identidade e domicílio do cidadão | /conta/verificacao, /demo/provedor-identidade, /admin/verificacoes | `modules/identity/identity.service.ts; lib/identity-provider.ts` | integration/administration.test.ts › Verificação de identidade e domicílio; e2e/citizen.spec.ts › orientação de verificação | RS004 | Implementado com simulação |

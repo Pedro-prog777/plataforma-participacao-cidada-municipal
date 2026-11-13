@@ -24,10 +24,10 @@ export default async function EditarPerfilPage() {
           <Field label="Nome social" name="socialName" defaultValue={p.socialName ?? ""} maxLength={150} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="E-mail" name="email" type="email" required defaultValue={p.pendingEmail ?? p.email} autoComplete="email" />
-            <Field label="Celular" name="phone" defaultValue={p.phone ?? ""} inputMode="tel" />
+            <Field label="Celular" name="phone" mask="celular" defaultValue={p.phone ?? ""} inputMode="tel" placeholder="(00) 00000-0000" />
           </div>
           <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
-            <Field label="CEP" name="cep" required defaultValue={p.cep ?? ""} inputMode="numeric" />
+            <Field label="CEP" name="cep" required mask="cep" defaultValue={p.cep ?? ""} inputMode="numeric" placeholder="00000-000" />
             <Field label="Logradouro" name="street" required defaultValue={p.street ?? ""} />
           </div>
           <div className="grid gap-4 sm:grid-cols-3">

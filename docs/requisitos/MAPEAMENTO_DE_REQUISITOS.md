@@ -100,7 +100,7 @@
   - Dados inválidos: Campos com erro destacados; nada é gravado.
   - CPF ou e-mail já cadastrado: Oferece recuperação de acesso (RF007), sem revelar a conta.
   - Resultado esperado: Conta pendente; ainda não vota.
-- **Casos de teste:** integration/auth.test.ts › Cadastro; e2e/citizen.spec.ts › cadastro
+- **Casos de teste:** integration/auth.test.ts › Cadastro; unit/masks.test.ts; e2e/citizen.spec.ts › cadastro
 - **Situação:** Implementado — CPF guardado como HMAC + forma mascarada (DT-06).
 - **Pendência com o cliente (*):** Dados exigidos no cadastro e obrigatoriedade do CPF.
 

@@ -83,6 +83,8 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - Tailwind CSS 4 com tokens próprios (azul institucional, laranja de destaque), fonte Public Sans, componentes acessíveis próprios. Marca gráfica genérica — não reproduz brasões ou o padrão visual do gov.br.
 - Barra de acessibilidade com atalhos (eMAG) e alto contraste; gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
 - CSP com nonce por requisição (middleware), `frame-ancestors 'none'`, HSTS em produção.
+- Formulários: a pontuação de CPF, data, celular e CEP entra sozinha (`src/lib/masks.ts`); a máscara só formata, a validação continua no servidor (RF002). A dica de cada campo fica abaixo dele, para que campos lado a lado permaneçam alinhados. No cadastro, o campo do município só aparece para quem escolhe “Moro fora”.
+- Topo no celular: os atalhos de teclado da barra de acessibilidade ficam ocultos até receberem foco (visíveis a partir de 1024 px) e o aviso de demonstração usa texto curto, para o conteúdo começar mais acima.
 
 ## DT-17 — Testes
 - Vitest (unitários + integração no banco real em memória) e Playwright (E2E em build de produção, com axe-core para WCAG 2.2 A/AA e verificação de 320 px). Detalhes em `docs/testes/PLANO_DE_TESTES.md`.
