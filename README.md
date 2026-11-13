@@ -223,7 +223,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Item | Situação |
 |---|---|
 | **GitHub** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> — código, documentação, testes e capturas; histórico de commits por etapa |
-| **Trello** | <https://trello.com/b/AQX3bDST> — quadro público criado pela equipe. A organização (10 listas, 41 cartões com documentação, requisitos, telas, segurança, testes e pendências, mais as capturas) está em [docs/trello/](docs/trello/) e é aplicada com `npm run trello:sync`, usando uma chave do Trello da equipe; o passo a passo está em [PLANO_TRELLO.md](docs/trello/PLANO_TRELLO.md). |
+| **Trello** | <https://trello.com/b/AQX3bDST> — quadro público com 10 listas e 41 cartões: documentação, requisitos, telas (57 capturas anexadas), o que falta fazer, segurança, testes, módulos concluídos e pendências de validação. A definição do quadro fica em [docs/trello/](docs/trello/). |
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 
