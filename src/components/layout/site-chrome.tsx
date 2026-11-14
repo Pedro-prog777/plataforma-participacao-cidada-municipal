@@ -5,43 +5,71 @@ import { Icon } from "../ui/icons";
 import { ContrastToggle, FlashMessage } from "./client-bits";
 
 export function Emblem({ className = "size-10" }: { className?: string }) {
-  // Marca gráfica própria e genérica (não reproduz brasões ou marcas oficiais).
+  // Desenho próprio, inspirado nos elementos do brasão de Maceió (coroa mural, jangada, ondas e
+  // as faixas verde, branca e azul). NÃO é o brasão oficial: o uso do símbolo oficial depende de
+  // autorização da Prefeitura (DT-21).
   return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect width="40" height="40" rx="10" fill="#134074" />
-      <path d="M10 27V17l10-6 10 6v10" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M15 27v-6h10v6" fill="none" stroke="#e07a1f" strokeWidth="2.4" strokeLinejoin="round" />
-      <circle cx="20" cy="17.5" r="2.2" fill="#e07a1f" />
+    <svg viewBox="0 0 40 48" className={className} aria-hidden="true">
+      {/* coroa mural simplificada (símbolo de cidade) */}
+      <path d="M7 10V2h4v3h3V2h4v3h4V2h4v3h3V2h4v8Z" fill="#c9971c" />
+      {/* escudo: faixa verde com jangada, faixa branca com onda vermelha, base azul */}
+      <path d="M4 11h32v19c0 9-7.5 14-16 17C11.5 44 4 39 4 30Z" fill="#1f5fa8" />
+      <path d="M4 11h32v11H4Z" fill="#17803d" />
+      <path d="M4 22h32v8H4Z" fill="#fff" />
+      <path d="M4 26q4-3.4 8 0t8 0 8 0 8 0" fill="none" stroke="#d0202e" strokeWidth="2.4" />
+      <path d="M20.5 12.6c3 2.5 4.1 4.8 4.3 6.8h-8.6c2.4-1.8 3.8-4.1 4.3-6.8Z" fill="#fff" />
+      <path d="M13.5 20.7h14" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12.4 36q1.9-1.8 3.8 0t3.8 0 3.8 0 3.8 0M16.2 40q1.9-1.8 3.8 0t3.8 0" fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M4 11h32v19c0 9-7.5 14-16 17C11.5 44 4 39 4 30Z" fill="none" stroke="#0b2545" strokeWidth="1.3" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function AccessibilityBar({ municipio }: { municipio: string }) {
+export function AccessibilityBar({ municipio, uf }: { municipio: string; uf: string }) {
+  const cidade = municipio.replace(/^Município de /, "");
   return (
     <div className="relative bg-brand-950 text-xs text-white">
       <div className="container-page flex items-center justify-between gap-x-4 py-1">
-        <span className="min-w-0 truncate font-medium">
-          {/* No celular aparece só o nome do município; leitores de tela recebem o texto completo. */}
+        <p className="min-w-0 truncate font-semibold tracking-wide">
+          {/* No celular aparece só "Maceió · AL"; leitores de tela recebem o texto completo. */}
           <span className="sr-only sm:not-sr-only">Prefeitura de </span>
-          {municipio.replace(/^Município de /, "")}
-        </span>
-        <nav aria-label="Acessibilidade" className="flex shrink-0 items-center gap-x-1 whitespace-nowrap lg:gap-x-3">
-          <a href="#conteudo" accessKey="1" className="atalho">
-            Ir para o conteúdo [1]
-          </a>
-          <a href="#menu" accessKey="2" className="atalho">
-            Ir para o menu [2]
-          </a>
-          <a href="#rodape" accessKey="4" className="atalho">
-            Ir para o rodapé [4]
-          </a>
+          {cidade}
+          <span className="font-normal text-brand-200"> · {uf}</span>
+        </p>
+        <nav aria-label="Acessibilidade" className="flex shrink-0 items-center gap-x-1 whitespace-nowrap">
+          <span className="mr-1 hidden text-brand-200 lg:inline" aria-hidden="true">
+            Ir para
+          </span>
+          <SkipLink href="#conteudo" accessKey="1" label="Conteúdo" />
+          <SkipLink href="#menu" accessKey="2" label="Menu" />
+          <SkipLink href="#rodape" accessKey="4" label="Rodapé" />
+          <span className="mx-1.5 hidden h-4 w-px bg-white/25 lg:block" aria-hidden="true" />
           <ContrastToggle />
-          <Link href="/acessibilidade" className="rounded px-1.5 py-1 hover:underline">
+          <Link href="/acessibilidade" className="rounded px-1.5 py-1 hover:bg-white/10">
             Acessibilidade
           </Link>
         </nav>
       </div>
+      {/* Faixa nas cores do município (verde, vermelho e azul do brasão). */}
+      <div className="flex h-1" aria-hidden="true">
+        <span className="flex-[4] bg-municipal-green" />
+        <span className="flex-1 bg-municipal-red" />
+        <span className="flex-[4] bg-municipal-blue" />
+      </div>
     </div>
+  );
+}
+
+/** Atalho de teclado (eMAG): "Ir para o …" com a tecla de acesso ao lado. */
+function SkipLink({ href, accessKey, label }: { href: string; accessKey: string; label: string }) {
+  return (
+    <a href={href} accessKey={accessKey} className="atalho">
+      <span className="atalho-prefixo">Ir para o </span>
+      {label}
+      <kbd aria-hidden="true" className="ml-1 inline-grid h-4 min-w-4 place-items-center rounded-[3px] border border-white/30 bg-white/10 px-1 font-sans text-[10px] font-semibold leading-none">
+        {accessKey}
+      </kbd>
+    </a>
   );
 }
 
@@ -53,7 +81,8 @@ const NAV = [
   { href: "/como-funciona", label: "Como funciona" },
 ];
 
-export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "admin"; unread: number } | null }) {
+export function SiteHeader({ user, municipio }: { user: { name: string; kind: "cidadao" | "admin"; unread: number } | null; municipio: string }) {
+  const cidade = municipio.replace(/^Município de /, "");
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="container-page flex items-center justify-between gap-2 py-2 sm:gap-4 sm:py-3">
@@ -61,7 +90,7 @@ export function SiteHeader({ user }: { user: { name: string; kind: "cidadao" | "
           <Emblem className="size-9 shrink-0 sm:size-10" />
           <span className="min-w-0 leading-tight">
             <span className="block truncate text-base font-bold text-brand-900 sm:text-lg">Participação Cidadã</span>
-            <span className="hidden truncate text-xs text-muted sm:block">Consultas públicas e propostas</span>
+            <span className="hidden truncate text-xs text-muted sm:block">Consultas públicas de {cidade}</span>
           </span>
         </Link>
         <nav id="menu" aria-label="Menu principal" className="hidden lg:block">
@@ -155,8 +184,8 @@ export function SiteFooter({ municipio, demo }: { municipio: string; demo: boole
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-4 text-xs text-muted sm:flex-row sm:justify-between">
-          <p>Trabalho acadêmico — Engenharia de Software, CESMAC. Equipe: João Pedro e Flávia Marina.</p>
-          {demo && <p className="font-semibold text-civic-700">Ambiente de demonstração: todos os dados são fictícios.</p>}
+          <p>Trabalho acadêmico — Engenharia de Software, CESMAC. Equipe: João Pedro e Flávia Marina. Não é um serviço oficial da Prefeitura de {municipio.replace(/^Município de /, "")}.</p>
+          {demo && <p className="font-semibold text-civic-700">Ambiente de demonstração: consultas e pessoas são fictícias.</p>}
         </div>
       </div>
     </footer>
@@ -196,10 +225,10 @@ export function DemoBanner() {
         <Icon name="info" className="size-4 shrink-0" />
         {/* Texto curto em telas estreitas (uma linha); completo a partir de 1024 px. */}
         <span className="lg:hidden">
-          <strong>Demonstração:</strong> dados fictícios.
+          <strong>Demonstração:</strong> não é o site oficial.
         </span>
         <span className="hidden lg:inline">
-          <strong>Demonstração acadêmica.</strong> Dados fictícios; e-mails e o provedor de identidade são simulados.
+          <strong>Demonstração acadêmica.</strong> Não é o site oficial da Prefeitura; consultas e pessoas são fictícias, e-mails e provedor de identidade são simulados.
         </span>
         <Link href="/demo" className="font-semibold underline">
           Contas <span className="hidden lg:inline">e ferramentas </span>de teste

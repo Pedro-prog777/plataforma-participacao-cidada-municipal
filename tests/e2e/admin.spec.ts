@@ -15,7 +15,7 @@ test("conta administrativa exige segundo fator e vê só o menu permitido (RF005
 test("aprovadora vê a consulta Em análise e pode decidir; elaboradora é barrada pela segregação (RN20)", async ({ page }) => {
   await loginAdmin(page, "elaboradora");
   await page.goto("/admin/consultas?q=academia");
-  await page.getByRole("link", { name: "Academia ao ar livre em Lagoa Azul" }).click();
+  await page.getByRole("link", { name: "Academia ao ar livre no Trapiche da Barra" }).click();
   await page.getByRole("link", { name: "Aprovação", exact: true }).click();
   await expect(page.getByText("Apenas o aprovador designado pode decidir.")).toBeVisible();
 });
@@ -35,10 +35,10 @@ test("painel de monitoramento não mostra contagem por alternativa (RN16) e audi
 test("responsável publica resultado da consulta apurada (RF043)", async ({ page }) => {
   await loginAdmin(page, "responsavel");
   await page.goto("/admin/consultas?q=feira");
-  await page.getByRole("link", { name: "Feira livre aos domingos no Jardim Alecrim" }).click();
+  await page.getByRole("link", { name: "Feira livre aos domingos no Poço" }).click();
   await page.getByRole("link", { name: "Resultado", exact: true }).click();
   await page.getByRole("button", { name: "Publicar resultado final" }).click();
   await expect(page).toHaveURL(/resultado/);
   await page.goto("/resultados");
-  await expect(page.getByRole("link", { name: "Feira livre aos domingos no Jardim Alecrim" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Feira livre aos domingos no Poço" })).toBeVisible();
 });

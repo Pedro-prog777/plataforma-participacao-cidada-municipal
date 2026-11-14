@@ -13,7 +13,7 @@ Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 | **Quadro Trello** | <https://trello.com/b/AQX3bDST> (público) |
 | **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) |
 
-> **Demonstração acadêmica.** O município, as pessoas e todos os dados são fictícios. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
+> **Projeto acadêmico — não é o site oficial da Prefeitura de Maceió.** O sistema é ambientado em Maceió/AL (nome do município e seus 50 bairros reais), mas as consultas, as pessoas, os órgãos e os números são **fictícios**. A marca é um desenho próprio inspirado no brasão da cidade, não o brasão oficial. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
 
 ![Página inicial da plataforma](screenshots/area-publica/01-inicio.png)
 
@@ -79,6 +79,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Lista, busca e filtros de consultas; página de cada consulta com período, público-alvo, documentos e histórico.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
+- Barra de acessibilidade com atalhos de teclado e modo de alto contraste.
 
 **Área do cidadão**
 - Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
@@ -194,7 +195,7 @@ npm run screenshots  # regenera as capturas das telas
 | Tipos (TypeScript) | sem erros |
 | Lint (ESLint) | sem erros |
 | Unitários, integração e segurança (Vitest, 9 arquivos) | **122 de 122 aprovados** |
-| Ponta a ponta com acessibilidade (Playwright, Chromium) | **33 de 33 aprovados** |
+| Ponta a ponta com acessibilidade (Playwright, Chromium) | **35 de 35 aprovados** |
 | Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades |
 | Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada** a cada envio — [execuções](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions) |
 

@@ -51,7 +51,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
           <li>Alt + 2: ir para o menu</li>
           <li>Alt + 3: ir para a busca de consultas</li>
           <li>Alt + 4: ir para o rodapé</li>
-          <li>Alt + 5: alternar alto contraste</li>
+          <li>Alt + 5: ligar ou desligar o alto contraste (fundo preto, texto branco, links e botões em amarelo)</li>
         </ul>
         <h2 className="text-lg font-bold">Recursos</h2>
         <ul className="list-disc space-y-1 pl-5">

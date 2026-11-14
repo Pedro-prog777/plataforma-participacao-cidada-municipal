@@ -9,9 +9,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const demo = demoMode();
   return (
     <div className="flex min-h-dvh flex-col">
-      <AccessibilityBar municipio={env.municipio} />
+      <AccessibilityBar municipio={env.municipio} uf={env.uf} />
       {demo && <DemoBanner />}
-      <SiteHeader user={actor ? { name: actor.name, kind: actor.kind, unread } : null} />
+      <SiteHeader user={actor ? { name: actor.name, kind: actor.kind, unread } : null} municipio={env.municipio} />
       <div className="flex-1">{children}</div>
       <SiteFooter municipio={env.municipio} demo={demo} />
     </div>

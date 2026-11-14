@@ -91,7 +91,7 @@ test("cidadã vota em 3 passos, recebe comprovante e não consegue votar de novo
 
 test("cidadão sem identidade verificada é orientado a verificar (RN04)", async ({ page }) => {
   await loginCitizen(page, "joao@exemplo.com", "/consultas");
-  await page.getByRole("link", { name: "Ciclofaixa na Avenida Beira-Lago" }).click();
+  await page.getByRole("link", { name: "Ciclofaixa na orla lagunar" }).click();
   await expect(page.getByText("Para participar, é preciso verificar sua identidade.")).toBeVisible();
   await page.getByRole("link", { name: "Verificar identidade" }).click();
   await expect(page.getByRole("heading", { name: /Verificação de identidade/ })).toBeVisible();

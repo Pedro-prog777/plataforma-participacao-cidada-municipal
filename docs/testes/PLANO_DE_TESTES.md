@@ -19,7 +19,7 @@
 | Tipos | sem erros |
 | Lint | sem erros |
 | Unitários + integração + segurança (9 arquivos) | **122 de 122 aprovados** |
-| E2E (3 arquivos, Chromium) | **33 de 33 aprovados** em execução única |
+| E2E (3 arquivos, Chromium) | **35 de 35 aprovados** em execução única |
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
 | Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
 

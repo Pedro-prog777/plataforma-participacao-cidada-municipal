@@ -41,7 +41,8 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Padrão de uma funcionalidade:** serviço em `modules/<módulo>` (valida com Zod, autoriza com `assertPermission`/`assertConsultationRole`, executa em transação e chama `audit`) → ação em `server/actions` (`attempt` + `withValues` + `redirect`) → página com `ActionForm`/`Field`. Erros de regra usam `DomainError`/`ValidationError` (mensagens em português simples).
 - **Tempo:** use sempre `clock.now()` (`lib/clock.ts`), nunca `new Date()` em regras — o horário do servidor é a referência (RN08) e os testes o controlam.
 - **Parâmetros:** `getSetting(chave)`; novos parâmetros entram em `SETTINGS`.
-- **Interface:** reutilize `components/ui/primitives.tsx` e `components/ui/form.tsx`; todo campo com rótulo; gráficos com tabela; contraste AA; funcionar a 320 px.
+- **Interface:** reutilize `components/ui/primitives.tsx` e `components/ui/form.tsx`; todo campo com rótulo; gráficos com tabela; contraste AA; funcionar a 320 px; elemento cujo significado é só a cor leva a classe `.ac-preenchido` (alto contraste).
+- **Município:** a demonstração é ambientada em Maceió/AL (bairros reais; consultas, pessoas e órgãos fictícios). Não é serviço oficial: mantenha os avisos do topo e do rodapé e não use o brasão oficial — a marca é desenho próprio (DT-21).
 - **Ambiente:** Windows + pasta no OneDrive causa bloqueios (`EBUSY`) em `.next`; não rode `tsc`/build e `next dev` ao mesmo tempo. Encerrar o servidor à força pode corromper `.data/pglite` (`npm run db:reset`).
 - **Documentos:** arquitetura (`docs/arquitetura/ARQUITETURA.md`), decisões e interpretações (`docs/arquitetura/DECISOES_TECNICAS.md`), dados (`docs/arquitetura/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
 

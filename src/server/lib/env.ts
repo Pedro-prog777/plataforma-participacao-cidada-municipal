@@ -32,10 +32,10 @@ export const env = {
     return (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
   },
   get municipio() {
-    return process.env.MUNICIPIO_NOME || "Município de Porto Alecrim";
+    return process.env.MUNICIPIO_NOME || "Município de Maceió";
   },
   get uf() {
-    return process.env.MUNICIPIO_UF || "XX";
+    return process.env.MUNICIPIO_UF || "AL";
   },
   get cpfHmacKey() {
     return secret("CPF_HMAC_KEY");

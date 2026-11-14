@@ -43,7 +43,7 @@ export default async function ResultadosPage() {
                         <span className="tabular-nums text-muted">{a.percentage.replace(".", ",")}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-brand-50" aria-hidden="true">
-                        <div className={`h-2 rounded-full ${a.id === r.data.winnerId ? "bg-civic-500" : "bg-brand-500"}`} style={{ width: `${a.percentage}%` }} />
+                        <div className={`ac-preenchido h-2 rounded-full ${a.id === r.data.winnerId ? "bg-civic-500" : "bg-brand-500"}`} style={{ width: `${a.percentage}%` }} />
                       </div>
                     </div>
                   ))}

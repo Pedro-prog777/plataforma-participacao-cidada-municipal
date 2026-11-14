@@ -5,8 +5,9 @@ Atualizado em 13/11/2026. Estados: Não iniciado · Em desenvolvimento · Implem
 ## Resumo
 
 - **Requisitos funcionais:** 68 implementados e cobertos por teste automatizado (68 no total); RF004, RF005 e RF011 com provedor de identidade/SMS simulados. RF064, RF067 e RF068 existem, mas ficam desligados até a validação do cliente.
-- **Testes:** 122/122 unitários, de integração e de segurança; 33/33 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
+- **Testes:** 122/122 unitários, de integração e de segurança; 35/35 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
+- **Município de referência:** Maceió/AL — nome e 50 bairros reais em 8 regiões administrativas; consultas, pessoas e órgãos fictícios; avisos de que não é serviço oficial (DT-21).
 - **Trello:** quadro público montado em 13/11/2026 — <https://trello.com/b/AQX3bDST>: 10 listas, 41 cartões (documentação, requisitos, telas, o que falta, segurança, testes, módulos concluídos e pendências), com checklists, 68 links para o GitHub e as 57 capturas anexadas. Definição em `docs/trello/quadro.json`, aplicada por `npm run trello:sync`.
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
@@ -136,6 +137,7 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Campo de seleção (bairro) voltava vazio quando o servidor devolvia o formulário com erro → o campo é recriado com o valor enviado. Achado pelo teste novo do cadastro.
 - Colar um valor com caracteres a mais em campo com máscara perdia dígitos por causa do limite de tamanho → a máscara passou a limitar os dígitos.
 - Topo do site ocupava cerca de 240 px no celular e cortava o nome do portal → barra de acessibilidade e faixa de demonstração em uma linha cada (122 px).
+- Modo de alto contraste deixava textos ilegíveis (branco sobre amarelo, botão amarelo sobre amarelo) → reescrito com regra única (DT-21) e coberto por teste com axe.
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada

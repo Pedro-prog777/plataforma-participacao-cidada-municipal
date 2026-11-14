@@ -129,7 +129,7 @@ describe("Visualização do perfil (RF012, RN27)", () => {
 describe("Atualização do perfil (RF013)", () => {
   it("novo endereço exige nova comprovação; novo e-mail só vale após confirmação e o anterior é avisado; auditoria sem valores", async () => {
     const c = await createCitizen(db);
-    const [outro] = await db.select().from(districts).where(eq(districts.name, "Lagoa Azul"));
+    const [outro] = await db.select().from(districts).where(eq(districts.name, "Jatiúca"));
     const novoEmail = `novo-${Math.random().toString(36).slice(2, 8)}@exemplo.test`;
     const input = { socialName: "Nome Social", email: novoEmail, phone: "", currentPassword: PASSWORD, cep: "57000-111", street: "Rua Totalmente Nova", number: "55", district: outro.id };
     await expect(updateProfile(c.id, { ...input, currentPassword: "senhaErrada1" }, "ip", db)).rejects.toThrow(/incorreta/);
