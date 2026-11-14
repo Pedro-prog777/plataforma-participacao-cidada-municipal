@@ -50,8 +50,8 @@ export const DEMO_ADMINS = [
 
 export const DEMO_CITIZENS = [
   { key: "maria", name: "Maria Aparecida Santos (fictícia)", email: "maria@exemplo.com", verified: true, district: "Centro" },
-  { key: "joao", name: "João Batista Lima (fictício)", email: "joao@exemplo.com", verified: false, district: "Vila Esperança" },
-  { key: "carla", name: "Carla Nunes Ferreira (fictícia)", email: "carla@exemplo.com", verified: true, district: "Alto do Cruzeiro" },
+  { key: "joao", name: "João Batista Lima (fictício)", email: "joao@exemplo.com", verified: false, district: "Benedito Bentes" },
+  { key: "carla", name: "Carla Nunes Ferreira (fictícia)", email: "carla@exemplo.com", verified: true, district: "Jatiúca" },
 ] as const;
 
 const FIRST = ["Ana", "Bruno", "Cecília", "Diego", "Elisa", "Fábio", "Gabriela", "Heitor", "Iara", "Jonas", "Kátia", "Lucas", "Marta", "Nilo", "Olga", "Pedro", "Quitéria", "Renato", "Sônia", "Tiago"];
@@ -125,9 +125,10 @@ export async function seedDemoData(db: Db) {
   };
   const named: Record<string, typeof users.$inferSelect> = {};
   for (const c of DEMO_CITIZENS) named[c.key] = await mkCitizen(c.name, c.email, c.district, { verified: c.verified });
-  await mkCitizen("Ana Pendente (fictícia)", "ana@exemplo.com", "Bela Vista", { verified: false, status: "pendente" });
+  await mkCitizen("Ana Pendente (fictícia)", "ana@exemplo.com", "Farol", { verified: false, status: "pendente" });
   const crowd: (typeof users.$inferSelect)[] = [];
-  for (let i = 0; i < 64; i++) {
+  // Três participantes por bairro (50 bairros): garante eleitores suficientes nas consultas por região.
+  for (let i = 0; i < 150; i++) {
     const d = allDistricts[i % allDistricts.length].name;
     crowd.push(await mkCitizen(`${FIRST[i % FIRST.length]} ${LAST[(i * 7) % LAST.length]} (fictício)`, `participante${i + 1}@exemplo.com`, d, { verified: i % 9 !== 0 }));
   }
@@ -292,31 +293,31 @@ export async function seedDemoData(db: Db) {
   clock.set(new Date(e2.closesAt!.getTime() + HOUR));
   await closeDueConsultations(db);
   clock.set(new Date(e2.closesAt!.getTime() + DAY));
-  await publishFinalResult(admins.responsavel, coleta.id, "Resultado consultivo favorável à coleta seletiva. A implantação será gradual, começando pela Região Central, com campanha educativa prévia.", db);
-  const o2 = await registerOutcome(admins.responsavel, coleta.id, { decision: "Implantação gradual da coleta seletiva", actions: "Fase 1 na Região Central; fase 2 nas demais regiões.", organId: await organId("SEMA"), status: "em_andamento" }, db);
+  await publishFinalResult(admins.responsavel, coleta.id, "Resultado consultivo favorável à coleta seletiva. A implantação será gradual, começando pela Região Administrativa 1, com campanha educativa prévia.", db);
+  const o2 = await registerOutcome(admins.responsavel, coleta.id, { decision: "Implantação gradual da coleta seletiva", actions: "Fase 1 na Região Administrativa 1; fase 2 nas demais regiões.", organId: await organId("SEMA"), status: "em_andamento" }, db);
   clock.set(new Date(realNow.getTime() - 5 * DAY));
-  await updateOutcomeStatus(admins.responsavel, o2.id, { status: "concluida", justification: "Fase 1 concluída na Região Central." }, db);
+  await updateOutcomeStatus(admins.responsavel, o2.id, { status: "concluida", justification: "Fase 1 concluída na Região Administrativa 1." }, db);
 
   // ---------------- 3) Apurada (aguardando homologação) ----------------
   const t3 = new Date(realNow.getTime() - 26 * DAY);
   const feira = await prepare(
     {
-      title: "Feira livre aos domingos no Jardim Alecrim",
+      title: "Feira livre aos domingos no Poço",
       summary: "Criação de uma feira livre de agricultura familiar aos domingos pela manhã.",
       theme: "Desenvolvimento Econômico",
       organ: "SEPLAG",
       problem: "Moradores relatam falta de opções de hortifrúti aos domingos e agricultores pedem espaço de venda direta.",
-      objective: "Ouvir os moradores da Região Central sobre a feira e o local preferido.",
+      objective: "Ouvir os moradores da Região Administrativa 1 sobre a feira e o local preferido.",
       justification: "Pedido da associação de agricultores familiares (fictícia).",
-      question: "Onde deve funcionar a feira livre de domingo no Jardim Alecrim?",
+      question: "Onde deve funcionar a feira livre de domingo no Poço?",
       guidance: "Escolha o local que considera mais adequado.",
       nextSteps: "A Secretaria de Planejamento fará o estudo de trânsito do local escolhido.",
       alternatives: [
-        ["Praça Central do Jardim Alecrim", "Espaço amplo, exige interdição parcial da rua."],
+        ["Praça Central do Poço", "Espaço amplo, exige interdição parcial da rua."],
         ["Estacionamento do Ginásio", "Sem interdição de ruas, mais distante do comércio."],
       ],
-      regionName: "Região Central",
-      audience: { open: false, criteria: [{ type: "territorio", regionIds: [regionsRows.find((r) => r.name === "Região Central")!.id], justification: "A feira afeta diretamente a mobilidade e o comércio da Região Central.", publicText: "Moradores da Região Central (Centro, Jardim Alecrim e Bela Vista) com domicílio comprovado." }] },
+      regionName: "Região Administrativa 1",
+      audience: { open: false, criteria: [{ type: "territorio", regionIds: [regionsRows.find((r) => r.name === "Região Administrativa 1")!.id], justification: "A feira afeta diretamente a mobilidade e o comércio da Região Administrativa 1.", publicText: "Moradores da Região Administrativa 1 (Poço, Jaraguá, Ponta da Terra, Pajuçara, Ponta Verde, Jatiúca e Mangabeiras) com domicílio comprovado." }] },
     },
     t3,
     2,
@@ -326,7 +327,7 @@ export async function seedDemoData(db: Db) {
   clock.set(new Date(t3.getTime() + 2 * DAY + 3 * HOUR));
   await openDueConsultations(db);
   const [e3] = await db.select().from(consultations).where(eq(consultations.id, feira.id));
-  await castSynthetic(feira.id, [9, 5], 0, e3.opensAt!, e3.closesAt!, "Região Central");
+  await castSynthetic(feira.id, [9, 5], 0, e3.opensAt!, e3.closesAt!, "Região Administrativa 1");
   clock.set(new Date(e3.closesAt!.getTime() + HOUR));
   await closeDueConsultations(db);
 
@@ -334,18 +335,18 @@ export async function seedDemoData(db: Db) {
   const t4 = new Date(realNow.getTime() - 10 * DAY);
   const ciclo = await prepare(
     {
-      title: "Ciclofaixa na Avenida Beira-Lago",
-      summary: "Implantação de ciclofaixa protegida nos 3,2 km da Avenida Beira-Lago.",
+      title: "Ciclofaixa na orla lagunar",
+      summary: "Implantação de ciclofaixa protegida nos 3,2 km da orla lagunar.",
       theme: "Mobilidade e Transporte",
       organ: "SEMOB",
-      problem: "A Avenida Beira-Lago concentra o maior fluxo de bicicletas da cidade e registrou 14 sinistros envolvendo ciclistas em 2026 (dados fictícios).",
+      problem: "A orla lagunar concentra o maior fluxo de bicicletas da cidade e registrou 14 sinistros envolvendo ciclistas em 2026 (dados fictícios).",
       objective: "Saber se a população apoia a ciclofaixa e qual lado da via é preferido.",
       justification: "Plano de Mobilidade Urbana (fictício) e pedido de associações de ciclistas.",
-      question: "Qual proposta para a ciclofaixa na Avenida Beira-Lago você prefere?",
+      question: "Qual proposta para a ciclofaixa na orla lagunar você prefere?",
       guidance: "Veja o mapa e o estudo anexos. A ciclofaixa remove vagas de estacionamento no lado escolhido.",
       nextSteps: "A Secretaria de Mobilidade publicará o projeto executivo e o cronograma de obras após o resultado.",
       alternatives: [
-        ["Ciclofaixa no lado do lago", "Remove 120 vagas de estacionamento junto ao calçadão."],
+        ["Ciclofaixa no lado da lagoa", "Remove 120 vagas de estacionamento junto ao calçadão."],
         ["Ciclofaixa no lado do comércio", "Remove 95 vagas em frente às lojas."],
         ["Não implantar a ciclofaixa", "Mantém a configuração atual da avenida."],
       ],
@@ -370,19 +371,19 @@ export async function seedDemoData(db: Db) {
       summary: "Definir a obra emergencial de drenagem a ser feita antes do período chuvoso.",
       theme: "Infraestrutura e Iluminação",
       organ: "SEINFRA",
-      problem: "As chuvas de outubro (fictícias) alagaram 230 casas em Lagoa Azul e Recanto do Sol.",
+      problem: "As chuvas de outubro (fictícias) alagaram 230 casas em Vergel do Lago e Levada.",
       objective: "Escolher a intervenção de drenagem a executar antes do próximo período chuvoso.",
       justification: "Situação de emergência decretada (fictícia); a obra precisa começar em até 30 dias.",
       question: "Qual intervenção de drenagem deve ser feita primeiro?",
       guidance: "As duas obras têm custo semelhante. Escolha a que considera mais urgente.",
       nextSteps: "A obra escolhida será licitada em regime emergencial e o andamento publicado nos encaminhamentos.",
       alternatives: [
-        ["Galeria pluvial em Lagoa Azul", "Atende 140 casas."],
-        ["Bacia de retenção no Recanto do Sol", "Atende 90 casas e reduz o volume a jusante."],
+        ["Galeria pluvial no Vergel do Lago", "Atende 140 casas."],
+        ["Bacia de retenção na Levada", "Atende 90 casas e reduz o volume a jusante."],
       ],
-      regionName: "Região Sul",
+      regionName: "Região Administrativa 2",
       exceptional: "Situação de emergência por alagamentos (decreto fictício nº 100/2026); a obra precisa ser contratada antes do período chuvoso.",
-      audience: { open: false, criteria: [{ type: "territorio", regionIds: [regionsRows.find((r) => r.name === "Região Sul")!.id], justification: "Os bairros afetados ficam na Região Sul.", publicText: "Moradores da Região Sul (Lagoa Azul, Recanto do Sol e Morada Nova)." }] },
+      audience: { open: false, criteria: [{ type: "territorio", regionIds: [regionsRows.find((r) => r.name === "Região Administrativa 2")!.id], justification: "Os bairros afetados ficam na Região Administrativa 2.", publicText: "Moradores da Região Administrativa 2 (Centro, Pontal da Barra, Trapiche da Barra, Prado, Ponta Grossa, Levada e Vergel do Lago)." }] },
     },
     t5,
     1,
@@ -392,17 +393,17 @@ export async function seedDemoData(db: Db) {
   clock.set(new Date(t5.getTime() + DAY + 3 * HOUR));
   await openDueConsultations(db);
   const [e5] = await db.select().from(consultations).where(eq(consultations.id, alaga.id));
-  await castSynthetic(alaga.id, [4, 3], 0, e5.opensAt!, new Date(realNow.getTime() - HOUR), "Região Sul");
+  await castSynthetic(alaga.id, [4, 3], 0, e5.opensAt!, new Date(realNow.getTime() - HOUR), "Região Administrativa 2");
 
   // ---------------- 6) Suspensa ----------------
   const t6 = new Date(realNow.getTime() - 9 * DAY);
   const onibus = await prepare(
     {
-      title: "Nova linha de ônibus para o Distrito de Boa Água",
-      summary: "Criação de linha direta entre o Distrito de Boa Água e o Centro.",
+      title: "Nova linha de ônibus para Ipioca",
+      summary: "Criação de linha direta entre Ipioca e o Centro.",
       theme: "Mobilidade e Transporte",
       organ: "SEMOB",
-      problem: "O distrito tem apenas duas viagens diárias, com baldeação.",
+      problem: "O bairro tem apenas duas viagens diárias, com baldeação.",
       objective: "Ouvir os moradores sobre o horário prioritário da nova linha.",
       justification: "Demanda da associação de moradores (fictícia).",
       question: "Qual faixa de horário deve ter mais viagens na nova linha?",
@@ -485,14 +486,14 @@ export async function seedDemoData(db: Db) {
   clock.set(new Date(realNow.getTime() - DAY));
   await prepare(
     {
-      title: "Academia ao ar livre em Lagoa Azul",
+      title: "Academia ao ar livre no Trapiche da Barra",
       summary: "Instalar academia ao ar livre na orla da lagoa.",
       theme: "Esporte",
       organ: "SECEL",
-      problem: "Falta de equipamentos públicos de atividade física na Região Sul.",
+      problem: "Falta de equipamentos públicos de atividade física na Região Administrativa 2.",
       objective: "Escolher o local da academia.",
       justification: "Pedido da comunidade (fictício).",
-      question: "Onde deve ser instalada a academia ao ar livre de Lagoa Azul?",
+      question: "Onde deve ser instalada a academia ao ar livre do Trapiche da Barra?",
       guidance: "Escolha o local.",
       nextSteps: "Instalação em até 90 dias.",
       alternatives: [
@@ -509,7 +510,7 @@ export async function seedDemoData(db: Db) {
   await prepare(
     {
       title: "Horário estendido das Unidades Básicas de Saúde",
-      summary: "Atendimento até as 21h em duas UBS da Região Norte.",
+      summary: "Atendimento até as 21h em duas UBS da Região Administrativa 7.",
       theme: "Saúde",
       organ: "SMS",
       problem: "Trabalhadores não conseguem atendimento no horário comercial.",
@@ -519,10 +520,10 @@ export async function seedDemoData(db: Db) {
       guidance: "Escolha a opção.",
       nextSteps: "Reorganização das escalas.",
       alternatives: [
-        ["UBS Vila Esperança e UBS Santa Luzia", "Maior população atendida."],
-        ["UBS Alto do Cruzeiro e UBS Santa Luzia", "Maior distância de pronto atendimento."],
+        ["UBS Clima Bom e UBS Santa Lúcia", "Maior população atendida."],
+        ["UBS Santos Dumont e UBS Santa Lúcia", "Maior distância de pronto atendimento."],
       ],
-      regionName: "Região Norte",
+      regionName: "Região Administrativa 7",
     },
     new Date(realNow.getTime() - DAY),
     12,
@@ -531,14 +532,14 @@ export async function seedDemoData(db: Db) {
   );
   await prepare(
     {
-      title: "Arborização das vias da Região Leste",
-      summary: "Plantio de 1.500 árvores nas calçadas da Região Leste.",
+      title: "Arborização das vias do Benedito Bentes",
+      summary: "Plantio de 1.500 árvores nas calçadas do Benedito Bentes.",
       theme: "Meio Ambiente",
       organ: "SEMA",
-      problem: "A Região Leste tem a menor cobertura arbórea da cidade.",
+      problem: "O Benedito Bentes tem a menor cobertura arbórea da cidade.",
       objective: "Definir as espécies prioritárias.",
       justification: "Ilhas de calor (estudo fictício).",
-      question: "Que tipo de árvore deve ser priorizado nas calçadas da Região Leste?",
+      question: "Que tipo de árvore deve ser priorizado nas calçadas do Benedito Bentes?",
       guidance: "Escolha uma opção.",
       nextSteps: "Plano de plantio.",
       alternatives: [
@@ -561,17 +562,17 @@ export async function seedDemoData(db: Db) {
   await analyzeProposal(admins.analista, p1.id, { action: "responder", responseType: "convertida", responseText: "A proposta foi acolhida e convertida em proposta municipal para estudo técnico da Secretaria de Mobilidade." }, db);
   await analyzeProposal(admins.analista, p1.id, { action: "publicar" }, db);
   clock.set(new Date(realNow.getTime() - 25 * DAY));
-  const p2 = await submitCitizenProposal(named.carla.id, { title: "Horta comunitária no terreno baldio da Rua das Mangueiras", problem: "O terreno acumula lixo e atrai insetos, preocupando os moradores do bairro.", solution: "Ceder o terreno para uma horta comunitária gerida pela associação de moradores.", themeId: await themeId("Meio Ambiente"), districtId: districtId("Alto do Cruzeiro"), authorizePublication: "sim" }, files, db);
+  const p2 = await submitCitizenProposal(named.carla.id, { title: "Horta comunitária no terreno baldio da Rua das Mangueiras", problem: "O terreno acumula lixo e atrai insetos, preocupando os moradores do bairro.", solution: "Ceder o terreno para uma horta comunitária gerida pela associação de moradores.", themeId: await themeId("Meio Ambiente"), districtId: districtId("Jatiúca"), authorizePublication: "sim" }, files, db);
   await analyzeProposal(admins.analista, p2.id, { action: "iniciar_analise" }, db);
   await analyzeProposal(admins.analista, p2.id, { action: "responder", responseType: "encaminhada", responseText: "Encaminhada à Secretaria de Meio Ambiente, responsável pelo programa de hortas urbanas." }, db);
   await analyzeProposal(admins.analista, p2.id, { action: "publicar" }, db);
   clock.set(new Date(realNow.getTime() - 12 * DAY));
-  const p3 = await submitCitizenProposal(named.maria.id, { title: "Iluminação na trilha do Parque das Árvores", problem: "A trilha fica escura a partir das 18h e moradores evitam passar pelo parque.", solution: "Instalar postes de LED ao longo da trilha principal.", themeId: await themeId("Infraestrutura e Iluminação"), districtId: districtId("Parque das Árvores"), authorizePublication: "nao" }, files, db);
+  const p3 = await submitCitizenProposal(named.maria.id, { title: "Iluminação na trilha do Parque Municipal", problem: "A trilha fica escura a partir das 18h e moradores evitam passar pelo parque.", solution: "Instalar postes de LED ao longo da trilha principal.", themeId: await themeId("Infraestrutura e Iluminação"), districtId: districtId("Bebedouro"), authorizePublication: "nao" }, files, db);
   await analyzeProposal(admins.analista, p3.id, { action: "iniciar_analise" }, db);
   await analyzeProposal(admins.analista, p3.id, { action: "solicitar_ajuste", guidance: "Informe o trecho aproximado da trilha (início e fim) para orçamento." }, db);
   clock.set(new Date(realNow.getTime() - 3 * DAY));
-  await submitCitizenProposal(crowd[2].id, { title: "Mais vagas na creche municipal de Santa Luzia", problem: "A fila de espera da creche tem mais de 80 crianças no bairro.", solution: "Ampliar a creche com duas novas salas.", themeId: await themeId("Educação"), districtId: districtId("Santa Luzia"), authorizePublication: "sim" }, files, db);
-  await submitCitizenProposal(crowd[4].id, { title: "Ponto de ônibus coberto na Avenida do Sol", problem: "Os passageiros esperam sob sol e chuva sem abrigo.", solution: "Instalar abrigo com banco e cobertura.", themeId: await themeId("Mobilidade e Transporte"), districtId: districtId("Recanto do Sol"), authorizePublication: "sim" }, files, db);
+  await submitCitizenProposal(crowd[2].id, { title: "Mais vagas na creche municipal de Santa Lúcia", problem: "A fila de espera da creche tem mais de 80 crianças no bairro.", solution: "Ampliar a creche com duas novas salas.", themeId: await themeId("Educação"), districtId: districtId("Santa Lúcia"), authorizePublication: "sim" }, files, db);
+  await submitCitizenProposal(crowd[4].id, { title: "Ponto de ônibus coberto na Avenida do Sol", problem: "Os passageiros esperam sob sol e chuva sem abrigo.", solution: "Instalar abrigo com banco e cobertura.", themeId: await themeId("Mobilidade e Transporte"), districtId: districtId("Levada"), authorizePublication: "sim" }, files, db);
 
   // ---------------- Avisos de boas-vindas ----------------
   clock.set(null);

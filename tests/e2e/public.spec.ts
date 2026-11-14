@@ -20,13 +20,13 @@ test("busca sem acentos e filtros removíveis (RF017)", async ({ page }) => {
 
 test("rascunhos e consultas em análise nunca aparecem no portal (RF016)", async ({ page }) => {
   await page.goto("/consultas");
-  await expect(page.getByText("Arborização das vias da Região Leste")).toHaveCount(0);
-  await expect(page.getByText("Academia ao ar livre em Lagoa Azul")).toHaveCount(0);
+  await expect(page.getByText("Arborização das vias do Benedito Bentes")).toHaveCount(0);
+  await expect(page.getByText("Academia ao ar livre no Trapiche da Barra")).toHaveCount(0);
 });
 
 test("consulta aberta mostra só participações, sem parciais (RN16)", async ({ page }) => {
   await page.goto("/consultas?q=ciclofaixa");
-  await page.getByRole("link", { name: "Ciclofaixa na Avenida Beira-Lago" }).click();
+  await page.getByRole("link", { name: "Ciclofaixa na orla lagunar" }).click();
   await expect(page.getByText("Resultados por alternativa só após o encerramento.")).toBeVisible();
   await expect(page.getByText("mais votada")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Entre para participar" })).toBeVisible();
@@ -82,12 +82,35 @@ for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/com
   });
 }
 
+test("alto contraste: o botão mostra o estado, vale nas páginas seguintes e mantém o contraste (RNF01, eMAG)", async ({ page }) => {
+  await page.goto("/");
+  const botao = page.getByRole("button", { name: "Alto contraste" });
+  await expect(botao).toHaveAttribute("aria-pressed", "false");
+  await botao.click();
+  await expect(botao).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
+  await expectAccessible(page);
+  // A preferência é lembrada ao navegar.
+  await page.goto("/resultados");
+  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
+  await expectAccessible(page);
+  await page.getByRole("button", { name: "Alto contraste" }).click();
+  await expect(page.locator("html")).not.toHaveAttribute("data-contraste", "alto");
+});
+
+test("o topo identifica o município e avisa que não é o site oficial", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Prefeitura de Maceió").first()).toBeAttached();
+  await expect(page.getByText("Não é o site oficial da Prefeitura", { exact: false })).toBeVisible();
+  await expect(page.locator("footer")).toContainText("Não é um serviço oficial da Prefeitura de Maceió");
+});
+
 test("páginas de consulta e resultado acessíveis (axe)", async ({ page }) => {
   await page.goto("/resultados");
   await page.getByRole("link", { name: "Coleta seletiva porta a porta" }).click();
   await expectAccessible(page);
   await page.goto("/consultas?q=ciclofaixa");
-  await page.getByRole("link", { name: "Ciclofaixa na Avenida Beira-Lago" }).click();
+  await page.getByRole("link", { name: "Ciclofaixa na orla lagunar" }).click();
   await expectAccessible(page);
 });
 

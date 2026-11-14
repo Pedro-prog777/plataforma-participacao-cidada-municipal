@@ -1,18 +1,23 @@
 /**
- * Dados de referência (fictícios) — regiões, bairros, temas, órgãos e papéis administrativos.
- * Idempotente. O município é fictício para a demonstração acadêmica.
+ * Dados de referência — regiões administrativas e bairros de Maceió/AL, temas, órgãos e papéis.
+ * Idempotente. Os bairros e as oito regiões administrativas são os do município; órgãos,
+ * pessoas e consultas da demonstração continuam fictícios (projeto acadêmico, não oficial).
  */
 import type { DbOrTx } from "@/server/db/client";
 import { districts, organs, regions, roles, themes } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import type { Permission } from "@/lib/permissions";
 
+/** Os 50 bairros de Maceió agrupados nas 8 regiões administrativas do município. */
 export const REGIONS: Record<string, string[]> = {
-  "Região Central": ["Centro", "Jardim Alecrim", "Bela Vista"],
-  "Região Norte": ["Vila Esperança", "Alto do Cruzeiro", "Santa Luzia"],
-  "Região Sul": ["Lagoa Azul", "Recanto do Sol", "Morada Nova"],
-  "Região Leste": ["Parque das Árvores", "São Jorge"],
-  "Zona Rural": ["Distrito de Boa Água"],
+  "Região Administrativa 1": ["Poço", "Jaraguá", "Ponta da Terra", "Pajuçara", "Ponta Verde", "Jatiúca", "Mangabeiras"],
+  "Região Administrativa 2": ["Centro", "Pontal da Barra", "Trapiche da Barra", "Prado", "Ponta Grossa", "Levada", "Vergel do Lago"],
+  "Região Administrativa 3": ["Farol", "Pitanguinha", "Pinheiro", "Gruta de Lourdes", "Canaã", "Santo Amaro", "Jardim Petrópolis", "Ouro Preto"],
+  "Região Administrativa 4": ["Bom Parto", "Mutange", "Bebedouro", "Chã de Bebedouro", "Chã da Jaqueira", "Petrópolis", "Santa Amélia", "Fernão Velho", "Rio Novo"],
+  "Região Administrativa 5": ["Jacintinho", "Feitosa", "Barro Duro", "Serraria", "São Jorge"],
+  "Região Administrativa 6": ["Benedito Bentes", "Antares"],
+  "Região Administrativa 7": ["Santos Dumont", "Clima Bom", "Cidade Universitária", "Santa Lúcia", "Tabuleiro do Martins"],
+  "Região Administrativa 8": ["Cruz das Almas", "Jacarecica", "Guaxuma", "Garça Torta", "Riacho Doce", "Pescaria", "Ipioca"],
 };
 
 export const THEMES = [

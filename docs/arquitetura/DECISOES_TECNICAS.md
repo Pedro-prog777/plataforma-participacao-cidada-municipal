@@ -80,7 +80,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 | RF014 marcado (*) | Mantido ativo: o histórico é necessário para o titular rever o comprovante. |
 
 ## DT-16 — Interface
-- Tailwind CSS 4 com tokens próprios (azul institucional, laranja de destaque), fonte Public Sans, componentes acessíveis próprios. Marca gráfica genérica — não reproduz brasões ou o padrão visual do gov.br.
+- Tailwind CSS 4 com tokens próprios (azul institucional, laranja de destaque), fonte Public Sans, componentes acessíveis próprios. A marca é um desenho próprio (DT-21) e não reproduz o padrão visual do gov.br.
 - Barra de acessibilidade com atalhos (eMAG) e alto contraste; gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
 - CSP com nonce por requisição (middleware), `frame-ancestors 'none'`, HSTS em produção.
 - Formulários: a pontuação de CPF, data, celular e CEP entra sozinha (`src/lib/masks.ts`); a máscara só formata, a validação continua no servidor (RF002). A dica de cada campo fica abaixo dele, para que campos lado a lado permaneçam alinhados. No cadastro, o campo do município só aparece para quem escolhe “Moro fora”.
@@ -112,3 +112,12 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 ## DT-20 — Quadro Trello montado por script
 - O acompanhamento no Trello não faz parte dos requisitos do sistema; é ferramenta de gestão do projeto. A organização do quadro fica versionada em `docs/trello/quadro.json` e é aplicada por `scripts/trello-sync.mjs` (`npm run trello:sync`), que cria listas, etiquetas, cartões, checklists, links para o GitHub e anexa as capturas de `screenshots/`.
 - O script só acrescenta (não apaga nem altera o que existe) e pode ser repetido. As credenciais vêm de variáveis de ambiente ou de `.env.trello`, ignorado pelo Git; a chave e o token nunca aparecem em mensagens de erro.
+
+## DT-21 — Município de referência: Maceió/AL
+- A pedido da equipe (13/11/2026), a demonstração deixou de usar um município fictício e passou a ser ambientada em **Maceió/AL**: nome do município (`MUNICIPIO_NOME`, `MUNICIPIO_UF`) e os 50 bairros agrupados nas 8 regiões administrativas (`database/seeds/seed-reference.ts`). Trocar de município continua sendo só configuração e dados de referência.
+- **Continua fictício:** consultas, propostas, pessoas, órgãos, endereços e números. As consultas de exemplo citam bairros reais apenas como cenário.
+- **Não é serviço oficial.** O aviso aparece na faixa de demonstração, no rodapé (sempre, mesmo fora do modo demonstração) e no README. O sistema não deve ser publicado na internet com o nome da Prefeitura sem autorização dela.
+- **Marca:** escudo desenhado para o projeto, inspirado nos elementos do brasão da cidade (coroa mural, jangada, ondas, faixas verde, branca e azul). **Não é o brasão oficial**, cujo uso depende de autorização da Prefeitura (pendência registrada em `docs/requisitos/PENDENCIAS_CLIENTE.md`).
+- **Topo:** barra institucional com o nome da Prefeitura, atalhos de teclado com a tecla ao lado, chave de alto contraste com estado visível e faixa nas cores do município.
+- **Alto contraste (eMAG 6.1):** regra única — fundo preto, texto branco, links e botões em amarelo, bordas brancas — aplicada a qualquer componente. A versão anterior trocava as cores da marca por amarelo e deixava textos ilegíveis (branco sobre amarelo). Elementos cujo significado é só a cor usam a classe `.ac-preenchido`.
+- A lista de bairros e regiões deve ser conferida com a Prefeitura antes de qualquer uso real.

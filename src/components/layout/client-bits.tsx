@@ -31,9 +31,17 @@ export function ContrastToggle() {
           /* ignora */
         }
       }}
-      className="rounded px-1.5 py-1 hover:underline"
+      className="inline-flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-white/10"
     >
-      Alto contraste<span className="hidden lg:inline"> [5]</span>
+      <svg viewBox="0 0 16 16" className="size-3.5 shrink-0" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M8 1.75a6.25 6.25 0 0 1 0 12.5Z" fill="currentColor" />
+      </svg>
+      Alto contraste
+      {/* Chave liga/desliga: mostra o estado atual (o leitor de tela recebe aria-pressed). */}
+      <span aria-hidden="true" className={`relative hidden h-3.5 w-6 shrink-0 rounded-full border border-white/60 transition-colors min-[360px]:block ${on ? "bg-white" : "bg-transparent"}`}>
+        <span className={`ac-preenchido absolute left-0 top-1/2 size-2 -translate-y-1/2 rounded-full transition-transform ${on ? "translate-x-[13px] bg-brand-950" : "translate-x-[3px] bg-white"}`} />
+      </span>
     </button>
   );
 }

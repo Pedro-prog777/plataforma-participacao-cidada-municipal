@@ -825,7 +825,7 @@
     {
       "lista": "Testes",
       "nome": "Testes no navegador e acessibilidade",
-      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 33 de 33 aprovados. Comando: npm run test:e2e.",
+      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 35 de 35 aprovados. Comando: npm run test:e2e.",
       "etiquetas": [
         "Testes"
       ],
@@ -847,7 +847,7 @@
           "feito": true
         },
         {
-          "nome": "33 de 33 aprovados",
+          "nome": "35 de 35 aprovados",
           "feito": true
         }
       ],

@@ -17,6 +17,11 @@
   --color-brand-100: #e3ecf8;
   --color-brand-50: #f2f6fc;
 
+  /* Cores do município (faixa do topo e escudo), tiradas do brasão de Maceió. */
+  --color-municipal-green: #17803d;
+  --color-municipal-red: #d0202e;
+  --color-municipal-blue: #1f5fa8;
+
   --color-civic-700: #a14a05;
   --color-civic-600: #c2590a;
   --color-civic-500: #e07a1f;
@@ -85,37 +90,57 @@
   }
 }
 
-/* Alto contraste (eMAG 3.1 — recomendação 6.1) */
+/*
+ * Alto contraste (eMAG 3.1 — recomendação 6.1), ligado pelo botão da barra superior.
+ * Regra única e previsível: fundo preto, texto branco, links e botões em amarelo, bordas
+ * brancas. Vale para qualquer componente, sem depender das cores de cada tela.
+ * Elementos cujo significado é só a cor (barras de gráfico, chave liga/desliga) usam a
+ * classe .ac-preenchido para continuar visíveis.
+ */
 html[data-contraste="alto"] {
-  --color-canvas: #000;
-  --color-surface: #000;
-  --color-ink: #fff;
-  --color-muted: #fff;
-  --color-line: #fff;
-  --color-brand-900: #ff0;
-  --color-brand-800: #ff0;
-  --color-brand-700: #ff0;
-  --color-brand-600: #ff0;
-  --color-brand-100: #000;
-  --color-brand-50: #000;
-  --color-civic-700: #ff0;
-  --color-civic-100: #000;
-  --color-civic-50: #000;
+  color-scheme: dark;
+  accent-color: #ff0;
 }
 html[data-contraste="alto"] body,
-html[data-contraste="alto"] .bg-white,
-html[data-contraste="alto"] header,
-html[data-contraste="alto"] footer {
-  background: #000 !important;
+html[data-contraste="alto"] body *:not(svg):not(svg *):not(img) {
+  background-color: #000 !important;
+  background-image: none !important;
   color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+html[data-contraste="alto"] a,
+html[data-contraste="alto"] a *:not(svg):not(svg *) {
+  color: #ff0 !important;
 }
 html[data-contraste="alto"] a {
-  color: #ff0 !important;
   text-decoration: underline !important;
 }
-html[data-contraste="alto"] .btn-primary {
-  background: #ff0 !important;
-  color: #000 !important;
+/* Botões e links com aparência de botão: contorno amarelo para se distinguirem do texto. */
+html[data-contraste="alto"] :is(button, summary, [type="submit"], a[class*="min-h-11"]),
+html[data-contraste="alto"] :is(button, summary, [type="submit"], a[class*="min-h-11"]) *:not(svg):not(svg *) {
+  color: #ff0 !important;
+}
+html[data-contraste="alto"] :is(button, [type="submit"], a[class*="min-h-11"]) {
+  border: 2px solid #ff0 !important;
+  text-decoration: none !important;
+}
+html[data-contraste="alto"] :is(button, [type="submit"]):disabled {
+  border-style: dashed !important;
+}
+html[data-contraste="alto"] :is(input, select, textarea) {
+  border: 2px solid #fff !important;
+}
+html[data-contraste="alto"] ::placeholder {
+  color: #d4d4d4 !important;
+}
+html[data-contraste="alto"] :focus-visible {
+  outline: 3px solid #0ff !important;
+  outline-offset: 2px;
+}
+html[data-contraste="alto"] body .ac-preenchido {
+  background-color: #ff0 !important;
 }
 
 @layer components {
@@ -137,7 +162,18 @@ html[data-contraste="alto"] .btn-primary {
     padding: 0.25rem 0.375rem;
   }
   .atalho:hover {
-    text-decoration: underline;
+    background: rgb(255 255 255 / 0.1);
+  }
+  /* Em telas largas o prefixo "Ir para o" fica só para leitores de tela (há um rótulo único antes dos atalhos). */
+  @media (min-width: 1024px) {
+    .atalho-prefixo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   @media (max-width: 1023.98px) {
     .atalho {
