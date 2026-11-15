@@ -1,49 +1,107 @@
 "use client";
 /** Pequenos componentes interativos do layout (contraste, mensagens, contagem regressiva). */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { FLASH } from "@/lib/flash";
 
-/** Alto contraste (eMAG 3.1). Preferência guardada só no navegador. */
-export function ContrastToggle() {
+const CONTRAST_KEY = "ppcm-contraste";
+const CONTRAST_EVENT = "ppcm:contraste";
+
+function applyContrast(on: boolean) {
+  document.documentElement.dataset.contraste = on ? "alto" : "";
+  try {
+    localStorage.setItem(CONTRAST_KEY, on ? "alto" : "");
+  } catch {
+    /* armazenamento indisponível */
+  }
+  window.dispatchEvent(new Event(CONTRAST_EVENT));
+}
+
+/** Estado do alto contraste, sincronizado entre os controles da página. */
+function useContrast() {
   const [on, setOn] = useState(false);
   useEffect(() => {
+    const read = () => setOn(document.documentElement.dataset.contraste === "alto");
+    read();
+    window.addEventListener(CONTRAST_EVENT, read);
+    return () => window.removeEventListener(CONTRAST_EVENT, read);
+  }, []);
+  return [on, () => applyContrast(!on)] as const;
+}
+
+/**
+ * Aplica em todas as páginas a preferência de alto contraste guardada no navegador e mantém o
+ * atalho de teclado (tecla de acesso 5). Não aparece na tela: o controle visível fica na página
+ * de Acessibilidade (DT-22).
+ */
+export function ContrastPreference() {
+  const [on, toggle] = useContrast();
+  useEffect(() => {
     try {
-      const saved = localStorage.getItem("ppcm-contraste") === "alto";
-      setOn(saved);
-      document.documentElement.dataset.contraste = saved ? "alto" : "";
+      if (localStorage.getItem(CONTRAST_KEY) === "alto") {
+        document.documentElement.dataset.contraste = "alto";
+        window.dispatchEvent(new Event(CONTRAST_EVENT));
+      }
     } catch {
       /* armazenamento indisponível */
     }
   }, []);
   return (
-    <button
-      type="button"
-      accessKey="5"
-      aria-pressed={on}
-      onClick={() => {
-        const next = !on;
-        setOn(next);
-        document.documentElement.dataset.contraste = next ? "alto" : "";
-        try {
-          localStorage.setItem("ppcm-contraste", next ? "alto" : "");
-        } catch {
-          /* ignora */
-        }
-      }}
-      className="inline-flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-white/10"
-    >
-      <svg viewBox="0 0 16 16" className="size-3.5 shrink-0" aria-hidden="true">
-        <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8 1.75a6.25 6.25 0 0 1 0 12.5Z" fill="currentColor" />
-      </svg>
-      Alto contraste
-      {/* Chave liga/desliga: mostra o estado atual (o leitor de tela recebe aria-pressed). */}
-      <span aria-hidden="true" className={`relative hidden h-3.5 w-6 shrink-0 rounded-full border border-white/60 transition-colors min-[360px]:block ${on ? "bg-white" : "bg-transparent"}`}>
-        <span className={`ac-preenchido absolute left-0 top-1/2 size-2 -translate-y-1/2 rounded-full transition-transform ${on ? "translate-x-[13px] bg-brand-950" : "translate-x-[3px] bg-white"}`} />
-      </span>
+    <button type="button" accessKey="5" tabIndex={-1} aria-pressed={on} onClick={toggle} className="sr-only">
+      Alternar alto contraste (tecla de acesso 5)
     </button>
   );
+}
+
+/** Controle visível do alto contraste (eMAG 3.1), na página de Acessibilidade. */
+export function ContrastToggle() {
+  const [on, toggle] = useContrast();
+  return (
+    <button type="button" aria-pressed={on} onClick={toggle} className="inline-flex min-h-11 items-center gap-3 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-brand-800 hover:bg-brand-50">
+      <span aria-hidden="true" className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${on ? "border-brand-700 bg-brand-700" : "border-slate-400 bg-slate-200"}`}>
+        <span className={`ac-preenchido absolute left-0 top-1/2 size-3.5 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${on ? "translate-x-[18px]" : "translate-x-0.5"}`} />
+      </span>
+      Alto contraste
+      <span className="text-sm font-normal text-muted">{on ? "ligado" : "desligado"}</span>
+    </button>
+  );
+}
+
+/**
+ * Indicador de carregamento entre páginas: uma barra fina no topo, que só aparece quando a
+ * navegação demora mais de 150 ms (navegações rápidas não piscam).
+ */
+export function NavigationProgress() {
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const [active, setActive] = useState(false);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stop = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setActive(false);
+  };
+  // A rota mudou: a navegação terminou.
+  useEffect(stop, [pathname, params]);
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname.startsWith("/api/")) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+      stop();
+      timers.current = [setTimeout(() => setActive(true), 150), setTimeout(stop, 15_000)];
+    };
+    document.addEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("click", onClick);
+      timers.current.forEach(clearTimeout);
+    };
+  }, []);
+  if (!active) return null;
+  return <div role="progressbar" aria-label="Carregando a página" className="barra-de-navegacao" />;
 }
 
 /** Mensagem de sucesso após redirecionamento (?ok=chave). Some da URL depois de exibida. */

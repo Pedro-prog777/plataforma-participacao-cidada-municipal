@@ -1,15 +1,20 @@
 import Link from "next/link";
-import { Badge, LinkButton, PageHeader, Table } from "@/components/ui/primitives";
+import { Badge, LinkButton, PageHeader, Pagination, Table } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
 import { searchUsers } from "@/server/modules/admin/users.service";
 import { ACCOUNT_STATUS, fmtDateTime, VERIFICATION_LEVEL } from "@/lib/labels";
 
 export const metadata = { title: "Usuários" };
 
-export default async function UsuariosPage({ searchParams }: { searchParams: Promise<{ q?: string; tipo?: string; situacao?: string }> }) {
+export default async function UsuariosPage({ searchParams }: { searchParams: Promise<{ q?: string; tipo?: string; situacao?: string; pagina?: string }> }) {
   const a = await requireAdmin("usuarios.gerenciar");
   const sp = await searchParams;
-  const rows = await searchUsers(a, { q: sp.q, kind: sp.tipo, status: sp.situacao });
+  const { items: rows, total, page, pages } = await searchUsers(a, { q: sp.q, kind: sp.tipo, status: sp.situacao, page: Number(sp.pagina) || 1 });
+  const hrefFor = (p: number) => {
+    const qs = new URLSearchParams(Object.entries({ q: sp.q, tipo: sp.tipo, situacao: sp.situacao }).filter(([, v]) => v) as [string, string][]);
+    if (p > 1) qs.set("pagina", String(p));
+    return `/admin/usuarios${qs.size ? `?${qs}` : ""}`;
+  };
   const cls = "rounded-lg border border-slate-300 bg-white px-3 py-2";
   return (
     <>
@@ -52,6 +57,10 @@ export default async function UsuariosPage({ searchParams }: { searchParams: Pro
           fmtDateTime(u.lastLoginAt),
         ])}
       />
+      <p className="mt-3 text-sm text-muted" role="status">
+        {total === 0 ? "Nenhuma conta encontrada." : `${total.toLocaleString("pt-BR")} conta(s) no total.`}
+      </p>
+      <Pagination page={page} pages={pages} hrefFor={hrefFor} />
     </>
   );
 }

@@ -81,10 +81,10 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 
 ## DT-16 — Interface
 - Tailwind CSS 4 com tokens próprios (azul institucional, laranja de destaque), fonte Public Sans, componentes acessíveis próprios. A marca é um desenho próprio (DT-21) e não reproduz o padrão visual do gov.br.
-- Barra de acessibilidade com atalhos (eMAG) e alto contraste; gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
+- Atalhos de teclado (eMAG) e alto contraste (DT-22); gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
 - CSP com nonce por requisição (middleware), `frame-ancestors 'none'`, HSTS em produção.
 - Formulários: a pontuação de CPF, data, celular e CEP entra sozinha (`src/lib/masks.ts`); a máscara só formata, a validação continua no servidor (RF002). A dica de cada campo fica abaixo dele, para que campos lado a lado permaneçam alinhados. No cadastro, o campo do município só aparece para quem escolhe “Moro fora”.
-- Topo no celular: os atalhos de teclado da barra de acessibilidade ficam ocultos até receberem foco (visíveis a partir de 1024 px) e o aviso de demonstração usa texto curto, para o conteúdo começar mais acima.
+- Topo no celular: o aviso de demonstração usa texto curto, para o conteúdo começar mais acima.
 
 ## DT-17 — Testes
 - Vitest (unitários + integração no banco real em memória) e Playwright (E2E em build de produção, com axe-core para WCAG 2.2 A/AA e verificação de 320 px). Detalhes em `docs/testes/PLANO_DE_TESTES.md`.
@@ -118,6 +118,28 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Continua fictício:** consultas, propostas, pessoas, órgãos, endereços e números. As consultas de exemplo citam bairros reais apenas como cenário.
 - **Não é serviço oficial.** O aviso aparece na faixa de demonstração, no rodapé (sempre, mesmo fora do modo demonstração) e no README. O sistema não deve ser publicado na internet com o nome da Prefeitura sem autorização dela.
 - **Marca:** escudo desenhado para o projeto, inspirado nos elementos do brasão da cidade (coroa mural, jangada, ondas, faixas verde, branca e azul). **Não é o brasão oficial**, cujo uso depende de autorização da Prefeitura (pendência registrada em `docs/requisitos/PENDENCIAS_CLIENTE.md`).
-- **Topo:** barra institucional com o nome da Prefeitura, atalhos de teclado com a tecla ao lado, chave de alto contraste com estado visível e faixa nas cores do município.
+- **Topo:** faixa institucional com o nome da Prefeitura, serviços de uso rápido e faixa nas cores do município (layout atual em DT-22).
 - **Alto contraste (eMAG 6.1):** regra única — fundo preto, texto branco, links e botões em amarelo, bordas brancas — aplicada a qualquer componente. A versão anterior trocava as cores da marca por amarelo e deixava textos ilegíveis (branco sobre amarelo). Elementos cujo significado é só a cor usam a classe `.ac-preenchido`.
 - A lista de bairros e regiões deve ser conferida com a Prefeitura antes de qualquer uso real.
+
+## DT-22 — Acessibilidade e alto contraste fora da faixa do topo
+- A pedido da equipe (14/11/2026), a faixa do topo deixou de mostrar o link “Acessibilidade” e a chave “Alto contraste”. Ela traz o nome da Prefeitura e dois serviços para o cidadão: “Verificar comprovante” e “Dados abertos”.
+- **Nenhum recurso foi excluído** (RNF01 continua valendo — WCAG 2.2 AA e eMAG 3.1):
+  - os atalhos “Ir para o conteúdo / menu / rodapé” (WCAG 2.4.1) continuam na página, invisíveis até receberem foco pelo teclado, com as teclas de acesso 1, 2 e 4;
+  - o alto contraste é ligado na página **Acessibilidade** (link no rodapé) ou pela tecla de acesso 5; a preferência fica guardada no navegador e vale para todas as páginas, inclusive a administração;
+  - a página Acessibilidade descreve os atalhos e os recursos.
+- Consequência conhecida: o eMAG recomenda que esses controles fiquem visíveis no topo. Deixá-los no rodapé é um afastamento dessa recomendação, a ser reavaliado com o cliente (registrado em `docs/requisitos/PENDENCIAS_CLIENTE.md`).
+
+## DT-23 — Desempenho: diagnóstico e otimizações (15/11/2026)
+- **Causa principal da lentidão percebida:** o sistema estava sendo usado em modo de desenvolvimento (`npm run dev`), em que cada página é compilada no primeiro acesso (de 0,7 s a 30 s medidos) e mesmo depois responde em 200–500 ms. A versão otimizada (`next build` + `next start`) responde em 12–36 ms. Foi criado o comando `npm run preview`, indicado para testar e apresentar. O Turbopack foi testado e descartado: neste ambiente (pasta no OneDrive) ficou mais lento (1,4–1,8 s por página já compilada).
+- **Consultas ao banco:**
+  - painel de monitoramento: de 4 consultas por consulta pública para 3 consultas agrupadas no total (28 → 7 por acesso);
+  - listagem para o cidadão autenticado: critérios de público-alvo de todas as consultas abertas em uma única consulta (antes, duas por consulta);
+  - página inicial: tudo em paralelo e só os 3 resultados e 3 encaminhamentos exibidos;
+  - sessão: os dados do cidadão vêm junto com a validação da sessão (uma consulta a menos em toda página autenticada).
+- **Paginação:** usuários (25 por página) e auditoria (50 por página); antes eram 200 e 300 linhas de uma vez (HTML de 120 KB e 101 KB → 38 KB e 49 KB). A exportação CSV da auditoria continua trazendo tudo.
+- **Índices** (`database/migrations/0002_indices_de_desempenho.sql`): participações por cidadão, avisos não lidos, auditoria por objeto, propostas por autor, critérios, incidentes e encaminhamentos por consulta, fila de e-mails. Nenhum índice novo em `votes`.
+- **Interface:** barra de carregamento no topo quando a troca de página demora mais de 150 ms.
+- **Diagnóstico:** `DB_LOG_QUERIES=1` escreve no log do servidor cada consulta SQL, sem os parâmetros (podem conter dados pessoais).
+- **Não alterado de propósito:** o custo do Argon2id no login (~0,3 s) é proteção contra força bruta (RN23); não há cache de páginas, porque todas dependem da sessão e de dados que mudam (votação, avisos).
+- Medições antes e depois em `docs/testes/PLANO_DE_TESTES.md`. São medições locais com poucos dados; **não substituem o teste de carga do RNF09**.

@@ -28,7 +28,7 @@ export async function createSession(db: DbOrTx, userId: string, opts: { mfaVerif
   return token;
 }
 
-export type SessionInfo = { sessionId: string; userId: string; kind: "cidadao" | "admin"; mfaVerified: boolean; status: string };
+export type SessionInfo = { sessionId: string; userId: string; kind: "cidadao" | "admin"; mfaVerified: boolean; status: string; /** Nome de exibição (nome social, se houver). */ name: string };
 
 /** Valida o token e renova a atividade. Retorna null se expirada, revogada ou inativa. */
 export async function validateSession(token: string | undefined | null, db: DbOrTx = getDb()): Promise<SessionInfo | null> {
@@ -36,7 +36,7 @@ export async function validateSession(token: string | undefined | null, db: DbOr
   const id = sha256(token);
   const now = clock.now();
   const [row] = await db
-    .select({ s: sessions, kind: users.kind, status: users.status })
+    .select({ s: sessions, kind: users.kind, status: users.status, fullName: users.fullName, socialName: users.socialName })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
     .where(and(eq(sessions.id, id), isNull(sessions.revokedAt), gt(sessions.expiresAt, now)));
@@ -50,7 +50,7 @@ export async function validateSession(token: string | undefined | null, db: DbOr
   if (now.getTime() - row.s.lastActivityAt.getTime() > 30_000) {
     await db.update(sessions).set({ lastActivityAt: now }).where(eq(sessions.id, id));
   }
-  return { sessionId: id, userId: row.s.userId, kind: row.kind, mfaVerified: row.s.mfaVerified, status: row.status };
+  return { sessionId: id, userId: row.s.userId, kind: row.kind, mfaVerified: row.s.mfaVerified, status: row.status, name: row.socialName || row.fullName };
 }
 
 /** Sessão com segundo fator ainda pendente (somente para a etapa de MFA). */

@@ -1,11 +1,11 @@
 # Status do desenvolvimento — PPCM
 
-Atualizado em 13/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
+Atualizado em 15/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
 
 ## Resumo
 
 - **Requisitos funcionais:** 68 implementados e cobertos por teste automatizado (68 no total); RF004, RF005 e RF011 com provedor de identidade/SMS simulados. RF064, RF067 e RF068 existem, mas ficam desligados até a validação do cliente.
-- **Testes:** 122/122 unitários, de integração e de segurança; 35/35 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
+- **Testes:** 128/128 unitários, de integração e de segurança; 36/36 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
 - **Município de referência:** Maceió/AL — nome e 50 bairros reais em 8 regiões administrativas; consultas, pessoas e órgãos fictícios; avisos de que não é serviço oficial (DT-21).
 - **Trello:** quadro público montado em 13/11/2026 — <https://trello.com/b/AQX3bDST>: 10 listas, 41 cartões (documentação, requisitos, telas, o que falta, segurança, testes, módulos concluídos e pendências), com checklists, 68 links para o GitHub e as 57 capturas anexadas. Definição em `docs/trello/quadro.json`, aplicada por `npm run trello:sync`.
@@ -23,7 +23,7 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | Antivírus ClamAV (RF023) | Implementado | Cliente clamd não testado contra servidor real; verificação embutida testada |
 | Testes em PostgreSQL servidor | Testado | CI no GitHub Actions com PostgreSQL 16: 114/114 e E2E 32/32 em 12/11/2026 ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)) |
 | Docker/Compose | Implementado | Arquivos criados; **não executados** (sem Docker no ambiente) |
-| RNF04, RNF09, RNF10 (desempenho/disponibilidade) | Pendente | Sem medição sob carga |
+| RNF04, RNF09, RNF10 (desempenho/disponibilidade) | Pendente | Medição local feita e otimizações aplicadas (DT-23); falta teste sob carga e medição de disponibilidade |
 | RNF01/RNF11 com NVDA, TalkBack e outros navegadores | Pendente | Só axe-core em Chromium |
 | RNF14 backup e restauração | Pendente | Estratégia documentada, não exercitada |
 | RNF06 relatório de impacto (RIPD) | Não iniciado | Documento jurídico, fora do código |
@@ -110,12 +110,12 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | RNF01 Acessibilidade | Testado (parcial) | axe WCAG 2.2 AA em 11 páginas; falta leitor de tela |
 | RNF02 Linguagem simples / 3 passos | Testado | Votação em 3 passos (E2E); item na lista de revisão |
 | RNF03 Celular 320 px | Testado | E2E sem rolagem horizontal |
-| RNF04 Internet fraca | Implementado | Sem vídeo obrigatório, imagens sob demanda; peso não medido |
+| RNF04 Internet fraca | Medido localmente (parcial) | Sem vídeo obrigatório; cerca de 172 KB no primeiro acesso (meta sugerida: 1 MB); não testado em rede lenta real |
 | RNF05 Segurança da comunicação e acesso | Testado (parcial) | Argon2id, guardas, cabeçalhos; TLS depende da implantação |
 | RNF06 LGPD | Implementado | Minimização e exportações agregadas testadas; RIPD não iniciado |
 | RNF07 Integridade do voto | Testado | Transação única, sem vínculo, concorrência, hash da base |
 | RNF08 Registro de atos | Testado | Auditoria encadeada; valores pessoais não gravados (pendência 17) |
-| RNF09 Tempo de resposta | Pendente | Não medido |
+| RNF09 Tempo de resposta | Medido localmente (parcial) | Versão otimizada: páginas em 12–36 ms no servidor e 52–112 ms até carregar, com dados de demonstração; sem teste de carga |
 | RNF10 Disponibilidade | Pendente | `/api/saude` pronto; sem medição |
 | RNF11 Navegadores | Pendente | Só Chromium |
 | RNF12 Parâmetros | Testado | `/admin/configuracoes`; regras RN05–RN08, RN14, RN18 testadas |
@@ -138,6 +138,7 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Colar um valor com caracteres a mais em campo com máscara perdia dígitos por causa do limite de tamanho → a máscara passou a limitar os dígitos.
 - Topo do site ocupava cerca de 240 px no celular e cortava o nome do portal → barra de acessibilidade e faixa de demonstração em uma linha cada (122 px).
 - Modo de alto contraste deixava textos ilegíveis (branco sobre amarelo, botão amarelo sobre amarelo) → reescrito com regra única (DT-21) e coberto por teste com axe.
+- Navegação lenta: o sistema era usado em modo de desenvolvimento → comando `npm run preview`; painel de monitoramento fazia 28 consultas ao banco por acesso e listas administrativas vinham sem paginação → consultas em lote, paginação e índices (DT-23).
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada

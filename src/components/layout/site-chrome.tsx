@@ -1,8 +1,8 @@
-/** Cabeçalho, rodapé e barra de acessibilidade do portal (RNF01, eMAG). */
+/** Faixa institucional, cabeçalho e rodapé do portal (RNF01). */
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { Icon } from "../ui/icons";
-import { ContrastToggle, FlashMessage } from "./client-bits";
+import { FlashMessage } from "./client-bits";
 
 export function Emblem({ className = "size-10" }: { className?: string }) {
   // Desenho próprio, inspirado nos elementos do brasão de Maceió (coroa mural, jangada, ondas e
@@ -25,10 +25,23 @@ export function Emblem({ className = "size-10" }: { className?: string }) {
   );
 }
 
-export function AccessibilityBar({ municipio, uf }: { municipio: string; uf: string }) {
+/** Faixa institucional do topo: nome da Prefeitura e serviços de uso rápido pelo cidadão. */
+export function TopBar({ municipio, uf }: { municipio: string; uf: string }) {
   const cidade = municipio.replace(/^Município de /, "");
   return (
     <div className="relative bg-brand-950 text-xs text-white">
+      {/* Atalhos de teclado (WCAG 2.4.1, eMAG): invisíveis até receberem foco pelo teclado. */}
+      <nav aria-label="Atalhos de teclado">
+        <a href="#conteudo" accessKey="1" className="atalho">
+          Ir para o conteúdo
+        </a>
+        <a href="#menu" accessKey="2" className="atalho">
+          Ir para o menu
+        </a>
+        <a href="#rodape" accessKey="4" className="atalho">
+          Ir para o rodapé
+        </a>
+      </nav>
       <div className="container-page flex items-center justify-between gap-x-4 py-1">
         <p className="min-w-0 truncate font-semibold tracking-wide">
           {/* No celular aparece só "Maceió · AL"; leitores de tela recebem o texto completo. */}
@@ -36,17 +49,12 @@ export function AccessibilityBar({ municipio, uf }: { municipio: string; uf: str
           {cidade}
           <span className="font-normal text-brand-200"> · {uf}</span>
         </p>
-        <nav aria-label="Acessibilidade" className="flex shrink-0 items-center gap-x-1 whitespace-nowrap">
-          <span className="mr-1 hidden text-brand-200 lg:inline" aria-hidden="true">
-            Ir para
-          </span>
-          <SkipLink href="#conteudo" accessKey="1" label="Conteúdo" />
-          <SkipLink href="#menu" accessKey="2" label="Menu" />
-          <SkipLink href="#rodape" accessKey="4" label="Rodapé" />
-          <span className="mx-1.5 hidden h-4 w-px bg-white/25 lg:block" aria-hidden="true" />
-          <ContrastToggle />
-          <Link href="/acessibilidade" className="rounded px-1.5 py-1 hover:bg-white/10">
-            Acessibilidade
+        <nav aria-label="Serviços" className="flex shrink-0 items-center gap-x-1 whitespace-nowrap sm:gap-x-3">
+          <Link href="/comprovante" className="rounded px-1.5 py-1 hover:bg-white/10">
+            Verificar comprovante
+          </Link>
+          <Link href="/dados-abertos" className="hidden rounded px-1.5 py-1 hover:bg-white/10 sm:inline">
+            Dados abertos
           </Link>
         </nav>
       </div>
@@ -57,19 +65,6 @@ export function AccessibilityBar({ municipio, uf }: { municipio: string; uf: str
         <span className="flex-[4] bg-municipal-blue" />
       </div>
     </div>
-  );
-}
-
-/** Atalho de teclado (eMAG): "Ir para o …" com a tecla de acesso ao lado. */
-function SkipLink({ href, accessKey, label }: { href: string; accessKey: string; label: string }) {
-  return (
-    <a href={href} accessKey={accessKey} className="atalho">
-      <span className="atalho-prefixo">Ir para o </span>
-      {label}
-      <kbd aria-hidden="true" className="ml-1 inline-grid h-4 min-w-4 place-items-center rounded-[3px] border border-white/30 bg-white/10 px-1 font-sans text-[10px] font-semibold leading-none">
-        {accessKey}
-      </kbd>
-    </a>
   );
 }
 
