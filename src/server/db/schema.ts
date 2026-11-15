@@ -374,20 +374,24 @@ export const alternatives = pgTable(
 );
 
 /** Limitações de público-alvo (RF027). Sem linhas + audienceOpen=true = aberta ao público em geral. */
-export const audienceCriteria = pgTable("audience_criteria", {
-  id: uuid().primaryKey().defaultRandom(),
-  consultationId: uuid()
-    .notNull()
-    .references(() => consultations.id),
-  type: text().notNull(), // domicilio | territorio | faixa_etaria | outro
-  params: jsonb()
-    .$type<{ districtIds?: string[]; regionIds?: string[]; minAge?: number; maxAge?: number; description?: string }>()
-    .notNull()
-    .default({}),
-  justification: text().notNull(),
-  publicText: text().notNull(),
-  createdAt: createdAt(),
-});
+export const audienceCriteria = pgTable(
+  "audience_criteria",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    consultationId: uuid()
+      .notNull()
+      .references(() => consultations.id),
+    type: text().notNull(), // domicilio | territorio | faixa_etaria | outro
+    params: jsonb()
+      .$type<{ districtIds?: string[]; regionIds?: string[]; minAge?: number; maxAge?: number; description?: string }>()
+      .notNull()
+      .default({}),
+    justification: text().notNull(),
+    publicText: text().notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("audience_criteria_consultation_idx").on(t.consultationId)],
+);
 
 export const consultationAssignments = pgTable(
   "consultation_assignments",
@@ -486,6 +490,8 @@ export const participations = pgTable(
     // RN05 / RF039 / RS001: unicidade do par cidadão–consulta no banco.
     uniqueIndex("participations_citizen_consultation_uq").on(t.consultationId, t.citizenId),
     uniqueIndex("participations_receipt_uq").on(t.receiptHash),
+    // "Minhas participações" e marcação "você já participou" nas listagens.
+    index("participations_citizen_idx").on(t.citizenId),
   ],
 );
 
@@ -556,47 +562,59 @@ export const integrityChecks = pgTable("integrity_checks", {
   createdAt: createdAt(),
 });
 
-export const incidents = pgTable("incidents", {
-  id: uuid().primaryKey().defaultRandom(),
-  severity: text().notNull(), // baixa | media | alta
-  type: text().notNull(),
-  consultationId: uuid().references(() => consultations.id),
-  description: text().notNull(),
-  evidence: jsonb().$type<Record<string, unknown>>().notNull().default({}),
-  status: text().notNull().default("aberto"), // aberto | em_analise | encerrado
-  suggestion: text(),
-  conclusion: text(),
-  closedBy: uuid().references(() => users.id),
-  createdAt: createdAt(),
-  closedAt: ts(),
-});
+export const incidents = pgTable(
+  "incidents",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    severity: text().notNull(), // baixa | media | alta
+    type: text().notNull(),
+    consultationId: uuid().references(() => consultations.id),
+    description: text().notNull(),
+    evidence: jsonb().$type<Record<string, unknown>>().notNull().default({}),
+    status: text().notNull().default("aberto"), // aberto | em_analise | encerrado
+    suggestion: text(),
+    conclusion: text(),
+    closedBy: uuid().references(() => users.id),
+    createdAt: createdAt(),
+    closedAt: ts(),
+  },
+  (t) => [index("incidents_consultation_idx").on(t.consultationId, t.status)],
+);
 
-export const outcomes = pgTable("outcomes", {
-  id: uuid().primaryKey().defaultRandom(),
-  consultationId: uuid()
-    .notNull()
-    .references(() => consultations.id),
-  decision: text().notNull(),
-  actions: text().notNull(),
-  organId: uuid()
-    .notNull()
-    .references(() => organs.id),
-  createdBy: uuid().references(() => users.id),
-  createdAt: createdAt(),
-});
+export const outcomes = pgTable(
+  "outcomes",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    consultationId: uuid()
+      .notNull()
+      .references(() => consultations.id),
+    decision: text().notNull(),
+    actions: text().notNull(),
+    organId: uuid()
+      .notNull()
+      .references(() => organs.id),
+    createdBy: uuid().references(() => users.id),
+    createdAt: createdAt(),
+  },
+  (t) => [index("outcomes_consultation_idx").on(t.consultationId)],
+);
 
 /** Cada mudança de situação de um encaminhamento é uma nova linha (somente acréscimo). */
-export const outcomeEntries = pgTable("outcome_entries", {
-  id: bigserial({ mode: "number" }).primaryKey(),
-  outcomeId: uuid()
-    .notNull()
-    .references(() => outcomes.id),
-  status: outcomeStatus().notNull(),
-  justification: text(),
-  expectedDate: date({ mode: "string" }),
-  createdBy: uuid().references(() => users.id),
-  createdAt: createdAt(),
-});
+export const outcomeEntries = pgTable(
+  "outcome_entries",
+  {
+    id: bigserial({ mode: "number" }).primaryKey(),
+    outcomeId: uuid()
+      .notNull()
+      .references(() => outcomes.id),
+    status: outcomeStatus().notNull(),
+    justification: text(),
+    expectedDate: date({ mode: "string" }),
+    createdBy: uuid().references(() => users.id),
+    createdAt: createdAt(),
+  },
+  (t) => [index("outcome_entries_outcome_idx").on(t.outcomeId)],
+);
 
 /* ------------------------------------------------------------------ */
 /* Propostas cidadãs (RF020, RF021, RF067)                             */
@@ -632,7 +650,7 @@ export const citizenProposals = pgTable(
     updatedAt: createdAt(),
     publishedAt: ts(),
   },
-  (t) => [check("citizen_proposals_title_len", sql`char_length(${t.title}) <= 120`), index("citizen_proposals_status_idx").on(t.status)],
+  (t) => [check("citizen_proposals_title_len", sql`char_length(${t.title}) <= 120`), index("citizen_proposals_status_idx").on(t.status), index("citizen_proposals_author_idx").on(t.authorId)],
 );
 
 export const citizenProposalEvents = pgTable("citizen_proposal_events", {
@@ -708,7 +726,11 @@ export const notifications = pgTable(
     readAt: ts(),
     createdAt: createdAt(),
   },
-  (t) => [index("notifications_user_idx").on(t.userId, t.createdAt)],
+  (t) => [
+    index("notifications_user_idx").on(t.userId, t.createdAt),
+    // Contador de avisos não lidos, consultado em toda página de quem está autenticado.
+    index("notifications_unread_idx").on(t.userId).where(sql`${t.readAt} is null`),
+  ],
 );
 
 export const notificationPreferences = pgTable("notification_preferences", {
@@ -721,17 +743,22 @@ export const notificationPreferences = pgTable("notification_preferences", {
   updatedAt: createdAt(),
 });
 
-export const emailOutbox = pgTable("email_outbox", {
-  id: uuid().primaryKey().defaultRandom(),
-  toAddress: text().notNull(),
-  subject: text().notNull(),
-  body: text().notNull(),
-  status: text().notNull().default("pendente"), // pendente | enviado | falhou
-  attempts: integer().notNull().default(0),
-  lastError: text(),
-  createdAt: createdAt(),
-  sentAt: ts(),
-});
+export const emailOutbox = pgTable(
+  "email_outbox",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    toAddress: text().notNull(),
+    subject: text().notNull(),
+    body: text().notNull(),
+    status: text().notNull().default("pendente"), // pendente | enviado | falhou
+    attempts: integer().notNull().default(0),
+    lastError: text(),
+    createdAt: createdAt(),
+    sentAt: ts(),
+  },
+  // Fila de envio lida pela rotina a cada minuto.
+  (t) => [index("email_outbox_pending_idx").on(t.status, t.createdAt)],
+);
 
 /* ------------------------------------------------------------------ */
 /* Auditoria (RF057, RF058) — somente acréscimo, encadeada por hash    */
@@ -752,7 +779,12 @@ export const auditLog = pgTable(
     prevHash: text().notNull(),
     hash: text().notNull(),
   },
-  (t) => [index("audit_log_action_idx").on(t.action, t.occurredAt), index("audit_log_actor_idx").on(t.actorId)],
+  (t) => [
+    index("audit_log_action_idx").on(t.action, t.occurredAt),
+    index("audit_log_actor_idx").on(t.actorId),
+    // Histórico por objeto (usuário, consulta) e tentativas recusadas por consulta no monitoramento.
+    index("audit_log_object_idx").on(t.objectId, t.action),
+  ],
 );
 
 /* ------------------------------------------------------------------ */

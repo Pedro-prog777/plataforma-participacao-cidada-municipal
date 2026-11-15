@@ -22,7 +22,7 @@ import {
 import { clock } from "../../lib/clock";
 import { normalizeSearch } from "@/lib/text";
 import { ARCHIVE_STATUSES, PUBLIC_STATUSES, type ConsultationStatus } from "@/lib/labels";
-import { evaluateEligibility, loadEligibilityConsultation, loadEligibilityUser } from "../voting/eligibility";
+import { evaluateEligibility, loadAudienceCriteria, loadEligibilityUser } from "../voting/eligibility";
 
 export const PAGE_SIZE = 12;
 
@@ -49,6 +49,7 @@ const baseSelect = {
   opensAt: consultations.opensAt,
   closesAt: consultations.closesAt,
   exceptionalDeadline: consultations.exceptionalDeadline,
+  audienceOpen: consultations.audienceOpen,
   theme: themes.name,
   themeId: consultations.themeId,
   region: regions.name,
@@ -93,22 +94,21 @@ export async function listPublicConsultations(filter: ConsultationFilter, viewer
     const ps = await db.select({ id: participations.consultationId }).from(participations).where(eq(participations.citizenId, viewerId));
     ps.forEach((p) => participatedIds.add(p.id));
   }
-  const enriched = await Promise.all(
-    rows.map(async (r) => {
-      let viewerState: "participou" | "pode_participar" | "nao_se_enquadra" | null = null;
-      let viewerReason: string | null = null;
-      if (viewer) {
-        if (participatedIds.has(r.id)) viewerState = "participou";
-        else if (r.status === "aberta") {
-          const ec = await loadEligibilityConsultation(r.id, db);
-          const el = evaluateEligibility(viewer, ec!, false);
-          viewerState = el.eligible ? "pode_participar" : "nao_se_enquadra";
-          viewerReason = el.eligible ? null : el.reason;
-        }
+  // Critérios de todas as consultas abertas em uma única consulta ao banco (antes: duas por consulta).
+  const criteria = viewer ? await loadAudienceCriteria(rows.filter((r) => r.status === "aberta" && !participatedIds.has(r.id)).map((r) => r.id), db) : new Map();
+  const enriched = rows.map((r) => {
+    let viewerState: "participou" | "pode_participar" | "nao_se_enquadra" | null = null;
+    let viewerReason: string | null = null;
+    if (viewer) {
+      if (participatedIds.has(r.id)) viewerState = "participou";
+      else if (r.status === "aberta") {
+        const el = evaluateEligibility(viewer, { status: r.status, opensAt: r.opensAt, closesAt: r.closesAt, audienceOpen: r.audienceOpen, criteria: criteria.get(r.id) ?? [] }, false);
+        viewerState = el.eligible ? "pode_participar" : "nao_se_enquadra";
+        viewerReason = el.eligible ? null : el.reason;
       }
-      return { ...r, viewerState, viewerReason };
-    }),
-  );
+    }
+    return { ...r, viewerState, viewerReason };
+  });
   rows = enriched;
   const filtered = viewerId && filter.canParticipate ? enriched.filter((r) => r.viewerState === "pode_participar") : enriched;
   const page = Math.max(1, filter.page ?? 1);
@@ -176,14 +176,15 @@ export async function participationByTheme(db: DbOrTx = getDb()) {
 }
 
 /** RF063/RF050 — encaminhamentos públicos com a situação mais recente. */
-export async function listPublicOutcomes(filter: { consultationId?: string } = {}, db: DbOrTx = getDb()) {
-  const rows = await db
+export async function listPublicOutcomes(filter: { consultationId?: string; limit?: number } = {}, db: DbOrTx = getDb()) {
+  const query = db
     .select({ o: outcomes, organ: organs.name, consultation: consultations.title, slug: consultations.slug })
     .from(outcomes)
     .innerJoin(organs, eq(organs.id, outcomes.organId))
     .innerJoin(consultations, eq(consultations.id, outcomes.consultationId))
     .where(filter.consultationId ? eq(outcomes.consultationId, filter.consultationId) : undefined)
     .orderBy(desc(outcomes.createdAt));
+  const rows = await (filter.limit ? query.limit(filter.limit) : query);
   const ids = rows.map((r) => r.o.id);
   const entries = ids.length ? await db.select().from(outcomeEntries).where(inArray(outcomeEntries.outcomeId, ids)).orderBy(asc(outcomeEntries.createdAt)) : [];
   return rows.map((r) => {
@@ -192,14 +193,15 @@ export async function listPublicOutcomes(filter: { consultationId?: string } = {
   });
 }
 
-export async function listPublishedResults(db: DbOrTx = getDb()) {
-  return db
+export async function listPublishedResults(limit?: number, db: DbOrTx = getDb()) {
+  const query = db
     .select({ id: consultations.id, slug: consultations.slug, title: consultations.title, closesAt: consultations.closesAt, theme: themes.name, kind: results.kind, data: results.data, publishedAt: results.createdAt })
     .from(results)
     .innerJoin(consultations, eq(consultations.id, results.consultationId))
     .leftJoin(themes, eq(themes.id, consultations.themeId))
     .where(and(inArray(results.kind, ["final", "retificacao"]), eq(consultations.status, "finalizada")))
     .orderBy(desc(results.createdAt));
+  return limit ? query.limit(limit) : query;
 }
 
 export async function referenceData(db: DbOrTx = getDb()) {

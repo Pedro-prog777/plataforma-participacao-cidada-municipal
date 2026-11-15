@@ -1,6 +1,6 @@
-import { Alert, Badge, LinkButton, PageHeader, Table } from "@/components/ui/primitives";
+import { Alert, Badge, LinkButton, PageHeader, Table, Pagination } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
-import { audit, searchAudit, verifyAuditChain } from "@/server/modules/audit/audit.service";
+import { audit, countAudit, searchAudit, verifyAuditChain } from "@/server/modules/audit/audit.service";
 import { openIncident } from "@/server/modules/integrity/incidents.service";
 import { getDb } from "@/server/db/client";
 import { fmtDateTime } from "@/lib/labels";
@@ -11,13 +11,18 @@ export default async function AuditoriaPage({ searchParams }: { searchParams: Pr
   const a = await requireAdmin("auditoria.consultar");
   const sp = await searchParams;
   const filter = { from: sp.de, to: sp.ate, actorId: sp.usuario, action: sp.acao, objectType: sp.objeto, result: sp.resultado };
-  const [rows, chain] = await Promise.all([searchAudit(filter, 300), sp.verificar ? verifyAuditChain() : Promise.resolve(null)]);
+  const PAGE_SIZE = 50;
+  const total = await countAudit(filter);
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(Math.max(1, Math.floor(Number(sp.pagina)) || 1), pages);
+  const [rows, chain] = await Promise.all([searchAudit(filter, PAGE_SIZE, getDb(), (page - 1) * PAGE_SIZE), sp.verificar ? verifyAuditChain() : Promise.resolve(null)]);
   if (chain && !chain.ok) {
     await openIncident(getDb(), { severity: "alta", type: "quebra_auditoria", description: `Encadeamento da auditoria quebrado no registro ${chain.firstInvalidId}: ${chain.reason}.`, evidence: { primeiroInconsistente: chain.firstInvalidId } });
   }
   // A própria consulta à trilha é auditada (RF058).
   await audit(getDb(), { actorId: a.id, actorRole: "gestor_acessos", action: "auditoria_consultada", objectType: "auditoria", objectId: "consulta", details: { filtros: Object.keys(filter).filter((k) => filter[k as keyof typeof filter]) } });
-  const qs = new URLSearchParams(Object.entries(sp).filter(([k, v]) => v && k !== "verificar") as [string, string][]).toString();
+  const qs = new URLSearchParams(Object.entries(sp).filter(([k, v]) => v && k !== "verificar" && k !== "pagina") as [string, string][]).toString();
+  const hrefFor = (p: number) => `/admin/auditoria${qs || p > 1 ? "?" : ""}${qs}${p > 1 ? `${qs ? "&" : ""}pagina=${p}` : ""}`;
   const cls = "block w-full rounded-lg border border-slate-300 bg-white px-3 py-2";
   return (
     <>
@@ -88,6 +93,10 @@ export default async function AuditoriaPage({ searchParams }: { searchParams: Pr
           <code key="h" className="text-xs" title={r.hash}>{r.hash.slice(0, 10)}…</code>,
         ])}
       />
+      <p className="mt-3 text-sm text-muted" role="status">
+        {total === 0 ? "Nenhum registro encontrado." : `${total.toLocaleString("pt-BR")} registro(s) no total; ${PAGE_SIZE} por página. A exportação em CSV traz todos os registros do filtro.`}
+      </p>
+      <Pagination page={page} pages={pages} hrefFor={hrefFor} />
     </>
   );
 }

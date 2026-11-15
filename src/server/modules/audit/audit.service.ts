@@ -88,7 +88,7 @@ export async function verifyAuditChain(db: DbOrTx = getDb()): Promise<{ ok: bool
 
 export type AuditFilter = { from?: string; to?: string; actorId?: string; action?: string; objectType?: string; objectId?: string; result?: string };
 
-export async function searchAudit(filter: AuditFilter, limit = 200, db: DbOrTx = getDb()) {
+function auditConditions(filter: AuditFilter): SQL[] {
   const conds: SQL[] = [];
   if (filter.from) conds.push(gte(auditLog.occurredAt, new Date(`${filter.from}T00:00:00-03:00`)));
   if (filter.to) conds.push(lte(auditLog.occurredAt, new Date(`${filter.to}T23:59:59-03:00`)));
@@ -97,10 +97,23 @@ export async function searchAudit(filter: AuditFilter, limit = 200, db: DbOrTx =
   if (filter.objectType) conds.push(eq(auditLog.objectType, filter.objectType));
   if (filter.objectId) conds.push(eq(auditLog.objectId, filter.objectId));
   if (filter.result) conds.push(eq(auditLog.result, filter.result));
+  return conds;
+}
+
+export async function searchAudit(filter: AuditFilter, limit = 200, db: DbOrTx = getDb(), offset = 0) {
+  const conds = auditConditions(filter);
   return db
     .select()
     .from(auditLog)
     .where(conds.length ? and(...conds) : undefined)
     .orderBy(desc(auditLog.id))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
+}
+
+/** Total de registros que atendem ao filtro (paginação da tela de auditoria). */
+export async function countAudit(filter: AuditFilter, db: DbOrTx = getDb()) {
+  const conds = auditConditions(filter);
+  const [r] = await db.select({ n: sql<number>`count(*)::int` }).from(auditLog).where(conds.length ? and(...conds) : undefined);
+  return r?.n ?? 0;
 }

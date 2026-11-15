@@ -12,14 +12,14 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (13/11/2026, ambiente local Windows 11, Node 24)
+## Última execução registrada (15/11/2026, ambiente local Windows 11, Node 24)
 
 | Suíte | Resultado |
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração + segurança (9 arquivos) | **122 de 122 aprovados** |
-| E2E (3 arquivos, Chromium) | **35 de 35 aprovados** em execução única |
+| Unitários + integração + segurança (10 arquivos) | **128 de 128 aprovados** |
+| E2E (3 arquivos, Chromium) | **36 de 36 aprovados** em execução única |
 | `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
 | Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
 
@@ -39,6 +39,7 @@
 | `tests/integration/voting.test.ts` | Elegibilidade, voto único, concorrência, **sigilo do voto**, comprovante, integridade |
 | `tests/integration/participation.test.ts` | Propostas, anexos, moderação, LGPD, resultados, dados abertos |
 | `tests/integration/administration.test.ts` | Identidade (RF004), perfil (RF012, RF013), usuários e papéis (RF046, RF047), avisos (RF053, RF055), divulgação (RF062), eventos (RF068), parâmetros (RNF12) |
+| `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão |
 | `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
 | `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px |
 
@@ -90,4 +91,35 @@
 - **Pendente:** inspeção manual com NVDA e TalkBack; páginas administrativas não cobertas pelo axe além de uma.
 
 ## Requisitos não funcionais sem medição
-RNF04 (1 MB no primeiro acesso), RNF09 (tempos de resposta), RNF10 (disponibilidade) e RNF14 (restauração de backup) têm apenas mecanismos preparados; não foram medidos.
+RNF10 (disponibilidade) e RNF14 (restauração de backup) têm apenas mecanismos preparados; não foram medidos. RNF09 e RNF04 têm só a medição local abaixo, sem teste de carga.
+
+## Desempenho — medição local (15/11/2026)
+
+Medido com Playwright (Chromium) no mesmo computador, com os dados de demonstração (11 consultas, 155 contas, 144 votos), mediana de 3 acessos por página. “Servidor” é o tempo até o primeiro byte; “carregada” é o evento `load` do navegador.
+
+**Modo de execução** (a causa principal da lentidão percebida):
+
+| Página | Desenvolvimento (`npm run dev`) | Otimizada (`npm run preview`) |
+|---|---|---|
+| Primeiro acesso a cada página | 0,7 s a 30 s (compilação) | sem compilação |
+| Início | 300–1.200 ms | 36 ms |
+| Consultas | 360–570 ms | 29 ms |
+| Detalhe da consulta | 420–480 ms | 29 ms |
+| Resultados | 215–815 ms | 15 ms |
+
+**Otimizações no código** (mesma versão otimizada, antes → depois):
+
+| Página | Consultas ao banco | Tamanho do HTML | Servidor | Carregada |
+|---|---|---|---|---|
+| Administração › Monitoramento | 28 → 7 | 28 KB | 136 → 33 ms | 216 → 71 ms |
+| Administração › Usuários | 5 → 6 | 120 → 38 KB | 100 → 26 ms | 336 → 79 ms |
+| Administração › Auditoria | 7 → 8 | 101 → 49 KB | 137 → 32 ms | 393 → 92 ms |
+| Início (cidadão autenticado) | 13 → 11 | 29 KB | 84 → 34 ms | 163 → 98 ms |
+| Consultas (cidadão autenticado) | 12 → 11 | 34 → 33 KB | 62 → 34 ms | 147 → 110 ms |
+| Minha conta | 5 → 4 | 24 KB | 40 → 22 ms | 83 → 89 ms |
+
+Nas demais páginas públicas o servidor responde em 12–36 ms e a página carrega em 72–109 ms; a troca de página pelo menu leva 82–103 ms. O login leva cerca de 0,4 s por causa do Argon2id, mantido de propósito.
+
+**Primeiro acesso, com o cache vazio (RNF04, meta sugerida de 1 MB):** cerca de 172 KB transferidos em 19–20 requisições nas páginas inicial, de consulta e de cadastro (JavaScript 109–114 KB, fontes 26 KB, HTML 18–23 KB, CSS 9 KB), sem vídeo. Medido em rede local; em internet fraca o tempo será maior, mas o volume é o mesmo.
+
+**Limites desta medição:** uma máquina, um usuário, poucos dados e banco embutido (PGlite). As duas rodadas não foram feitas em condições idênticas de carga da máquina, então parte da diferença de tempo nas páginas que não mudaram é ruído; os números confiáveis são a quantidade de consultas e o tamanho das páginas. Não é teste de carga (RNF09) nem medição de disponibilidade (RNF10).

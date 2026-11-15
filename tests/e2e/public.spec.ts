@@ -82,9 +82,9 @@ for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/com
   });
 }
 
-test("alto contraste: o botão mostra o estado, vale nas páginas seguintes e mantém o contraste (RNF01, eMAG)", async ({ page }) => {
-  await page.goto("/");
-  const botao = page.getByRole("button", { name: "Alto contraste" });
+test("alto contraste: ligado na página de Acessibilidade, vale nas páginas seguintes e mantém o contraste (RNF01, eMAG)", async ({ page }) => {
+  await page.goto("/acessibilidade");
+  const botao = page.getByRole("button", { name: /^Alto contraste/ });
   await expect(botao).toHaveAttribute("aria-pressed", "false");
   await botao.click();
   await expect(botao).toHaveAttribute("aria-pressed", "true");
@@ -94,7 +94,8 @@ test("alto contraste: o botão mostra o estado, vale nas páginas seguintes e ma
   await page.goto("/resultados");
   await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
   await expectAccessible(page);
-  await page.getByRole("button", { name: "Alto contraste" }).click();
+  await page.goto("/acessibilidade");
+  await page.getByRole("button", { name: /^Alto contraste/ }).click();
   await expect(page.locator("html")).not.toHaveAttribute("data-contraste", "alto");
 });
 
@@ -103,6 +104,22 @@ test("o topo identifica o município e avisa que não é o site oficial", async 
   await expect(page.getByText("Prefeitura de Maceió").first()).toBeAttached();
   await expect(page.getByText("Não é o site oficial da Prefeitura", { exact: false })).toBeVisible();
   await expect(page.locator("footer")).toContainText("Não é um serviço oficial da Prefeitura de Maceió");
+  // A faixa do topo traz serviços para o cidadão; contraste e acessibilidade ficam na página própria (DT-22).
+  const servicos = page.getByRole("navigation", { name: "Serviços" });
+  await expect(servicos.getByRole("link", { name: "Verificar comprovante" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Alto contraste/ })).toHaveCount(0);
+  await expect(page.locator("footer").getByRole("link", { name: "Acessibilidade" })).toBeVisible();
+  // Os atalhos de teclado continuam existindo e aparecem ao receber foco.
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Ir para o conteúdo" })).toBeFocused();
+});
+
+test("a troca de página pelo menu funciona e não deixa o indicador de carregamento preso", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation", { name: "Menu principal" }).getByRole("link", { name: "Consultas", exact: true }).click();
+  await expect(page).toHaveURL(/\/consultas$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Carregando a página" })).toHaveCount(0);
 });
 
 test("páginas de consulta e resultado acessíveis (axe)", async ({ page }) => {

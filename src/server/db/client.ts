@@ -19,6 +19,12 @@ export type DbOrTx = Db | Tx;
 export type DbKind = "pg" | "pglite";
 
 type Holder = { db?: Db; kind?: DbKind; close?: () => Promise<void> };
+
+/**
+ * Diagnóstico de desempenho (desligado por padrão): com DB_LOG_QUERIES=1 cada consulta SQL é
+ * escrita no log do servidor, sem os parâmetros (que podem conter dados pessoais).
+ */
+const logger = process.env.DB_LOG_QUERIES === "1" ? { logQuery: (query: string) => console.log(`[sql] ${query.replace(/\s+/g, " ").slice(0, 160)}`) } : undefined;
 const g = globalThis as unknown as { __ppcmDb?: Holder };
 const holder: Holder = (g.__ppcmDb ??= {});
 
@@ -27,14 +33,14 @@ export function getDb(): Db {
     const url = process.env.DATABASE_URL?.trim();
     if (url) {
       const pool = new Pool({ connectionString: url, max: Number(process.env.DB_POOL_MAX || 10) });
-      holder.db = drizzlePg(pool, { schema, casing: "snake_case" });
+      holder.db = drizzlePg(pool, { schema, casing: "snake_case", logger });
       holder.kind = "pg";
       holder.close = () => pool.end();
     } else {
       const dir = path.resolve(process.env.PGLITE_DIR || "./.data/pglite");
       fs.mkdirSync(dir, { recursive: true });
       const client = new PGlite(dir);
-      holder.db = drizzlePglite(client, { schema, casing: "snake_case" }) as unknown as Db;
+      holder.db = drizzlePglite(client, { schema, casing: "snake_case", logger }) as unknown as Db;
       holder.kind = "pglite";
       holder.close = () => client.close();
     }

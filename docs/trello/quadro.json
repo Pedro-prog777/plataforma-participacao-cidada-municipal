@@ -788,7 +788,7 @@
     {
       "lista": "Testes",
       "nome": "Testes unitários, de integração e de segurança",
-      "descricao": "Vitest: 122 de 122 aprovados (9 arquivos), em banco PostgreSQL. Comando: npm run check.",
+      "descricao": "Vitest: 128 de 128 aprovados (10 arquivos), em banco PostgreSQL. Comando: npm run check.",
       "etiquetas": [
         "Testes"
       ],
@@ -806,7 +806,7 @@
           "feito": true
         },
         {
-          "nome": "122 de 122 aprovados",
+          "nome": "128 de 128 aprovados",
           "feito": true
         }
       ],
@@ -825,7 +825,7 @@
     {
       "lista": "Testes",
       "nome": "Testes no navegador e acessibilidade",
-      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 35 de 35 aprovados. Comando: npm run test:e2e.",
+      "descricao": "Playwright em build de produção com axe-core (WCAG 2.2 AA) e verificação a 320 px: 36 de 36 aprovados. Comando: npm run test:e2e.",
       "etiquetas": [
         "Testes"
       ],
@@ -847,7 +847,7 @@
           "feito": true
         },
         {
-          "nome": "35 de 35 aprovados",
+          "nome": "36 de 36 aprovados",
           "feito": true
         }
       ],

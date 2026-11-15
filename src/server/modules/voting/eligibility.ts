@@ -5,7 +5,7 @@
  *  5) consulta Aberta e no período (horário do servidor); 6) ausência de participação anterior.
  * Não existe idade mínima geral (RN01, RN40). Repetida no servidor no momento do voto.
  */
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
 import { audienceCriteria, consultations, districts, participations, users } from "../../db/schema";
 import { ageOn, clock } from "../../lib/clock";
@@ -119,6 +119,18 @@ export async function loadEligibilityConsultation(consultationId: string, db: Db
   if (!c) return null;
   const criteria = await db.select({ type: audienceCriteria.type, params: audienceCriteria.params }).from(audienceCriteria).where(eq(audienceCriteria.consultationId, consultationId));
   return { ...c, criteria };
+}
+
+/** Critérios de público-alvo de várias consultas em uma única consulta ao banco (listagens). */
+export async function loadAudienceCriteria(consultationIds: string[], db: DbOrTx = getDb()) {
+  const byConsultation = new Map<string, EligibilityConsultation["criteria"]>();
+  if (!consultationIds.length) return byConsultation;
+  const rows = await db
+    .select({ consultationId: audienceCriteria.consultationId, type: audienceCriteria.type, params: audienceCriteria.params })
+    .from(audienceCriteria)
+    .where(inArray(audienceCriteria.consultationId, consultationIds));
+  for (const r of rows) byConsultation.set(r.consultationId, [...(byConsultation.get(r.consultationId) ?? []), { type: r.type, params: r.params }]);
+  return byConsultation;
 }
 
 export async function hasParticipated(userId: string, consultationId: string, db: DbOrTx = getDb()) {

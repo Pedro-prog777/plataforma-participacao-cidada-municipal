@@ -11,14 +11,16 @@ import { fmtDate, fmtDateTime, OUTCOME_STATUS } from "@/lib/labels";
 
 export default async function HomePage() {
   const actor = await getCurrentActor();
-  const [{ items }, indicators, results, outcomes] = await Promise.all([
+  // Tudo em paralelo e só com o que a página mostra (3 resultados e 3 encaminhamentos mais recentes).
+  const [{ items }, indicators, results, outcomes, scheduled] = await Promise.all([
     listPublicConsultations({ status: "aberta" }, actor?.kind === "cidadao" ? actor.id : null),
     portalIndicators(),
-    listPublishedResults(),
-    listPublicOutcomes(),
+    listPublishedResults(3),
+    listPublicOutcomes({ limit: 3 }),
+    listPublicConsultations({ status: "agendada" }),
   ]);
   const featured = items[0];
-  const upcoming = (await listPublicConsultations({ status: "agendada" })).items.slice(0, 2);
+  const upcoming = scheduled.items.slice(0, 2);
 
   return (
     <MainContainer wide>

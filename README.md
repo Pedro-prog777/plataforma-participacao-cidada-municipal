@@ -79,7 +79,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Lista, busca e filtros de consultas; página de cada consulta com período, público-alvo, documentos e histórico.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
-- Barra de acessibilidade com atalhos de teclado e modo de alto contraste.
+- Atalhos de teclado e modo de alto contraste (na página Acessibilidade, no rodapé).
 
 **Área do cidadão**
 - Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
@@ -154,10 +154,12 @@ Requisito: **Node.js 20.11 ou superior**. Não é preciso instalar banco de dado
 git clone https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal.git
 cd plataforma-participacao-cidada-municipal
 npm install
-npm run dev
+npm run preview
 ```
 
 Abra <http://localhost:3000>. Na primeira execução o sistema cria o banco local, aplica as migrations e carrega os dados fictícios. Para recomeçar do zero: `npm run db:reset`.
+
+`npm run preview` gera a versão otimizada e a executa: é a forma indicada para **testar e apresentar**, porque as páginas respondem em dezenas de milissegundos. `npm run dev` é só para quem vai alterar o código — nele cada página é compilada no primeiro acesso e a navegação fica visivelmente mais lenta.
 
 **Contas de demonstração** — senha `Demo@2026` para todas (são contas fictícias, criadas só no modo demonstração). A lista completa e os códigos do segundo fator ficam em <http://localhost:3000/demo>.
 
@@ -188,14 +190,14 @@ npm run test:e2e     # testes no navegador, em build de produção, com acessibi
 npm run screenshots  # regenera as capturas das telas
 ```
 
-Última execução (13/11/2026, Windows 11, Node 24):
+Última execução (15/11/2026, Windows 11, Node 24):
 
 | Verificação | Resultado |
 |---|---|
 | Tipos (TypeScript) | sem erros |
 | Lint (ESLint) | sem erros |
-| Unitários, integração e segurança (Vitest, 9 arquivos) | **122 de 122 aprovados** |
-| Ponta a ponta com acessibilidade (Playwright, Chromium) | **35 de 35 aprovados** |
+| Unitários, integração e segurança (Vitest, 10 arquivos) | **128 de 128 aprovados** |
+| Ponta a ponta com acessibilidade (Playwright, Chromium) | **36 de 36 aprovados** |
 | Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades |
 | Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada** a cada envio — [execuções](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions) |
 

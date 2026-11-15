@@ -16,7 +16,9 @@ import { revokeAllSessions } from "../auth/session.service";
 import { notifyUser } from "../notifications/notifications.service";
 
 /** Pesquisa de contas — sem senhas nem votos (RF046). */
-export async function searchUsers(actor: Actor, filter: { q?: string; kind?: string; status?: string }, db: DbOrTx = getDb()) {
+export const USERS_PAGE_SIZE = 25;
+
+export async function searchUsers(actor: Actor, filter: { q?: string; kind?: string; status?: string; page?: number }, db: DbOrTx = getDb()) {
   await assertPermission(actor, "usuarios.gerenciar", {}, db);
   const conds = [];
   if (filter.q) {
@@ -25,15 +27,22 @@ export async function searchUsers(actor: Actor, filter: { q?: string; kind?: str
   }
   if (filter.kind === "cidadao" || filter.kind === "admin") conds.push(eq(users.kind, filter.kind));
   if (filter.status) conds.push(eq(users.status, filter.status as "ativa"));
+  const where = conds.length ? and(...conds) : undefined;
+  const [{ total }] = await db.select({ total: count() }).from(users).where(where);
+  const pages = Math.max(1, Math.ceil(total / USERS_PAGE_SIZE));
+  const page = Math.min(Math.max(1, Math.floor(filter.page ?? 1) || 1), pages);
   const rows = await db
     .select({ id: users.id, kind: users.kind, name: users.fullName, email: users.email, status: users.status, verificationLevel: users.verificationLevel, registration: users.registration, organ: organs.acronym, createdAt: users.createdAt, lastLoginAt: users.lastLoginAt, cpfMasked: users.cpfMasked })
     .from(users)
     .leftJoin(organs, eq(organs.id, users.organId))
-    .where(conds.length ? and(...conds) : undefined)
-    .orderBy(asc(users.fullName))
-    .limit(200);
-  const rs = await db.select({ userId: userRoles.userId, name: roles.name }).from(userRoles).innerJoin(roles, eq(roles.id, userRoles.roleId));
-  return rows.map((r) => ({ ...r, roles: rs.filter((x) => x.userId === r.id).map((x) => x.name) }));
+    .where(where)
+    .orderBy(asc(users.fullName), asc(users.id))
+    .limit(USERS_PAGE_SIZE)
+    .offset((page - 1) * USERS_PAGE_SIZE);
+  // Papéis só das contas desta página.
+  const ids = rows.map((r) => r.id);
+  const rs = ids.length ? await db.select({ userId: userRoles.userId, name: roles.name }).from(userRoles).innerJoin(roles, eq(roles.id, userRoles.roleId)).where(inArray(userRoles.userId, ids)) : [];
+  return { total, page, pages, items: rows.map((r) => ({ ...r, roles: rs.filter((x) => x.userId === r.id).map((x) => x.name) })) };
 }
 
 /** Cria conta administrativa por convite válido por 72 h (RF046). */

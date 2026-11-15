@@ -17,23 +17,34 @@ export async function monitoringPanel(actor: Actor, db: DbOrTx = getDb()) {
   const active = await db.select().from(consultations).where(inArray(consultations.status, ["agendada", "aberta", "suspensa", "encerrada", "apurada", "em_analise", "aprovada"])).orderBy(consultations.closesAt);
   const lowPct = await getSetting("consulta.baixa_participacao_percentual", db);
   const suggestDays = await getSetting("divulgacao.sugerir_dias_antes", db);
-  return Promise.all(
-    active.map(async (c) => {
-      const [{ n: total }] = await db.select({ n: count() }).from(participations).where(eq(participations.consultationId, c.id));
-      // Evolução diária: participações por DATA (a participação não guarda hora).
-      const daily = await db
-        .select({ day: participations.participatedOn, n: count() })
-        .from(participations)
-        .where(eq(participations.consultationId, c.id))
-        .groupBy(participations.participatedOn)
-        .orderBy(participations.participatedOn);
-      // Tentativas recusadas por motivo (auditoria; sem alternativa).
-      const refused = await db
-        .select({ motivo: sql<string>`${auditLog.details}->>'motivo'`, n: count() })
-        .from(auditLog)
-        .where(and(eq(auditLog.action, "voto_recusado"), eq(auditLog.objectId, c.id)))
-        .groupBy(sql`${auditLog.details}->>'motivo'`);
-      const [{ n: openIncidents }] = await db.select({ n: count() }).from(incidents).where(and(eq(incidents.consultationId, c.id), inArray(incidents.status, ["aberto", "em_analise"])));
+  const ids = active.map((c) => c.id);
+  if (!ids.length) return [];
+  // Três consultas agrupadas para todas as consultas ativas (antes eram quatro consultas por consulta).
+  const [dailyRows, refusedRows, incidentRows] = await Promise.all([
+    // Evolução diária: participações por DATA (a participação não guarda hora).
+    db
+      .select({ id: participations.consultationId, day: participations.participatedOn, n: count() })
+      .from(participations)
+      .where(inArray(participations.consultationId, ids))
+      .groupBy(participations.consultationId, participations.participatedOn)
+      .orderBy(participations.participatedOn),
+    // Tentativas recusadas por motivo (auditoria; sem alternativa).
+    db
+      .select({ id: auditLog.objectId, motivo: sql<string>`${auditLog.details}->>'motivo'`, n: count() })
+      .from(auditLog)
+      .where(and(eq(auditLog.action, "voto_recusado"), inArray(auditLog.objectId, ids)))
+      .groupBy(auditLog.objectId, sql`${auditLog.details}->>'motivo'`),
+    db
+      .select({ id: incidents.consultationId, n: count() })
+      .from(incidents)
+      .where(and(inArray(incidents.consultationId, ids), inArray(incidents.status, ["aberto", "em_analise"])))
+      .groupBy(incidents.consultationId),
+  ]);
+  return active.map((c) => {
+      const daily = dailyRows.filter((r) => r.id === c.id).map(({ day, n }) => ({ day, n }));
+      const total = daily.reduce((sum, d) => sum + d.n, 0);
+      const refused = refusedRows.filter((r) => r.id === c.id).map(({ motivo, n }) => ({ motivo, n }));
+      const openIncidents = incidentRows.find((r) => r.id === c.id)?.n ?? 0;
       const pendencias: string[] = [];
       if (c.status === "em_analise" && c.exceptionalDeadline && c.deadlineAuthorization === "pendente") pendencias.push("Decisão sobre prazo excepcional");
       if (c.status === "em_analise") pendencias.push("Aguardando aprovação");
@@ -59,8 +70,7 @@ export async function monitoringPanel(actor: Actor, db: DbOrTx = getDb()) {
         pendencias,
         alerts: { lowParticipation, incidents: openIncidents > 0, suggestDissemination },
       };
-    }),
-  );
+  });
 }
 
 export async function moderationPendingCount(db: DbOrTx = getDb()) {

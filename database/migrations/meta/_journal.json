@@ -15,6 +15,13 @@
       "when": 1794077974398,
       "tag": "0001_gatilhos_somente_acrescimo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794679649083,
+      "tag": "0002_indices_de_desempenho",
+      "breakpoints": true
     }
   ]
 }

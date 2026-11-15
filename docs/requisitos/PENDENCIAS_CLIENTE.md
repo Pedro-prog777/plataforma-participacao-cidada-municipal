@@ -36,3 +36,4 @@ Itens marcados com (\*) no Documento de Requisitos v6 e lacunas encontradas na a
 | Integração oficial gov.br | Exige credenciamento; adaptador simulado (DT-09) |
 | Uso do brasão e da identidade visual oficiais da Prefeitura de Maceió | Marca própria inspirada no brasão; o brasão oficial só com autorização (DT-21) |
 | Lista oficial de bairros e regiões administrativas | 50 bairros em 8 regiões, a conferir com a Prefeitura (DT-21) |
+| Posição dos controles de acessibilidade (eMAG recomenda no topo) | Atalhos ocultos até o foco e alto contraste na página Acessibilidade, por decisão da equipe (DT-22) |

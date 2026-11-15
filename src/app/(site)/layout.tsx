@@ -1,4 +1,4 @@
-import { AccessibilityBar, DemoBanner, SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
+import { DemoBanner, SiteFooter, SiteHeader, TopBar } from "@/components/layout/site-chrome";
 import { getCurrentActor } from "@/server/auth/current";
 import { demoMode, env } from "@/server/lib/env";
 import { unreadCount } from "@/server/modules/notifications/notifications.service";
@@ -9,7 +9,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const demo = demoMode();
   return (
     <div className="flex min-h-dvh flex-col">
-      <AccessibilityBar municipio={env.municipio} uf={env.uf} />
+      <TopBar municipio={env.municipio} uf={env.uf} />
       {demo && <DemoBanner />}
       <SiteHeader user={actor ? { name: actor.name, kind: actor.kind, unread } : null} municipio={env.municipio} />
       <div className="flex-1">{children}</div>

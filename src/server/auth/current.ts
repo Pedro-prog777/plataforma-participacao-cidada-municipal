@@ -24,6 +24,8 @@ export const getCurrentActor = cache(async (): Promise<Actor | null> => {
   const s = await getSession();
   if (!s) return null;
   if (s.kind === "admin" && !s.mfaVerified) return null;
+  // Cidadão não tem papéis: os dados já vieram junto com a sessão (uma consulta a menos por página).
+  if (s.kind === "cidadao") return { id: s.userId, kind: "cidadao", name: s.name, permissions: new Set(), roleNames: [] };
   return loadActor(s.userId);
 });
 
