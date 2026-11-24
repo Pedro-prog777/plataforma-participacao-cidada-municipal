@@ -5,7 +5,7 @@
  */
 import { createContext, useActionState, useContext, useId, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { Alert, Button, cx } from "./primitives";
+import { Alert, Button, comReferencias, cx } from "./primitives";
 import { caretAfterDigits, maskValue, type MaskKind } from "@/lib/masks";
 
 export type FormState = { ok?: boolean; message?: string; fieldErrors?: Record<string, string[]>; data?: Record<string, unknown>; values?: Record<string, string> };
@@ -36,7 +36,7 @@ export function ActionForm({
       <form action={formAction} className={cx("space-y-5", className)} noValidate id={id}>
         {!hideMessage && state.message && (
           <Alert tone={state.ok ? "success" : "danger"} title={state.ok ? undefined : "Não foi possível concluir"}>
-            <p>{state.message}</p>
+            <p>{comReferencias(state.message)}</p>
             {pendencies.length > 0 && (
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 {pendencies.map((p) => (
@@ -80,7 +80,7 @@ export function FieldShell({ label, hint, required, children, name, className, f
   return (
     <div className={cx("space-y-1.5", className)}>
       <label htmlFor={inputId} className="block text-sm font-semibold text-ink">
-        {label}
+        {comReferencias(label)}
         {required ? (
           <span className="text-bad-700" aria-hidden="true">
             {" "}
@@ -93,13 +93,13 @@ export function FieldShell({ label, hint, required, children, name, className, f
       {children({ id: inputId, describedBy, invalid: errors.length > 0, value })}
       {errors.length > 0 && (
         <p id={errId} className="flex items-start gap-1 text-sm font-medium text-bad-700">
-          {errors.join(" ")}
+          {comReferencias(errors.join(" "))}
         </p>
       )}
       {/* A dica fica abaixo do campo: campos lado a lado permanecem alinhados mesmo com dicas de tamanhos diferentes. */}
       {hint && (
         <p id={hintId} className="text-xs text-muted">
-          {hint}
+          {comReferencias(hint)}
         </p>
       )}
     </div>
@@ -208,17 +208,17 @@ export function Checkbox({ label, name, hint, defaultChecked, value = "on", requ
           className="mt-1 size-5 shrink-0 rounded border-slate-400 accent-brand-700"
         />
         <label htmlFor={inputId} className="text-sm">
-          {label}
+          {comReferencias(label)}
           {hint && (
             <span id={hintId} className="block text-xs text-muted">
-              {hint}
+              {comReferencias(hint)}
             </span>
           )}
         </label>
       </div>
       {errors.length > 0 && (
         <p id={errId} className="pl-8 text-sm font-medium text-bad-700">
-          {errors.join(" ")}
+          {comReferencias(errors.join(" "))}
         </p>
       )}
     </div>
@@ -231,7 +231,7 @@ export function RadioGroup({ legend, name, options, required, defaultValue, hint
   return (
     <fieldset className="space-y-2" aria-describedby={[hint ? hintId : null, errors.length ? errId : null].filter(Boolean).join(" ") || undefined}>
       <legend className="text-sm font-semibold text-ink">
-        {legend}
+        {comReferencias(legend)}
         {required && (
           <span className="text-bad-700" aria-hidden="true">
             {" "}
@@ -241,7 +241,7 @@ export function RadioGroup({ legend, name, options, required, defaultValue, hint
       </legend>
       {hint && (
         <p id={hintId} className="text-xs text-muted">
-          {hint}
+          {comReferencias(hint)}
         </p>
       )}
       <div className="space-y-2">
@@ -249,15 +249,15 @@ export function RadioGroup({ legend, name, options, required, defaultValue, hint
           <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 bg-white p-3 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:ring-2 has-[:checked]:ring-brand-200">
             <input type="radio" name={name} value={o.value} defaultChecked={current === o.value} className="mt-1 size-5 shrink-0 accent-brand-700" aria-invalid={errors.length > 0 || undefined} />
             <span>
-              <span className="block font-semibold text-ink">{o.label}</span>
-              {o.description && <span className="block text-sm text-muted">{o.description}</span>}
+              <span className="block font-semibold text-ink">{comReferencias(o.label)}</span>
+              {o.description && <span className="block text-sm text-muted">{comReferencias(o.description)}</span>}
             </span>
           </label>
         ))}
       </div>
       {errors.length > 0 && (
         <p id={errId} className="text-sm font-medium text-bad-700">
-          {errors.join(" ")}
+          {comReferencias(errors.join(" "))}
         </p>
       )}
     </fieldset>
@@ -269,5 +269,5 @@ export function FieldError({ name }: { name: string }) {
   const state = useFormCtx();
   const errs = state.fieldErrors?.[name];
   if (!errs?.length) return null;
-  return <p className="text-sm font-medium text-bad-700">{errs.join(" ")}</p>;
+  return <p className="text-sm font-medium text-bad-700">{comReferencias(errs.join(" "))}</p>;
 }

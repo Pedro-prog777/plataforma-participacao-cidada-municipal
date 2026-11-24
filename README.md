@@ -11,6 +11,7 @@ Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 | **Curso** | Engenharia de Software |
 | **Repositório** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> |
 | **Quadro Trello** | <https://trello.com/b/AQX3bDST> (público) |
+| **Protótipo (Figma)** | <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51> — seção "Referências cruzadas entre requisitos" |
 | **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) |
 
 > **Projeto acadêmico — não é o site oficial da Prefeitura de Maceió.** O sistema é ambientado em Maceió/AL (nome do município e seus 50 bairros reais), mas as consultas, as pessoas, os órgãos e os números são **fictícios**. A marca é um desenho próprio inspirado no brasão da cidade, não o brasão oficial. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
@@ -40,7 +41,7 @@ A votação tem **caráter consultivo**: o resultado orienta a administração, 
 
 ## 2. Objetivo geral
 
-Implementar integralmente o Documento de Requisitos v6 — 68 requisitos funcionais (RF001–RF068), 15 não funcionais (RNF01–RNF15) e 13 de segurança (RS001–RS013) — com rastreabilidade entre requisito, código, tela e teste, e com atenção especial ao sigilo do voto, à proteção de dados pessoais (LGPD) e à acessibilidade.
+Implementar integralmente o Documento de Requisitos v6 — 68 requisitos funcionais (RF001–RF068), 15 não funcionais (RNF01–RNF15) e 13 de segurança (RS001–RS013) — com rastreabilidade entre requisito, código, tela e teste, e com atenção especial ao sigilo do voto, à proteção de dados pessoais e à acessibilidade.
 
 ## 3. Tecnologias utilizadas
 
@@ -80,13 +81,14 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
 - Atalhos de teclado e modo de alto contraste (na página Acessibilidade, no rodapé).
+- Documento de requisitos navegável (`/requisitos`): todo RF, RNF, RN ou RS citado vira link para o requisito, que é destacado por alguns segundos; identificador que não consta do documento fica marcado "a verificar". O reconhecimento é automático, a partir do próprio documento, e vale também para os textos da interface (DT-24).
 
 **Área do cidadão**
 - Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
 - Verificação de identidade (provedor simulado ou análise de documentos).
 - Votação em 3 passos com código de confirmação e comprovante.
 - Envio e acompanhamento de propostas, central de avisos e preferências de notificação.
-- Direitos da LGPD: cópia dos dados e desativação da conta com anonimização.
+- Direitos do titular de dados: cópia dos dados e desativação da conta com anonimização.
 
 **Administração da Prefeitura**
 - Ciclo completo da consulta: proposta, elaboração, alternativas, público-alvo, responsáveis, revisão, aprovação, prazo excepcional, publicação, alteração, suspensão e cancelamento.
@@ -227,6 +229,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 |---|---|
 | **GitHub** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> — código, documentação, testes e capturas; histórico de commits por etapa |
 | **Trello** | <https://trello.com/b/AQX3bDST> — quadro público com 10 listas e 41 cartões: documentação, requisitos, telas (57 capturas anexadas), o que falta fazer, segurança, testes, módulos concluídos e pendências de validação. A definição do quadro fica em [docs/trello/](docs/trello/). |
+| **Figma** | <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51> — protótipo conceitual; a seção "Referências cruzadas entre requisitos" mostra os identificadores clicáveis, a navegação RF001 → RN02 e até o RF004, o destaque temporário e a referência a verificar, com interações de protótipo. |
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 

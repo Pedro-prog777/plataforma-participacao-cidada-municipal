@@ -128,7 +128,7 @@ export async function requestDataCopy(userId: string, password: string, format: 
   const payload = {
     geradoEm: clock.now().toISOString(),
     controlador: `Prefeitura — ${env.municipio}`,
-    observacao: "Cópia dos dados pessoais (LGPD, art. 18). O voto é secreto: a alternativa escolhida não é vinculada à sua conta e por isso não consta deste arquivo.",
+    observacao: "Cópia dos dados pessoais. O voto é secreto: a alternativa escolhida não é vinculada à sua conta e por isso não consta deste arquivo.",
     conta: {
       nomeCompleto: profile?.fullName,
       nomeSocial: profile?.socialName,

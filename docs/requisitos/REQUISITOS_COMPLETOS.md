@@ -1,7 +1,8 @@
 # Requisitos completos — PPCM
 
-> Transcrição integral do **Documento de Requisitos v6** da Plataforma de Participação Cidadã Municipal (PPCM) — CESMAC, Engenharia de Software — João Pedro e Flávia Marina.
+> Transcrição do **Documento de Requisitos v6** da Plataforma de Participação Cidadã Municipal (PPCM) — CESMAC, Engenharia de Software — João Pedro e Flávia Marina.
 > Original preservado em [`docs/requisitos/Documento_de_Requisitos_v6.pdf`](Documento_de_Requisitos_v6.pdf). Os RF001–RF068 foram extraídos do PDF por script (sem reescrita); as tabelas das seções 4–8 foram transcritas e conferidas (totais de pontos de função batem: 120/15/64/150/35 = 384).
+> Citações jurídicas (leis, artigos, bases legais e normas) foram omitidas por decisão da equipe em 23/11/2026, sem alterar o conteúdo técnico nem a numeração (DT-24); o PDF original continua com o texto integral.
 > Itens marcados com **(\*)** ainda precisam ser aprovados pelo cliente — ver [`docs/requisitos/PENDENCIAS_CLIENTE.md`](PENDENCIAS_CLIENTE.md).
 
 ## 1. Introdução
@@ -22,7 +23,7 @@ A referência a requisitos é feita pelo nome da subseção seguido do identific
 
 ### 2.1 Abrangência e sistemas relacionados
 
-A PPCM é um portal web cujo objetivo é aproximar a população da administração municipal. Pela plataforma, o cidadão conhece as consultas públicas abertas pela Prefeitura, entende o assunto em discussão, registra a sua opinião por votação, envia propostas e acompanha os resultados e o que foi feito depois da consulta (encaminhamentos). A votação é uma proposta da equipe e tem **caráter consultivo (\*)**: o resultado orienta a administração, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios previstos em lei (RN34).
+A PPCM é um portal web cujo objetivo é aproximar a população da administração municipal. Pela plataforma, o cidadão conhece as consultas públicas abertas pela Prefeitura, entende o assunto em discussão, registra a sua opinião por votação, envia propostas e acompanha os resultados e o que foi feito depois da consulta (encaminhamentos). A votação é uma proposta da equipe e tem **caráter consultivo (\*)**: o resultado orienta a administração, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios (RN34).
 
 **Usuários**
 
@@ -33,7 +34,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 **Sistemas relacionados:** provedor de identidade gov.br (login e verificação de identidade, com análise documental pelo administrador como alternativa), serviço de e-mail (confirmação de conta, recuperação de senha, comprovantes e avisos), serviço externo de vídeo (a plataforma guarda apenas o link de vídeos longos e transmissões), portal institucional e redes oficiais da Prefeitura (a divulgação é feita manualmente, sem integração automática) e portal de dados abertos (resultados e encaminhamentos em CSV e JSON). A plataforma não executa as propostas e não acompanha obras ou orçamento: ela apenas publica os encaminhamentos registrados pela administração.
 
-**Escopo — inclui:** cadastro, verificação de identidade e autenticação de cidadãos e de contas administrativas; perfil do cidadão, com histórico de participações, propostas e direitos previstos na LGPD; ciclo completo da consulta pública (preparação, responsáveis, revisão, aprovação, publicação, divulgação, monitoramento, encerramento, apuração, resultados e encaminhamentos); votação eletrônica consultiva, com voto único, sigiloso e com comprovante; propostas cidadãs, com estados, resposta administrativa e publicação autorizada; denúncia e moderação de conteúdos enviados por cidadãos; portal público de transparência, histórico, trilha de auditoria e dados abertos; notificações por e-mail e na plataforma; relatórios agregados para a administração.
+**Escopo — inclui:** cadastro, verificação de identidade e autenticação de cidadãos e de contas administrativas; perfil do cidadão, com histórico de participações, propostas e direitos do titular de dados; ciclo completo da consulta pública (preparação, responsáveis, revisão, aprovação, publicação, divulgação, monitoramento, encerramento, apuração, resultados e encaminhamentos); votação eletrônica consultiva, com voto único, sigiloso e com comprovante; propostas cidadãs, com estados, resposta administrativa e publicação autorizada; denúncia e moderação de conteúdos enviados por cidadãos; portal público de transparência, histórico, trilha de auditoria e dados abertos; notificações por e-mail e na plataforma; relatórios agregados para a administração.
 
 **Fora do escopo:** eleições, plebiscitos, referendos e iniciativa popular formal; execução das propostas e acompanhamento de obras ou orçamento (a plataforma apenas publica os encaminhamentos registrados pela administração); transmissão de vídeo, chats e videochamadas; **comentários, apoios e eventos são requisitos condicionados à validação**; integração automática com redes sociais (a divulgação externa é feita por procedimento administrativo, RF062); votação presencial ou em papel; pagamentos e outros serviços da prefeitura; aplicativo móvel nativo (o acesso é feito pelo navegador, inclusive em celulares).
 
@@ -174,7 +175,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 - **Regras:** Sigilo do voto (RN07); Consulta cancelada (RN10); Propostas cidadãs (RN30); Encaminhamentos (RN42).
 - **A validar com o cliente (*):** funcionalidade proposta pela equipe; precisa do aceite do cliente.
 
-### RF015 – Exercer direitos do titular de dados (LGPD)
+### RF015 – Exercer direitos do titular de dados
 
 - **O que faz:** O sistema deve permitir obter cópia dos dados pessoais em formato estruturado e desativar a conta com anonimização, sem alterar votos nem resultados e mantendo o hash do CPF para impedir novo voto.
 - **Fluxo:** 1) pede "Baixar meus dados" e confirma a senha; 2) o sistema gera JSON ou PDF disponível por 48 horas.
@@ -484,7 +485,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF045 – Exportar resultados em formato aberto
 
-- **O que faz:** O sistema deve permitir baixar resultados publicados e dados agregados em CSV, JSON e PDF, sem dados pessoais nem votos individuais, em atenção à LAI.
+- **O que faz:** O sistema deve permitir baixar resultados publicados e dados agregados em CSV, JSON e PDF, sem dados pessoais nem votos individuais.
 - **Fluxo:** 1) escolhe formato e período; 2) o sistema gera o arquivo com contagens, percentuais, datas e hash.
 - **Sem dados no período:** Informa.
 - **Regras:** Sigilo do voto (RN07); Proteção de dados (RN27).
@@ -692,7 +693,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF068 – Divulgar evento participativo e receber perguntas
 
-- **O que faz:** Se adotado, o sistema deve permitir cadastrar evento vinculado a consulta (audiência, reunião ou debate), com pauta, data, local, link de transmissão em serviço externo e, depois, gravação legendada, ata e resumo. O cidadão envia perguntas antecipadas e durante a transmissão; perguntas por telefone são registradas por atendente. A plataforma não transmite vídeo nem faz videochamadas, e o evento não substitui o rito legal da audiência.
+- **O que faz:** Se adotado, o sistema deve permitir cadastrar evento vinculado a consulta (audiência, reunião ou debate), com pauta, data, local, link de transmissão em serviço externo e, depois, gravação legendada, ata e resumo. O cidadão envia perguntas antecipadas e durante a transmissão; perguntas por telefone são registradas por atendente. A plataforma não transmite vídeo nem faz videochamadas, e o evento não substitui o rito da audiência.
 - **Fluxo:** 1) cadastra evento e pauta; 2) publica e abre perguntas; 3) no evento, exibe o link e recebe perguntas; 4) depois, anexa gravação, ata e resumo (RF023).
 - **Pergunta por telefone:** Registrada com protocolo.
 - **Transmissão indisponível:** Aviso com data da gravação.
@@ -707,19 +708,19 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 | ID | Requisito | Descrição | Prioridade |
 |---|---|---|---|
-| RNF01 | Externo – acessibilidade | **Acesso para todos.** Páginas e conteúdos conformes ao nível AA da WCAG 2.2 e às recomendações do eMAG 3.1; verificação automática e manual com leitor de tela nas páginas inicial, de consulta, de participação e de resultado, sem falhas de nível A ou AA. Base legal: LBI, art. 63. | Essencial |
-| RNF02 | Produto – facilidade de uso | **Linguagem simples.** Textos da interface e das consultas em linguagem simples, conferidos na revisão (RF028); participar a partir da página da consulta em até 3 passos, sem contar o login. Base legal: Lei nº 13.460/2017. | Importante |
+| RNF01 | Externo – acessibilidade | **Acesso para todos.** Páginas e conteúdos conformes ao nível AA da WCAG 2.2 e às recomendações do eMAG 3.1; verificação automática e manual com leitor de tela nas páginas inicial, de consulta, de participação e de resultado, sem falhas de nível A ou AA. | Essencial |
+| RNF02 | Produto – facilidade de uso | **Linguagem simples.** Textos da interface e das consultas em linguagem simples, conferidos na revisão (RF028); participar a partir da página da consulta em até 3 passos, sem contar o login. | Importante |
 | RNF03 | Produto – portabilidade | **Uso no celular.** Uso completo a partir de 320 px de largura sem rolagem horizontal (WCAG 1.4.10) e alvos de toque com no mínimo 24 × 24 px (WCAG 2.5.8). | Importante |
 | RNF04 | Produto – eficiência | **Internet fraca (\*).** Páginas inicial e de consulta funcionam sem vídeo e com imagens carregadas sob demanda; meta sugerida de até 1 MB transferido no primeiro acesso. | Importante |
 | RNF05 | Produto – segurança | **Segurança da comunicação e do acesso.** Comunicação somente por HTTPS (TLS 1.2 ou superior); senhas com hash adaptativo; controle de acesso verificado no servidor em toda rota; testes baseados no OWASP Top 10 antes da operação. | Essencial |
-| RNF06 | Externo – legal (LGPD) | **Proteção dos dados pessoais.** Minimização de dados; nenhum dado pessoal em páginas públicas, exportações ou registros de aplicação; relatório de impacto à proteção de dados recomendado antes da operação. Base legal: LGPD. | Essencial |
+| RNF06 | Externo – legal | **Proteção dos dados pessoais.** Minimização de dados; nenhum dado pessoal em páginas públicas, exportações ou registros de aplicação; relatório de impacto à proteção de dados recomendado antes da operação. | Essencial |
 | RNF07 | Produto – confiabilidade | **Integridade do voto.** Participação e voto gravados na mesma transação e em estruturas sem vínculo; teste de concorrência com envios simultâneos do mesmo cidadão resulta em um único voto; hash da base apurada publicado. | Essencial |
 | RNF08 | Produto – segurança | **Registro de tudo o que a administração faz (\*).** Todo ato administrativo registra autor, data e hora do servidor, ação e valores anterior e novo, em trilha somente de acréscimo e encadeada por hash. | Importante |
 | RNF09 | Produto – desempenho | **Tempo de resposta (\*).** Meta sugerida: 95% das páginas públicas em até 2 s e 95% dos registros de voto em até 3 s, sob carga de referência a definir com o município. | Importante |
 | RNF10 | Produto – confiabilidade | **Disponibilidade (\*).** Meta sugerida: 99,5% mensal durante consultas abertas; manutenção programada fora dos períodos de votação e anunciada com antecedência. | Importante |
 | RNF11 | Produto – portabilidade | **Uso em vários navegadores.** Duas últimas versões de Chrome, Edge, Firefox e Safari, inclusive em celulares; leitores de tela NVDA e TalkBack. | Importante |
 | RNF12 | Organizacional – manutenibilidade | **Parâmetros sem mexer no código.** Prazos, limites, quórum, metas e textos padrão configuráveis sem alterar código; testes automatizados das regras RN05–RN08, RN14 e RN18. | Importante |
-| RNF13 | Externo – legal (transparência) | **Dados abertos.** Resultados e encaminhamentos em CSV e JSON, com dicionário de dados e sem dados pessoais. Base legal: LAI, art. 8º, § 3º. | Importante |
+| RNF13 | Externo – legal (transparência) | **Dados abertos.** Resultados e encaminhamentos em CSV e JSON, com dicionário de dados e sem dados pessoais. | Importante |
 | RNF14 | Produto – confiabilidade | **Voto sem perda (\*).** Voto confirmado só após gravação completa; falha durante o registro não gera voto parcial e permite nova tentativa; cópias de segurança diárias com teste periódico de restauração (meta sugerida). | Importante |
 | RNF15 | Produto – facilidade de uso | **Inclusão digital (\*).** Conteúdos essenciais legíveis sem vídeo nem plug-ins; atendimento assistido para registrar propostas e perguntas (RF068), sem votar em nome do cidadão. | Importante |
 
@@ -736,7 +737,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 | RS007 | Nos RF005 e RF007 foi verificado o risco de alguém adivinhar senhas por tentativa e erro ou tomar a conta de outra pessoa. | 1. Bloqueio por 15 minutos após 5 falhas seguidas e CAPTCHA por IP (RN24, RF010). 2. Link de recuperação de uso único, válido por 30 minutos (RN25). 3. Sessão expira por inatividade (RN26) e HTTPS obrigatório (RNF05). |
 | RS008 | No RF048 foi verificado que a divulgação de resultados parciais durante a votação poderia influenciar quem ainda não votou. | 1. Durante a votação, mostrar só o número de participações, para qualquer perfil (RN16). 2. Parciais só com decisão explícita do cliente (\*). |
 | RS009 | Nos RF019 e RF040 foi verificado que um voto poderia ser aceito fora do período por causa do relógio do aparelho ou de atraso da rotina automática. | 1. Conferir a situação e o período sempre pelo horário do servidor (RF040, RN08). 2. Recusar e registrar na auditoria os votos fora do período. |
-| RS010 | Nos RF027 e RF064 foi verificado que dados de crianças e adolescentes poderiam ser tratados sem os cuidados exigidos pela lei. | 1. Forma de participação definida por consulta, com coleta mínima e linguagem adequada (RN40). 2. Consentimento de um dos pais quando o consentimento for a base legal (LGPD, art. 14). 3. Análise jurídica da Lei nº 15.211/2025 antes da operação (\*). |
+| RS010 | Nos RF027 e RF064 foi verificado que dados de crianças e adolescentes poderiam ser tratados sem os cuidados exigidos. | 1. Forma de participação definida por consulta, com coleta mínima e linguagem adequada (RN40). 2. Consentimento de um dos pais quando o tratamento depender de consentimento. 3. Análise jurídica antes da operação (\*). |
 | RS011 | Nos RF020 e RF064 foi verificado que comentários e propostas poderiam conter conteúdo ofensivo, ilegal ou dados pessoais. | 1. Denúncia com protocolo e ocultação preventiva (RF065). 2. Moderação justificada, com direito a um pedido de revisão (RF066). |
 | RS012 | Nos RF020 e RF023 foi verificado que poderia ser anexado um arquivo com vírus. | 1. Verificar o formato real, o tamanho e a presença de vírus antes de guardar o arquivo (RF023). 2. Guardar cada arquivo com hash SHA-256. |
 | RS013 | Nos RF057 e RF058 foi verificado que a trilha de auditoria poderia ser adulterada ou perdida. | 1. Log somente de acréscimo, encadeado por hash (RF057). 2. Verificação do encadeamento com alerta de segurança (RF058, RF060). 3. Cópia de segurança diária com teste de restauração (RNF14). |
@@ -941,20 +942,8 @@ Pesos usados:
 2. JOÃO PEDRO; FLAVIA MARINA. *Especificação de Requisitos de Software – Plataforma de Participação Cidadã Municipal*: versão 2.0. Trabalho acadêmico. Outubro de 2026.
 3. ABNT. NBR 6024: numeração progressiva das seções de um documento. Rio de Janeiro: ABNT, 2012.
 4. ABNT. NBR 14724: trabalhos acadêmicos: apresentação. Rio de Janeiro: ABNT, 2011.
-5. BRASIL. Constituição da República Federativa do Brasil de 1988.
-6. BRASIL. Lei nº 8.069, de 13 de julho de 1990 (Estatuto da Criança e do Adolescente).
-7. BRASIL. Lei nº 9.709, de 18 de novembro de 1998 (regulamenta o art. 14, I a III, da CF).
-8. BRASIL. Lei nº 10.257, de 10 de julho de 2001 (Estatuto da Cidade).
-9. BRASIL. Lei nº 12.527, de 18 de novembro de 2011 (Lei de Acesso à Informação).
-10. BRASIL. Lei nº 13.146, de 6 de julho de 2015 (Lei Brasileira de Inclusão).
-11. BRASIL. Lei nº 13.460, de 26 de junho de 2017 (direitos do usuário dos serviços públicos).
-12. BRASIL. Lei nº 13.709, de 14 de agosto de 2018 (LGPD).
-13. BRASIL. Lei nº 14.129, de 29 de março de 2021 (Governo Digital).
-14. BRASIL. Lei nº 15.211, de 17 de setembro de 2025 (proteção de crianças e adolescentes em ambientes digitais).
-15. BRASIL. Ministério das Cidades. ConCidades. Resolução nº 25, de 18 de março de 2005.
-16. BRASIL. MPOG. eMAG: Modelo de Acessibilidade em Governo Eletrônico. Versão 3.1. 2014.
-17. ANPD. Enunciado CD/ANPD nº 1, de 24 de maio de 2023.
-18. ISO/IEC/IEEE 29148:2018 — requirements engineering.
-19. PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de software*. 9. ed. AMGH, 2021.
-20. SOMMERVILLE, I. *Engenharia de software*. 10. ed. Pearson, 2019.
-21. W3C. Web Content Accessibility Guidelines (WCAG) 2.2. 2023.
+5. BRASIL. MPOG. eMAG: Modelo de Acessibilidade em Governo Eletrônico. Versão 3.1. 2014.
+6. ISO/IEC/IEEE 29148:2018 — requirements engineering.
+7. PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de software*. 9. ed. AMGH, 2021.
+8. SOMMERVILLE, I. *Engenharia de software*. 10. ed. Pearson, 2019.
+9. W3C. Web Content Accessibility Guidelines (WCAG) 2.2. 2023.

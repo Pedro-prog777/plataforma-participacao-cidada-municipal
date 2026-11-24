@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Checkbox, Field, FieldError, SelectField, SubmitButton } from "@/components/ui/form";
 import { Alert, Badge, Card, PageHeader } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -26,7 +27,10 @@ export default async function ConfiguracoesPage() {
                 .map((s) => {
                   const label = (
                     <>
-                      {s.label} {"pendente" in s && s.pendente && <Badge tone="warning">pendente (*)</Badge>} <span className="text-xs font-normal text-muted">[{s.source}]</span>
+                      <RefText>{s.label}</RefText> {"pendente" in s && s.pendente && <Badge tone="warning">pendente (*)</Badge>}{" "}
+                      <span className="text-xs font-normal text-muted">
+                        [<RefText>{s.source}</RefText>]
+                      </span>
                     </>
                   );
                   if (s.kind === "boolean")

@@ -9,7 +9,7 @@ Itens marcados com (\*) no Documento de Requisitos v6 e lacunas encontradas na a
 | 3 | Dados exigidos no cadastro e obrigatoriedade do CPF | RF001 | CPF obrigatório (validação de dígitos) | `auth.service.ts` |
 | 4 | Prazo padrão de 20 dias; redução para 10; o que é emergência; quem autoriza | RF025, RF029 | 20 / 10 dias; redução exige justificativa + papel “Autorizador de prazo excepcional” | `/admin/configuracoes` |
 | 5 | Público-alvo padrão das consultas | RF027, RF036 | Padrão herdado: **domicílio no município** | `consulta.publico_padrao` |
-| 6 | Participação de crianças e adolescentes | RF027, RS010 | Critério etário só por consulta, com modalidade e salvaguardas; consentimento parental **não implementado** | Análise jurídica (Lei 15.211/2025, LGPD art. 14) |
+| 6 | Participação de crianças e adolescentes | RF027, RS010 | Critério etário só por consulta, com modalidade e salvaguardas; consentimento parental **não implementado** | Análise jurídica |
 | 7 | Regra de apuração, quórum e publicação do preliminar | RF042–RF044 | Maioria simples dos válidos; quórum opcional por consulta; preliminar **não** publicado | `resultado.publicar_preliminar` |
 | 8 | Exibição de resultados parciais | RF048, RS008 | Não adotada (somente participações) | — |
 | 9 | Limite, apoios e metas das propostas cidadãs | RF020, RF021, RF067 | Limite 3 em análise; apoios desligados; meta e prazo **sem valor** | `proposta.limite_em_analise`, `recursos.apoios`, `apoios.meta`, `apoios.prazo_dias` |

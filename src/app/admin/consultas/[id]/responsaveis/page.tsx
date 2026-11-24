@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, FieldError, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -19,7 +20,7 @@ export default async function ResponsaveisPage({ params }: { params: Promise<{ i
     <Card className="space-y-4">
       <div>
         <h2 className="text-lg font-bold">Responsáveis e papéis da consulta</h2>
-        <p className="text-sm text-muted">Uma conta pode acumular papéis, exceto elaborar ou revisar e aprovar (RN20). Publicamente aparece apenas a unidade responsável, não o nome das pessoas.</p>
+        <p className="text-sm text-muted"><RefText>Uma conta pode acumular papéis, exceto elaborar ou revisar e aprovar (RN20). Publicamente aparece apenas a unidade responsável, não o nome das pessoas.</RefText></p>
       </div>
       {!allowed && <Alert tone="neutral">Somente o gestor de acessos designa responsáveis.</Alert>}
       <ActionForm action={assignmentsAction.bind(null, id)}>

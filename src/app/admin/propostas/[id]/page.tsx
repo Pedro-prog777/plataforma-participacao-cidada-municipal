@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
@@ -46,7 +47,7 @@ export default async function AnaliseProposta({ params }: { params: Promise<{ id
           </Section>
         </div>
         <Card className="space-y-4 self-start">
-          <h2 className="font-bold">Análise (RN30)</h2>
+          <h2 className="font-bold"><RefText>Análise (RN30)</RefText></h2>
           {p.hidden && <Alert tone="warning">Conteúdo oculto por denúncias; siga a moderação (RF066).</Alert>}
           {p.status === "recebida" && (
             <ActionForm action={act}>

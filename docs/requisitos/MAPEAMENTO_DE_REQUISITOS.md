@@ -31,7 +31,7 @@
 | RF012 | Visualizar perfil | /conta | Implementado |
 | RF013 | Atualizar dados do perfil | /conta/perfil/editar | Implementado |
 | RF014 | Acompanhar participações e propostas | /conta/participacoes, /conta/participacoes/[id] | Implementado |
-| RF015 | Exercer direitos do titular de dados (LGPD) | /conta/privacidade, /api/conta/dados/[id] | Implementado |
+| RF015 | Exercer direitos do titular de dados | /conta/privacidade, /api/conta/dados/[id] | Implementado |
 | RF016 | Listar consultas públicas | /consultas, / | Implementado |
 | RF017 | Pesquisar e filtrar consultas | /consultas, /consultas/pesquisa | Implementado |
 | RF018 | Visualizar detalhes da consulta | /consultas/[slug] | Implementado |
@@ -281,7 +281,7 @@
 - **Situação:** Implementado — Proposta da equipe (*) — mantida ativa por ser essencial ao comprovante.
 - **Pendência com o cliente (*):** funcionalidade proposta pela equipe; precisa do aceite do cliente.
 
-### RF015 — Exercer direitos do titular de dados (LGPD)
+### RF015 — Exercer direitos do titular de dados
 
 - **Objetivo:** O sistema deve permitir obter cópia dos dados pessoais em formato estruturado e desativar a conta com anonimização, sem alterar votos nem resultados e mantendo o hash do CPF para impedir novo voto.
 - **Funcionalidade implementada:** /conta/privacidade, /api/conta/dados/[id]
@@ -702,7 +702,7 @@
 
 ### RF045 — Exportar resultados em formato aberto
 
-- **Objetivo:** O sistema deve permitir baixar resultados publicados e dados agregados em CSV, JSON e PDF, sem dados pessoais nem votos individuais, em atenção à LAI.
+- **Objetivo:** O sistema deve permitir baixar resultados publicados e dados agregados em CSV, JSON e PDF, sem dados pessoais nem votos individuais.
 - **Funcionalidade implementada:** /dados-abertos, /api/dados-abertos/[dataset]
 - **Código:** modules/results/open-data.service.ts
 - **Regras de negócio:** Sigilo do voto (RN07); Proteção de dados (RN27).

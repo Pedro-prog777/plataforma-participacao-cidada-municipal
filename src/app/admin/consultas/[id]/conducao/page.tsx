@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Checkbox, Field, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -48,7 +49,7 @@ export default async function ConducaoPage({ params }: { params: Promise<{ id: s
       )}
       {["agendada", "aberta", "suspensa"].includes(c.status) && (
         <Card className="space-y-3 lg:col-span-2">
-          <h2 className="text-lg font-bold">Alterar consulta publicada (RF032)</h2>
+          <h2 className="text-lg font-bold"><RefText>Alterar consulta publicada (RF032)</RefText></h2>
           <p className="text-sm text-muted">Permitido apenas: correção textual que não mude o sentido, prorrogação antes do encerramento e ajuste da abertura enquanto Agendada. Pergunta, alternativas e público-alvo não mudam: para isso, cancele e crie nova consulta. Toda alteração tem justificativa pública e notifica quem votou.</p>
           <div className="grid gap-6 lg:grid-cols-3">
             <ActionForm action={alterPublishedAction.bind(null, id)} className="rounded-xl border border-line p-4">

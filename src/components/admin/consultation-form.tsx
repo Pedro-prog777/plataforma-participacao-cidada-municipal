@@ -1,5 +1,6 @@
 "use client";
 /** Formulário de dados da consulta (RF025) — usado na criação e na edição (RF024). */
+import { RefText } from "@/components/requisitos/ref-text";
 import { Checkbox, Field, SelectField, TextArea } from "../ui/form";
 import { CharCounter } from "../layout/client-bits";
 
@@ -43,7 +44,7 @@ export function ConsultationFields({ themes, regions, organs, d = {}, prazo }: {
       </fieldset>
       <fieldset className="space-y-4">
         <legend className="mb-1 text-lg font-bold text-brand-900">Apuração e próximos passos</legend>
-        <p className="text-sm text-muted">Regra de apuração: maioria simples dos votos válidos (padrão, RN18). A natureza é sempre consultiva (RN34).</p>
+        <p className="text-sm text-muted"><RefText>Regra de apuração: maioria simples dos votos válidos (padrão, RN18). A natureza é sempre consultiva (RN34).</RefText></p>
         <div className="grid gap-4 sm:grid-cols-2">
           <SelectField
             label="Quórum de referência"
@@ -58,7 +59,7 @@ export function ConsultationFields({ themes, regions, organs, d = {}, prazo }: {
           <Field label="Valor do quórum" name="quorumValue" id="quorumValue" inputMode="decimal" defaultValue={s("quorumValue")} />
         </div>
         <TextArea label="O que acontecerá após o encerramento" name="nextSteps" id="nextSteps" required defaultValue={s("nextSteps")} />
-        <Checkbox name="ownRite" label="Tema com rito próprio previsto em lei (ex.: Plano Diretor)" defaultChecked={d.ownRite === true} />
+        <Checkbox name="ownRite" label="Tema com rito próprio (ex.: Plano Diretor)" defaultChecked={d.ownRite === true} />
         <Checkbox name="ownRiteConfirmed" label="Confirmo que a norma aplicável foi verificada" defaultChecked={d.ownRiteConfirmed === true} />
       </fieldset>
     </>

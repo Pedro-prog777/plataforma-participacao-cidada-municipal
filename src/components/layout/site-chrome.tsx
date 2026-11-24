@@ -175,7 +175,7 @@ export function SiteFooter({ municipio, demo }: { municipio: string; demo: boole
         </div>
         <FooterCol title="Participar" links={[["/consultas", "Consultas públicas"], ["/propostas", "Propostas cidadãs"], ["/conta/propostas/nova", "Enviar proposta"], ["/comprovante", "Verificar comprovante"]]} />
         <FooterCol title="Transparência" links={[["/transparencia", "Portal de transparência"], ["/resultados", "Resultados"], ["/encaminhamentos", "Encaminhamentos"], ["/dados-abertos", "Dados abertos"]]} />
-        <FooterCol title="Informações" links={[["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e LGPD"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"]]} />
+        <FooterCol title="Informações" links={[["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e dados pessoais"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"], ["/requisitos", "Documento de requisitos"]]} />
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-4 text-xs text-muted sm:flex-row sm:justify-between">

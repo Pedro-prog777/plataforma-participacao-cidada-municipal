@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Field, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card, DescriptionList, Section, Table } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -22,7 +23,7 @@ export default async function DivulgacaoPage({ params }: { params: Promise<{ id:
       <div className="grid gap-6 lg:grid-cols-[1fr_16rem]">
         <Card className="space-y-4">
           <h2 className="text-lg font-bold">Material gerado a partir dos dados aprovados</h2>
-          <p className="text-xs text-muted">Sem resultados parciais (RN16). A publicação externa é manual.</p>
+          <p className="text-xs text-muted"><RefText>Sem resultados parciais (RN16). A publicação externa é manual.</RefText></p>
           <div>
             <p className="text-sm font-semibold">Texto curto</p>
             <p className="rounded-lg bg-brand-50 p-3 text-sm">{m.shortText}</p>

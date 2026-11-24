@@ -1,3 +1,4 @@
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, BarChart, Card, DescriptionList, Section, Table } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -21,7 +22,7 @@ export default async function AdminResultadoPage({ params }: { params: Promise<{
   if (["rascunho", "em_revisao", "em_analise", "rejeitada", "aprovada", "agendada", "aberta", "suspensa"].includes(c.status)) {
     return (
       <Alert tone="info" title="Resultado indisponível durante a preparação e a votação">
-        Para nenhum perfil são exibidas contagens por alternativa antes do encerramento (RN16). Participações registradas até agora: <strong>{nPart}</strong>.
+        <RefText>Para nenhum perfil são exibidas contagens por alternativa antes do encerramento (RN16).</RefText> Participações registradas até agora: <strong>{nPart}</strong>.
       </Alert>
     );
   }
