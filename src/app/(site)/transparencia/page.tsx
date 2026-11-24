@@ -10,12 +10,12 @@ export const metadata = { title: "Portal de transparência" };
 const LINKS: [string, string, string, IconName][] = [
   ["/consultas", "Consultas públicas", "Todas as consultas publicadas, com documentos, período e público-alvo.", "ballot"],
   ["/consultas/encerradas", "Acervo de consultas", "Consultas finalizadas e canceladas, para sempre disponíveis.", "list"],
-  ["/resultados", "Resultados", "Resultados homologados com metodologia e hash de verificação.", "chart"],
+  ["/resultados", "Resultados", "Resultados oficiais, com a explicação de como foram calculados.", "chart"],
   ["/encaminhamentos", "Encaminhamentos", "O que a Prefeitura registrou como providência após cada resultado.", "route"],
   ["/propostas", "Propostas cidadãs publicadas", "Propostas cujo autor autorizou a publicação, com a resposta oficial.", "lightbulb"],
   ["/indicadores", "Painel de indicadores", "Números gerais de participação por tema e situação.", "users"],
-  ["/dados-abertos", "Dados abertos", "Resultados e encaminhamentos em CSV, JSON e PDF, com dicionário de dados.", "download"],
-  ["/como-funciona", "Como funciona", "Natureza consultiva, sigilo do voto, voto único, apuração e comprovantes.", "info"],
+  ["/dados-abertos", "Dados abertos", "Baixe resultados e encaminhamentos em planilha ou PDF.", "download"],
+  ["/como-funciona", "Como funciona", "Para que serve a votação, sigilo do voto, voto único, contagem e comprovantes.", "info"],
   ["/comprovante", "Verificar comprovante", "Confirme que uma participação consta e foi contabilizada.", "shield"],
 ];
 

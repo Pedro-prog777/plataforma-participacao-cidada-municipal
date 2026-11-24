@@ -22,10 +22,10 @@ export default async function PrivacidadeContaPage() {
               <RadioGroup
                 legend="Formato"
                 name="format"
-                defaultValue="json"
+                defaultValue="pdf"
                 options={[
-                  { value: "json", label: "JSON (estruturado)" },
-                  { value: "pdf", label: "PDF (para leitura)" },
+                  { value: "pdf", label: "PDF — para ler e imprimir" },
+                  { value: "json", label: "Arquivo de dados (JSON) — para usar em outros sistemas" },
                 ]}
               />
               <Field label="Confirme com sua senha" name="password" type="password" required autoComplete="current-password" className="max-w-sm" />

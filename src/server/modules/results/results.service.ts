@@ -112,7 +112,7 @@ export async function tallyConsultation(consultationId: string, db: DbOrTx = get
     await tx.insert(results).values({ consultationId, kind: "preliminar", data, hash, baseHash, createdAt: clock.now() });
     if (!opts.recount) {
       await tx.update(consultations).set({ status: "apurada" }).where(eq(consultations.id, consultationId));
-      await recordPublicEvent(tx, consultationId, "apuracao", "Votos apurados automaticamente. Resultado preliminar aguardando homologação.", null, { hashBase: baseHash });
+      await recordPublicEvent(tx, consultationId, "apuracao", "Votos contados automaticamente. Resultado preliminar aguardando conferência.", null, { hashBase: baseHash });
       for (const u of await usersWithPermission("resultados.publicar", tx)) {
         await notifyUser(tx, u.id, { type: "conta", title: "Resultado preliminar disponível", body: `A consulta "${c.title}" foi apurada e aguarda homologação.`, link: `/admin/consultas/${consultationId}/resultado` });
       }
@@ -146,7 +146,7 @@ export async function publishFinalResult(actor: Actor, consultationId: string, n
       .values({ consultationId, kind: "final", data: prelim.data, hash: prelim.hash, baseHash: prelim.baseHash, note: n, createdBy: actor.id, createdAt: clock.now() })
       .returning();
     await tx.update(consultations).set({ status: "finalizada" }).where(eq(consultations.id, consultationId));
-    await recordPublicEvent(tx, consultationId, "resultado", "Resultado final homologado e publicado.", n, { hash: final.hash });
+    await recordPublicEvent(tx, consultationId, "resultado", "Resultado final conferido e publicado.", n, { hash: final.hash });
     await audit(tx, { actorId: actor.id, actorRole: "publicacao_resultados", action: "resultado_publicado", objectType: "consulta", objectId: consultationId, details: { hash: final.hash } });
     await notifyVoters(tx, consultationId, "resultado", `Resultado publicado: ${c.title}`, `O resultado da consulta "${c.title}" foi publicado. Lembre-se: a votação é consultiva e orienta a administração.`, `/consultas/${c.slug}/resultado`);
     return final;
@@ -169,9 +169,9 @@ export async function publishRectification(actor: Actor, consultationId: string,
       .insert(results)
       .values({ consultationId, kind: "retificacao", data, hash, baseHash, note: n || prev?.note, justification: j, rectifiesId: prev?.id, createdBy: actor.id, createdAt: clock.now() })
       .returning();
-    await recordPublicEvent(tx, consultationId, "retificacao", "Resultado retificado. O resultado original permanece visível.", j, { hash });
+    await recordPublicEvent(tx, consultationId, "retificacao", "Resultado corrigido oficialmente. O resultado original continua visível.", j, { hash });
     await audit(tx, { actorId: actor.id, actorRole: "publicacao_resultados", action: "resultado_retificado", objectType: "consulta", objectId: consultationId, justification: j });
-    await notifyVoters(tx, consultationId, "resultado", `Retificação de resultado: ${c.title}`, `O resultado da consulta foi retificado. Justificativa: ${j}`, `/consultas/${c.slug}/resultado`);
+    await notifyVoters(tx, consultationId, "resultado", `Resultado corrigido: ${c.title}`, `O resultado da consulta foi corrigido oficialmente. Justificativa: ${j}`, `/consultas/${c.slug}/resultado`);
     return r;
   });
 }

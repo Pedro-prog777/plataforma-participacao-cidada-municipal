@@ -64,7 +64,7 @@ export default async function ConsultaPage({ params }: { params: Promise<{ slug:
       {c.status === "cancelada" && (
         <Alert tone="danger" title="Consulta cancelada" className="mb-6">
           <p>{c.statusReason}</p>
-          <p>Os votos registrados foram lacrados e não foram apurados.</p>
+          <p>Os votos registrados foram guardados sem contagem e não entram em nenhum resultado.</p>
         </Alert>
       )}
 
@@ -183,7 +183,7 @@ export default async function ConsultaPage({ params }: { params: Promise<{ slug:
               </Card>
             </Section>
           )}
-          {c.status === "apurada" && <Alert tone="info" title="Apuração concluída">O resultado está em homologação e será publicado em breve.</Alert>}
+          {c.status === "apurada" && <Alert tone="info" title="Votos contados">O resultado está em conferência e será publicado em breve.</Alert>}
 
           {c.status === "finalizada" && (
             <Section title="Encaminhamentos" id="encaminhamentos" description="Providências registradas pela Prefeitura. A plataforma não cria compromissos: exibe apenas o que foi registrado.">

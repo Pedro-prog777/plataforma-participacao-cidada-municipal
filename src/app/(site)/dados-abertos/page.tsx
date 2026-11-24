@@ -11,7 +11,7 @@ export default function DadosAbertosPage() {
     <MainContainer>
       <PageHeader
         title="Dados abertos"
-        description="Resultados e encaminhamentos em formato aberto. Somente dados agregados: sem dados pessoais e sem votos individuais."
+        description="Baixe os resultados e os encaminhamentos para abrir em planilhas ou usar em outros sistemas. Só números gerais: sem dados pessoais e sem votos individuais."
         breadcrumbs={[{ href: "/", label: "Início" }, { href: "/transparencia", label: "Transparência" }, { label: "Dados abertos" }]}
       />
       <div className="grid gap-6 md:grid-cols-2">
@@ -24,8 +24,8 @@ export default function DadosAbertosPage() {
                   Formato
                 </label>
                 <select id={`${ds}-formato`} name="formato" className={field}>
-                  <option value="csv">CSV</option>
-                  <option value="json">JSON</option>
+                  <option value="csv">Planilha (CSV)</option>
+                  <option value="json">Dados para sistemas (JSON)</option>
                   <option value="pdf">PDF</option>
                 </select>
               </div>
@@ -53,11 +53,11 @@ export default function DadosAbertosPage() {
         ))}
       </div>
       {(["resultados", "encaminhamentos"] as const).map((ds) => (
-        <Section key={ds} title={`Dicionário de dados — ${ds}`} className="mt-10">
+        <Section key={ds} title={`O que significa cada coluna — ${ds}`} className="mt-10">
           <Table head={["Campo", "Tipo", "Descrição"]} rows={DATA_DICTIONARY[ds].map((d) => [<code key="c">{d.campo}</code>, d.tipo, d.descricao])} />
         </Section>
       ))}
-      <p className="mt-6 text-sm text-muted">CSV com separador “;” e codificação UTF-8. Datas em ISO 8601 (UTC).</p>
+      <p className="mt-6 text-sm text-muted">Informações técnicas: a planilha usa “;” como separador e codificação UTF-8; as datas seguem o padrão ISO 8601, no horário UTC.</p>
     </MainContainer>
   );
 }

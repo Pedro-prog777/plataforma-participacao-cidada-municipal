@@ -102,3 +102,26 @@ test("cidadão não acessa a área administrativa e a tentativa é negada (RF009
   await page.goto("/admin");
   await expect(page).toHaveURL(/acesso-negado/);
 });
+
+test("as telas do cidadão falam a língua do cidadão: sem termos técnicos nem códigos de requisito", async ({ page }) => {
+  // Termos de desenvolvedor ou jurídico-administrativos que não devem aparecer para o cidadão.
+  const tecnico = /\b(hash|SHA-?256|HMAC|DEMO_MODE|SMTP|OIDC|TOTP|homolog\w*|apura\w*|quórum|metodologia|elegib\w*|determin[íi]stic\w*)\b|provedor de identidade|\b(RNF?\d{2}|RF\d{3}|RS\d{3})\b/i;
+  const conferir = async (url: string) => {
+    await page.goto(url);
+    const texto = await page.locator("body").innerText();
+    expect(texto.match(tecnico)?.[0], `termo técnico em ${url}`).toBeUndefined();
+  };
+  for (const url of ["/", "/consultas", "/consultas/encerradas", "/resultados", "/transparencia", "/indicadores", "/encaminhamentos", "/propostas", "/como-funciona", "/comprovante", "/privacidade", "/termos", "/acessibilidade", "/prefeitura", "/cadastro", "/entrar"]) await conferir(url);
+  await page.goto("/resultados");
+  const resultado = await page.locator('main a[href$="/resultado"]').first().getAttribute("href");
+  if (resultado) await conferir(resultado);
+  await page.goto("/consultas");
+  const consulta = await page.locator('main a[href^="/consultas/"]:not([href*="encerradas"])').first().getAttribute("href");
+  if (consulta) {
+    await conferir(consulta);
+    await conferir(`${consulta}/historico`);
+  }
+  await loginCitizen(page, "maria@exemplo.com");
+  for (const url of ["/conta", "/conta/participacoes", "/conta/propostas", "/conta/privacidade", "/conta/verificacao", "/conta/notificacoes", "/avisos"]) await conferir(url);
+});
+

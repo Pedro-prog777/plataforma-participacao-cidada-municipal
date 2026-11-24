@@ -11,7 +11,7 @@ import { simulatedProviderReturnAction } from "@/server/actions/citizen";
 import { requireCitizen } from "@/server/auth/current";
 import { demoMode, env } from "@/server/lib/env";
 
-export const metadata = { title: "Provedor de identidade simulado" };
+export const metadata = { title: "Login gov.br simulado" };
 
 export default async function ProvedorPage({ searchParams }: { searchParams: Promise<{ state?: string }> }) {
   if (!demoMode()) notFound();
@@ -20,7 +20,7 @@ export default async function ProvedorPage({ searchParams }: { searchParams: Pro
   return (
     <MainContainer>
       <div className="mx-auto max-w-xl">
-        <PageHeader title="Provedor de identidade (simulado)" description="Ambiente de demonstração: informe os dados que o provedor real devolveria após o login." />
+        <PageHeader title="Login gov.br (simulado)" description="Ambiente de demonstração: informe os dados que o provedor real devolveria após o login." />
         <Alert tone="warning" className="mb-4" title="Isto não é o gov.br">
           A integração oficial exige credenciamento no Login Único. Aqui você simula o retorno: CPF da conta no provedor e nível de confiabilidade (é exigido nível prata ou ouro).
         </Alert>

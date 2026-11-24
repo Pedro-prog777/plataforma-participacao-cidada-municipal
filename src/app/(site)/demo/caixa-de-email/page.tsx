@@ -7,7 +7,7 @@ import { getDb } from "@/server/db/client";
 import { emailOutbox } from "@/server/db/schema";
 import { fmtDateTime } from "@/lib/labels";
 
-export const metadata = { title: "Caixa de e-mail simulada" };
+export const metadata = { title: "Caixa de e-mail de teste" };
 
 function linkify(text: string) {
   return text.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
@@ -28,7 +28,7 @@ export default async function CaixaPage({ searchParams }: { searchParams: Promis
   const rows = para ? all.filter((m) => m.toAddress.includes(para)) : all;
   return (
     <MainContainer>
-      <PageHeader title="Caixa de e-mail simulada" description="Sem SMTP configurado, as mensagens ficam na fila de saída do banco e aparecem aqui (somente no modo demonstração)." breadcrumbs={[{ href: "/demo", label: "Demonstração" }, { label: "Caixa de e-mail" }]} />
+      <PageHeader title="Caixa de e-mail de teste" description="Nesta demonstração os e-mails não são enviados de verdade: as mensagens que o sistema mandaria aparecem aqui." breadcrumbs={[{ href: "/demo", label: "Demonstração" }, { label: "Caixa de e-mail" }]} />
       <form method="get" className="mb-4 flex max-w-md gap-2">
         <label htmlFor="para" className="sr-only">
           Filtrar por destinatário

@@ -54,7 +54,7 @@ export async function closeDueConsultations(db: DbOrTx = getDb()) {
       await tx.update(consultations).set({ status: "encerrada", closedAt: now }).where(eq(consultations.id, c.id));
       await recordPublicEvent(tx, c.id, "encerramento", "Votação encerrada automaticamente no horário divulgado.");
       await audit(tx, { action: "consulta_encerrada", objectType: "consulta", objectId: c.id });
-      await notifyVoters(tx, c.id, "resultado", `Consulta encerrada: ${c.title}`, "A votação foi encerrada. A apuração é automática e o resultado será publicado após a homologação.", `/consultas/${c.slug}`);
+      await notifyVoters(tx, c.id, "resultado", `Consulta encerrada: ${c.title}`, "A votação foi encerrada. Os votos são contados automaticamente e o resultado será publicado depois da conferência.", `/consultas/${c.slug}`);
     });
     await shuffleVotes(db);
     const integrity = await verifyIntegrity(c.id, "encerramento", db);
