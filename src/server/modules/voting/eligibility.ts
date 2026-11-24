@@ -36,7 +36,7 @@ export type EligibilityResult =
 
 export function evaluateEligibility(u: EligibilityUser, c: EligibilityConsultation, alreadyParticipated: boolean, now: Date = clock.now()): EligibilityResult {
   if (u.status !== "ativa" || (u.lockedUntil && u.lockedUntil > now)) {
-    return { eligible: false, code: "conta_inativa", reason: "Sua conta não está ativa no momento.", action: { label: "Ver meu perfil", href: "/conta/perfil" } };
+    return { eligible: false, code: "conta_inativa", reason: "Sua conta não está ativa no momento.", action: { label: "Ver meu perfil", href: "/conta" } };
   }
   if (u.kind === "cidadao" && u.verificationLevel !== "verificado") {
     return {

@@ -13,7 +13,7 @@ import { attachments, districts, notifications, themes, users } from "@/server/d
 import { addAttachment, checkExternalLinks } from "@/server/modules/attachments/attachments.service";
 import { createMunicipalProposal } from "@/server/modules/proposals/municipal-proposals.service";
 import { submitCitizenProposal } from "@/server/modules/proposals/citizen-proposals.service";
-import { listPublicConsultations } from "@/server/modules/consultations/queries.service";
+import { listAdminConsultations, listPublicConsultations } from "@/server/modules/consultations/queries.service";
 import { clock } from "@/server/lib/clock";
 import { resetRateLimits } from "@/server/lib/rate-limit";
 import { isPublicHttpsUrl, safeInternalPath } from "@/lib/text";
@@ -72,6 +72,19 @@ describe("Entradas maliciosas (OWASP A01/A03)", () => {
     }
     await createCitizen(db);
     expect((await db.select().from(users).limit(1)).length).toBe(1);
+  });
+
+  it("filtros de URL fora do formato não derrubam a listagem (antes: erro 500 em /consultas?tema=abc)", async () => {
+    const elab = await createAdmin(db, ["elaborador"]);
+    const { consultation } = await createOpenConsultation(db, { createdBy: elab.id });
+    // Identificador inválido não corresponde a nenhuma consulta.
+    for (const f of [{ themeId: "abc" }, { regionId: "1' OR '1'='1" }]) expect((await listPublicConsultations(f, null, db)).total).toBe(0);
+    // Data inválida é ignorada: a consulta aberta continua aparecendo.
+    for (const f of [{ from: "xyz" }, { to: "2026-13-45" }, { from: "2026-02-30" }, { year: "abc", archive: false }]) {
+      expect((await listPublicConsultations(f, null, db)).items.some((i) => i.id === consultation.id), JSON.stringify(f)).toBe(true);
+    }
+    expect((await listAdminConsultations({ status: "xyz" }, db)).length).toBeGreaterThan(0);
+    expect((await listAdminConsultations({ status: "toString" }, db)).length).toBeGreaterThan(0);
   });
 
   it("marcação executável é removida do texto livre antes de gravar", async () => {

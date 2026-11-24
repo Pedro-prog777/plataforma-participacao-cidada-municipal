@@ -66,7 +66,9 @@ const tones: Record<Tone, string> = {
 };
 
 export function Badge({ tone = "neutral", children, className }: { tone?: Tone; children: ReactNode; className?: string }) {
-  return <span className={cx("inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset", tones[tone], className)}>{children}</span>;
+  // Rótulos longos (ex.: "Votos contados — resultado em conferência") quebram linha em vez de
+  // ultrapassar a largura do cartão a 320 px (RNF03).
+  return <span className={cx("inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset", tones[tone], className)}>{children}</span>;
 }
 
 export function Card({ children, className, as: As = "div", ...rest }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" | "aside" } & Record<string, unknown>) {
@@ -196,7 +198,8 @@ export function DescriptionList({ items }: { items: { term: string; detail: Reac
 
 export function Table({ head, rows, caption, empty = "Nenhum registro." }: { head: ReactNode[]; rows: ReactNode[][]; caption?: string; empty?: string }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-white">
+    // Região com rolagem horizontal alcançável pelo teclado (WCAG 2.1.1; axe: scrollable-region-focusable).
+    <div className="overflow-x-auto rounded-xl border border-line bg-white" role="region" aria-label={caption ?? "Tabela"} tabIndex={0}>
       <table className="w-full min-w-xl text-left text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead className="bg-brand-50 text-xs uppercase tracking-wide text-brand-800">

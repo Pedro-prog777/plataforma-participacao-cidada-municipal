@@ -73,6 +73,7 @@ export default async function ParticipacoesPage({ searchParams }: { searchParams
         <EmptyState icon="ballot" title="Nenhuma participação encontrada" action={<LinkButton href="/consultas?situacao=aberta">Ver consultas abertas</LinkButton>} />
       )}
       <Section title="Minhas propostas" className="mt-10" actions={<LinkButton href="/conta/propostas" variant="ghost" iconRight="arrowRight">Ver todas</LinkButton>}>
+        {props.length ? (
         <ul className="space-y-2">
           {props.slice(0, 5).map(({ p }) => (
             <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-white p-3">
@@ -82,8 +83,11 @@ export default async function ParticipacoesPage({ searchParams }: { searchParams
               <Badge tone={CITIZEN_PROPOSAL_STATUS[p.status].tone}>{CITIZEN_PROPOSAL_STATUS[p.status].label}</Badge>
             </li>
           ))}
-          {!props.length && <p className="text-sm text-muted">Você ainda não enviou propostas.</p>}
         </ul>
+        ) : (
+          // Fora da lista: <p> como filho direto de <ul> é inválido para leitores de tela (axe: list).
+          <p className="text-sm text-muted">Você ainda não enviou propostas.</p>
+        )}
       </Section>
     </>
   );

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ProposalFields } from "@/components/proposal-fields";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, PageHeader, Section, Timeline } from "@/components/ui/primitives";
@@ -15,6 +16,7 @@ const STEPS = ["recebida", "em_analise", "respondida", "publicada", "encerrada"]
 export default async function AcompanharPropostaPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireCitizen("/conta/propostas");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   // Somente o autor acessa (RF009); para outros usuários a proposta "não existe".
   const data = await getProposalForAuthor(a.id, id);
   if (!data) notFound();

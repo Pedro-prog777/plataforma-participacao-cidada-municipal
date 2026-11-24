@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { MainContainer } from "@/components/layout/site-chrome";
 import { ActionForm, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, PageHeader, Section } from "@/components/ui/primitives";
@@ -16,6 +17,7 @@ const KIND: Record<string, string> = { audiencia: "AudiÃªncia", reuniao: "ReuniÃ
 export default async function EventoPage({ params }: { params: Promise<{ id: string }> }) {
   if (!(await getSetting("recursos.eventos"))) notFound();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const ev = await getEvent(id);
   if (!ev) notFound();
   const actor = await getCurrentActor();

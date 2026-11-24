@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { AlternativesEditor } from "@/components/admin/alternatives-editor";
 import { Alert, Card } from "@/components/ui/primitives";
@@ -10,6 +12,7 @@ export const metadata = { title: "Alternativas" };
 export default async function AlternativasPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const editable = ["rascunho", "rejeitada"].includes(data.c.status);
   return (

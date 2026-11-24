@@ -36,6 +36,15 @@ import { consultationSnapshot, getConsultationOrThrow, recordPublicEvent, saveVe
 import { municipalProposalPendencies } from "../proposals/municipal-proposals.service";
 
 const EDITABLE: ConsultationRow["status"][] = ["rascunho", "rejeitada"];
+
+/**
+ * Texto de busca (RF017: título, resumo e proposta). Calculado em um só lugar: antes, a edição e a
+ * alteração publicada recalculavam só com título e resumo, e a consulta sumia da busca pela proposta.
+ */
+async function searchTextFor(db: DbOrTx, c: { title: string; summary: string | null }, municipalProposalId: string) {
+  const [p] = await db.select({ title: municipalProposals.title, summary: municipalProposals.summary }).from(municipalProposals).where(eq(municipalProposals.id, municipalProposalId));
+  return normalizeSearch(`${c.title} ${c.summary ?? ""} ${p?.title ?? ""} ${p?.summary ?? ""}`);
+}
 const t = (max: number) => z.string().optional().transform((v) => sanitizePlainText(v ?? "").slice(0, max));
 
 /* ------------------------------------------------------------------ */
@@ -131,7 +140,7 @@ export async function createConsultation(actor: Actor, input: Record<string, unk
         status: "rascunho",
         deadlineAuthorization: data.exceptionalDeadline ? "pendente" : "nao_aplicavel",
         audienceOpen: publicoPadrao === "aberta",
-        searchText: normalizeSearch(`${data.title} ${data.summary} ${proposal.title} ${proposal.summary}`),
+        searchText: await searchTextFor(tx, data, proposalId),
         createdBy: actor.id,
         lastEditedBy: actor.id,
         createdAt: now,
@@ -189,7 +198,7 @@ export async function updateConsultation(actor: Actor, id: string, input: Record
       .set({
         ...fields,
         deadlineAuthorization: deadlineAuthorization === "negada" && fields.exceptionalDeadline ? "pendente" : deadlineAuthorization,
-        searchText: normalizeSearch(`${fields.title} ${fields.summary}`),
+        searchText: await searchTextFor(tx, fields, cur.municipalProposalId),
         version: cur.version + 1,
         lastEditedBy: actor.id,
         updatedAt: clock.now(),
@@ -640,7 +649,7 @@ export async function alterPublished(actor: Actor, id: string, change: Published
     }
     const [n] = await tx
       .update(consultations)
-      .set({ ...set, version: c.version + 1, lastEditedBy: actor.id, updatedAt: clock.now(), searchText: normalizeSearch(`${c.title} ${set.summary ?? c.summary}`) })
+      .set({ ...set, version: c.version + 1, lastEditedBy: actor.id, updatedAt: clock.now(), searchText: await searchTextFor(tx, { title: c.title, summary: set.summary ?? c.summary }, c.municipalProposalId) })
       .where(eq(consultations.id, id))
       .returning();
     await saveVersion(tx, "consulta", id, n.version, consultationSnapshot(n), actor.id, `alteração publicada: ${change.kind}`);

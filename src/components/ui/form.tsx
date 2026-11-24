@@ -246,7 +246,7 @@ export function RadioGroup({ legend, name, options, required, defaultValue, hint
       )}
       <div className="space-y-2">
         {options.map((o) => (
-          <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 bg-white p-3 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:ring-2 has-[:checked]:ring-brand-200">
+          <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 bg-white p-3 has-checked:border-brand-600 has-checked:bg-brand-50 has-checked:ring-2 has-checked:ring-brand-200">
             <input type="radio" name={name} value={o.value} defaultChecked={current === o.value} className="mt-1 size-5 shrink-0 accent-brand-700" aria-invalid={errors.length > 0 || undefined} />
             <span>
               <span className="block font-semibold text-ink">{comReferencias(o.label)}</span>

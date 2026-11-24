@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ActionForm, Field, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, Section } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -14,6 +16,7 @@ const STATUS_OPTS = Object.entries(OUTCOME_STATUS).map(([value, v]) => ({ value,
 export default async function AdminEncaminhamentosPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const [data, outcomes, ref, roles] = await Promise.all([getAdminConsultation(id), listPublicOutcomes({ consultationId: id }), referenceData(), consultationRolesOf(a.id, id)]);
   const can = roles.includes("encaminhamentos") && data.c.status === "finalizada";
   return (

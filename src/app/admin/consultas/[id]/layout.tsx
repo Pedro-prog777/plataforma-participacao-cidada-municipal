@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { StatusBadge } from "@/components/consultation-card";
 import { Badge, Breadcrumbs } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -23,6 +24,7 @@ const TABS: [string, string][] = [
 export default async function ConsultaAdminLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id).catch(() => null);
   if (!data) notFound();
   const c = data.c;

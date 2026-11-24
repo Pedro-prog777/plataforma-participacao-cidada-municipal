@@ -106,6 +106,18 @@ describe("Cadastro e validação (RF025, RF026, RF027, RN13, RN14)", () => {
     await expect(setAudience(team.elaborador, c.id, { open: false, criteria: [{ type: "domicilio", justification: "", publicText: "Moradores" }] }, db)).rejects.toThrow();
   });
 
+  it("a busca continua encontrando a consulta pelo texto da proposta depois de editada (RF017)", async () => {
+    const p = await createMunicipalProposal(team.elaborador, { title: "Bicicletário comunitário", summary: "Paraciclos na orla", themeId, organId }, db);
+    const c = await createConsultation(team.elaborador, { municipalProposalId: p.id, ...fields() }, db);
+    const texto = async () => (await db.select({ s: consultations.searchText }).from(consultations).where(eq(consultations.id, c.id)))[0].s;
+    expect(await texto()).toContain("bicicletario comunitario");
+    await updateConsultation(team.elaborador, c.id, { ...fields({ summary: "Resumo revisado." }), version: String(c.version) }, db);
+    // Antes da correção a edição recalculava o índice só com título e resumo da consulta.
+    expect(await texto()).toContain("bicicletario comunitario");
+    expect(await texto()).toContain("paraciclos na orla");
+    expect(await texto()).toContain("resumo revisado");
+  });
+
   it("edição simultânea não sobrescreve (RF024)", async () => {
     const c = await draft();
     const [cur] = await db.select().from(consultations).where(eq(consultations.id, c.id));

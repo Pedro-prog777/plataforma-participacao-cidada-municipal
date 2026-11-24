@@ -114,7 +114,13 @@ export function conteudoDoStream(s: PDFStream): Uint8Array {
 }
 
 const latin1 = (b: Uint8Array) => Buffer.from(b).toString("latin1");
-const WIN1252 = new TextDecoder("windows-1252");
+/*
+ * WinAnsiEncoding (Windows-1252). A faixa 0x80–0x9F fica em tabela explícita: no Node 20 o
+ * `TextDecoder("windows-1252")` a trata como Latin-1 (0x96 vira U+0096 em vez de "–"), e o
+ * projeto declara suporte a Node >= 20.11.
+ */
+const WIN1252_80_9F = "€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–—˜™š›œ\u009DžŸ";
+const WIN1252 = { decode: (b: Uint8Array) => (b[0] >= 0x80 && b[0] <= 0x9f ? WIN1252_80_9F[b[0] - 0x80] : String.fromCharCode(b[0])) };
 
 export function lerFontes(doc: PDFDocument, page: PDFPage): Map<string, Fonte> {
   const fontes = new Map<string, Fonte>();
