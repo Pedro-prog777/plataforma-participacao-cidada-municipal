@@ -2,7 +2,7 @@
 
 > Transcrição do **Documento de Requisitos v6** da Plataforma de Participação Cidadã Municipal (PPCM) — CESMAC, Engenharia de Software — João Pedro e Flávia Marina.
 > Documento em PDF: [`docs/requisitos/Documento_de_Requisitos_v6.pdf`](Documento_de_Requisitos_v6.pdf). Os RF001–RF068 foram extraídos do PDF por script (sem reescrita); as tabelas das seções 4–8 foram transcritas e conferidas (totais de pontos de função batem: 120/15/64/150/35 = 384).
-> Citações jurídicas (leis, artigos, bases legais e normas) foram omitidas por decisão da equipe em 23/11/2026, sem alterar o conteúdo técnico nem a numeração (DT-24); o próprio PDF `Documento_de_Requisitos_v6.pdf` recebeu as mesmas remoções, links internos entre requisitos e um apêndice com o índice das regras de negócio (gerado por `npm run requisitos:pdf`); o original, com o texto integral, fica em `docs/requisitos/original/Documento_de_Requisitos_v6_original.pdf`.
+> Citações jurídicas (leis, artigos, bases legais e normas) foram omitidas por decisão da equipe em 23/11/2026, sem alterar o conteúdo técnico nem a numeração (DT-24); o próprio PDF `Documento_de_Requisitos_v6.pdf` recebeu as mesmas remoções, links internos entre requisitos (gerado por `npm run requisitos:pdf`); o original, com o texto integral, fica em `docs/requisitos/original/Documento_de_Requisitos_v6_original.pdf`.
 > Itens marcados com **(\*)** ainda precisam ser aprovados pelo cliente — ver [`docs/requisitos/PENDENCIAS_CLIENTE.md`](PENDENCIAS_CLIENTE.md).
 
 ## 1. Introdução

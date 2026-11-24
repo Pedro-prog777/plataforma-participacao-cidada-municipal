@@ -1,6 +1,6 @@
 /**
  * Documento de Requisitos em PDF (DT-24): sem citações jurídicas, com links internos entre
- * requisitos e com o apêndice das regras de negócio. O PDF é gerado por `npm run requisitos:pdf`.
+ * requisitos (RF, RNF, RS) e com as mesmas páginas do original (o apêndice das RN foi retirado). O PDF é gerado por `npm run requisitos:pdf`.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -55,21 +55,17 @@ describe("PDF do Documento de Requisitos", () => {
     expect(tudo).toContain("5. BRASIL. Ministério do Planejamento, Orçamento e Gestão.");
   });
 
-  it("preserva as páginas originais e acrescenta o apêndice das regras de negócio", async () => {
+  it("mantém as páginas do original, sem o apêndice das regras de negócio (retirado em 24/11/2026)", async () => {
     const original = await PDFDocument.load(readFileSync(ORIGINAL));
-    expect(doc.getPageCount()).toBeGreaterThan(original.getPageCount());
-    const total = doc.getPageCount();
-    expect(textos[1]).toContain(`Página 2 de ${total}`);
-    const apendice = textos.slice(original.getPageCount()).join(" ");
-    expect(apendice).toContain("Apêndice – Índice das regras de negócio citadas");
-    for (let n = 1; n <= 42; n++) expect(apendice).toContain(`RN${String(n).padStart(2, "0")}`);
+    expect(doc.getPageCount()).toBe(original.getPageCount());
+    expect(textos[1]).toContain(`Página 2 de ${original.getPageCount()}`);
+    expect(textos.join(" ")).not.toMatch(/Índice das regras de negócio/);
   });
 
-  it("RN02 citada no RF001 leva ao apêndice, na regra CPF único", () => {
+  it("RN citada no RF001 fica como texto normal, sem link (o documento não descreve as regras)", () => {
     const paginaRF001 = textos.findIndex((t) => t.includes("RF001 – Cadastrar")) + 1;
-    const rn02 = links.find((l) => l.pagina === paginaRF001 && l.texto.startsWith("RN02"));
-    expect(rn02?.texto).toBe("RN02 — CPF único");
-    expect(textos[rn02!.destino - 1]).toContain("RN02 – CPF único");
+    expect(textos[paginaRF001 - 1]).toContain("CPF único (RN02)");
+    expect(links.filter((l) => /^RNd/.test(l.texto))).toEqual([]);
   });
 
   it("RF004 citado em outros requisitos leva ao RF004 – Verificar identidade e domicílio do cidadão", () => {
@@ -78,9 +74,9 @@ describe("PDF do Documento de Requisitos", () => {
     for (const l of paraRF004) expect(textos[l.destino - 1]).toMatch(/RF004 –/);
   });
 
-  it("todos os links apontam para páginas existentes e cobrem os quatro tipos", () => {
-    expect(links.length).toBeGreaterThan(900);
+  it("todos os links apontam para páginas existentes e cobrem RF, RNF e RS", () => {
+    expect(links.length).toBeGreaterThan(400);
     expect(links.filter((l) => l.destino < 1 || l.destino > doc.getPageCount())).toEqual([]);
-    for (const tipo of ["RF", "RNF", "RN", "RS"]) expect(links.some((l) => new RegExp(`^${tipo}\\d`).test(l.texto))).toBe(true);
+    for (const tipo of ["RF", "RNF", "RS"]) expect(links.some((l) => new RegExp(`^${tipo}\\d`).test(l.texto))).toBe(true);
   });
 });

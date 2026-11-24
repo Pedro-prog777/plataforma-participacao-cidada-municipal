@@ -39,7 +39,7 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 |---|---|
 | `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
 | `tests/unit/masks.test.ts` | Pontuação automática de CPF, data, celular e CEP (digitação, colagem e posição do cursor) |
-| `tests/unit/requisitos-pdf.test.ts` | PDF do documento (DT-24): sem citações jurídicas, conteúdo técnico mantido, apêndice das RN, RN02 no RF001 levando ao apêndice, RF004 levando ao RF004 e mais de 900 links com destino válido |
+| `tests/unit/requisitos-pdf.test.ts` | PDF do documento (DT-24): sem citações jurídicas, conteúdo técnico mantido, mesmas páginas do original e sem o apêndice das RN (RN citadas ficam como texto), RF004 levando ao RF004 e mais de 900 links com destino válido |
 | `tests/unit/links.test.ts` | Todo caminho fixo usado em `href`, `link` (avisos) ou `redirect` existe no App Router |
 | `tests/unit/requisitos.test.ts` | Referências cruzadas (DT-24): catálogo extraído do documento (68 RF, 15 RNF, 42 RN, 13 RS), RF001 → RN02 ("CPF único"), RF004, identificadores inexistentes e formatos parecidos, texto preservado palavra a palavra, cópias iguais em `AGENTS.md` e `REQUISITOS_COMPLETOS.md`, ausência de citações jurídicas e todo identificador citado em `src/` existente no documento |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
