@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import Link from "next/link";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { Alert, Card, DescriptionList, Section, Table, Timeline } from "@/components/ui/primitives";
@@ -28,6 +30,7 @@ const NEXT_STEP: Record<string, string> = {
 export default async function ConsultaAdminOverview({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const c = data.c;
   const [pend, myRoles, nPart] = await Promise.all([["rascunho", "rejeitada"].includes(c.status) ? consultationPendencies(id) : Promise.resolve([]), consultationRolesOf(a.id, id), participationCount(id)]);

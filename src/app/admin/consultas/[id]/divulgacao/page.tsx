@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Field, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card, DescriptionList, Section, Table } from "@/components/ui/primitives";
@@ -13,6 +15,7 @@ export const metadata = { title: "Divulgação" };
 export default async function DivulgacaoPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const [m, records, roles, days] = await Promise.all([disseminationMaterial(id), listDissemination(id), consultationRolesOf(a.id, id), getSetting("divulgacao.sugerir_dias_antes")]);
   const c = m.consultation;
   const active = ["agendada", "aberta"].includes(c.status);
@@ -26,7 +29,7 @@ export default async function DivulgacaoPage({ params }: { params: Promise<{ id:
           <p className="text-xs text-muted"><RefText>Sem resultados parciais (RN16). A publicação externa é manual.</RefText></p>
           <div>
             <p className="text-sm font-semibold">Texto curto</p>
-            <p className="rounded-lg bg-brand-50 p-3 text-sm">{m.shortText}</p>
+            <p className="break-words rounded-lg bg-brand-50 p-3 text-sm">{m.shortText}</p>
           </div>
           <div>
             <p className="text-sm font-semibold">Link permanente</p>

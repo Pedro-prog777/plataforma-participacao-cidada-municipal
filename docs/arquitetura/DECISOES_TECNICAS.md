@@ -168,3 +168,11 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Controle:** o E2E percorre as telas públicas e as da cidadã de demonstração e falha se aparecer termo técnico ou código de requisito (RF/RNF/RN/RS).
 - **Dados de demonstração já gravados:** eventos do histórico criados antes desta mudança mantêm o texto antigo até `npm run db:reset`.
 
+## DT-27 — Revisão de qualidade: fluxos, robustez e largura mínima (24/11/2026)
+- **Pedido:** mapear os fluxos de utilização, reexecutar todos os testes, procurar e corrigir defeitos sem mudar funcionalidades nem a arquitetura.
+- **Parâmetros de URL:** filtros e rotas `[id]` conferem o formato antes de consultar o banco (`isUuid`, `parseIsoDay` em `src/lib/text.ts`). Identificador fora do formato → 404 (rotas) ou nenhum resultado (filtros); data inválida → filtro ignorado. Antes, o PostgreSQL recusava a consulta e a página respondia 500.
+- **Largura mínima (RNF03):** três regras na camada base de `globals.css` em vez de correções tela a tela — `.grid > * { min-width: 0 }` (item de grade não se alarga além da coluna) e `select, .flex-wrap > * { max-width: 100% }`. O `Badge` passou a quebrar linha. Utilitários do Tailwind continuam podendo sobrescrever (camada base).
+- **Tabelas roláveis:** o componente `Table` é uma região nomeada e focável (`role="region"`, `aria-label` = legenda, `tabIndex=0`), para quem navega só pelo teclado (WCAG 2.1.1).
+- **Busca (RF017):** o texto indexado (título, resumo e proposta municipal) é calculado por uma única função usada na criação, na edição e na alteração publicada.
+- **Paginação no banco (DT-23):** `listPublicConsultations` só lê todas as linhas quando o filtro "posso participar" exige calcular a elegibilidade; nos demais casos usa `LIMIT/OFFSET` com total à parte, e a ordenação ganhou desempate por `id`.
+- **Controle:** `tests/e2e/robustez.spec.ts` e `tests/unit/links.test.ts` reproduzem cada defeito encontrado.

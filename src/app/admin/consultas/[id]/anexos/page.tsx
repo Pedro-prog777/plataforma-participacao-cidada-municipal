@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { AttachmentForm } from "@/components/admin/attachment-form";
 import { AttachmentList } from "@/components/attachments";
 import { Alert, Card, Section } from "@/components/ui/primitives";
@@ -11,6 +13,7 @@ export const metadata = { title: "Anexos" };
 export default async function AnexosPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const items = await listAttachments("consultation", id);
   const draft = ["rascunho", "rejeitada"].includes(data.c.status);

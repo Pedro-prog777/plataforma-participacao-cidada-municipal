@@ -18,9 +18,9 @@ export default async function IncidentesPage({ searchParams }: { searchParams: P
   return (
     <>
       <PageHeader title="Inconsistências e incidentes de segurança" description="Falhas de integridade, adulteração, excesso de tentativas, cadastros suspeitos e quebra da auditoria. Em severidade alta com consulta aberta, o sistema sugere suspensão — a decisão é sempre humana." />
-      <nav className="mb-4 flex gap-2 text-sm">
+      <nav aria-label="Filtrar incidentes por situação" className="mb-4 flex flex-wrap gap-2 text-sm">
         {[["", "Todos"], ["aberto", "Abertos"], ["em_analise", "Em análise"], ["encerrado", "Encerrados"]].map(([k, l]) => (
-          <Link key={k} href={k ? `/admin/incidentes?situacao=${k}` : "/admin/incidentes"} className={`rounded-full px-3 py-1.5 font-semibold ring-1 ring-brand-200 ${sp.situacao === k || (!sp.situacao && !k) ? "bg-brand-700 text-white" : "bg-white"}`}>{l}</Link>
+          <Link key={k} href={k ? `/admin/incidentes?situacao=${k}` : "/admin/incidentes"} aria-current={sp.situacao === k || (!sp.situacao && !k) ? "page" : undefined} className={`rounded-full px-3 py-1.5 font-semibold ring-1 ring-brand-200 ${sp.situacao === k || (!sp.situacao && !k) ? "bg-brand-700 text-white" : "bg-white"}`}>{l}</Link>
         ))}
       </nav>
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">

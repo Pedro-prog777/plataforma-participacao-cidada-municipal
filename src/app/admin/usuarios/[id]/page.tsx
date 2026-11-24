@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ActionForm, RadioGroup, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, PageHeader, Section, Table } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -14,6 +15,7 @@ export const metadata = { title: "Conta" };
 export default async function UsuarioPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin("usuarios.gerenciar");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const p = await getProfile(id).catch(() => null);
   if (!p) notFound();
   const [roles, mine, history] = await Promise.all([listRoles(), userRoleIds(id), searchAudit({ objectId: id }, 15)]);

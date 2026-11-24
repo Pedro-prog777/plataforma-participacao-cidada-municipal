@@ -1,6 +1,7 @@
 import { RefText } from "@/components/requisitos/ref-text";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ActionForm, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, PageHeader, Section, Timeline } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -13,6 +14,7 @@ export const metadata = { title: "Análise de proposta" };
 export default async function AnaliseProposta({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin("propostas_cidadas.analisar");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const d = await getProposalAdmin(id).catch(() => null);
   if (!d) notFound();
   const p = d.p;

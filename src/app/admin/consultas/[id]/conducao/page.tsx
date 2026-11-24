@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Checkbox, Field, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
@@ -21,6 +23,7 @@ const FIELDS = [
 export default async function ConducaoPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const c = data.c;
   const roles = await consultationRolesOf(a.id, id);

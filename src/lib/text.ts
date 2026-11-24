@@ -66,3 +66,19 @@ export function safeInternalPath(next: string | null | undefined, fallback: stri
   const ok = n.startsWith("/") && !n.startsWith("//") && !n.includes("\\") && !hasControl;
   return ok ? n : fallback;
 }
+
+/**
+ * Identificador no formato UUID. Parâmetros de URL (filtros e rotas `[id]`) são conferidos antes de
+ * chegar ao banco: um valor fora do formato faz o PostgreSQL recusar a consulta (erro 500).
+ */
+export function isUuid(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+/** Data AAAA-MM-DD de filtros de URL; devolve null se o texto não for uma data real (ex.: 2026-02-30). */
+export function parseIsoDay(value: string | null | undefined): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? ""));
+  if (!m) return null;
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return d.getUTCFullYear() === Number(m[1]) && d.getUTCMonth() === Number(m[2]) - 1 && d.getUTCDate() === Number(m[3]) ? m[0] : null;
+}

@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, BarChart, Card, DescriptionList, Section, Table } from "@/components/ui/primitives";
@@ -14,6 +16,7 @@ export const metadata = { title: "Resultado" };
 export default async function AdminResultadoPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const c = data.c;
   const [rows, checks, roles, nPart] = await Promise.all([adminResults(id), latestIntegrity(id), consultationRolesOf(a.id, id), participationCount(id)]);

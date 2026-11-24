@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ConsultationFields } from "@/components/admin/consultation-form";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
@@ -13,6 +15,7 @@ export const metadata = { title: "Dados da consulta" };
 export default async function EditarConsultaPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const [data, ref, padrao, excepcional] = await Promise.all([getAdminConsultation(id), referenceData(), getSetting("consulta.prazo_padrao_dias"), getSetting("consulta.prazo_excepcional_dias")]);
   const c = data.c;
   const editable = ["rascunho", "rejeitada"].includes(c.status);

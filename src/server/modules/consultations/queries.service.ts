@@ -20,8 +20,8 @@ import {
   users,
 } from "../../db/schema";
 import { clock } from "../../lib/clock";
-import { normalizeSearch } from "@/lib/text";
-import { ARCHIVE_STATUSES, PUBLIC_STATUSES, type ConsultationStatus } from "@/lib/labels";
+import { isUuid, normalizeSearch, parseIsoDay } from "@/lib/text";
+import { ARCHIVE_STATUSES, CONSULTATION_STATUS, PUBLIC_STATUSES, type ConsultationStatus } from "@/lib/labels";
 import { evaluateEligibility, loadAudienceCriteria, loadEligibilityUser } from "../voting/eligibility";
 
 export const PAGE_SIZE = 12;
@@ -65,26 +65,46 @@ export async function listPublicConsultations(filter: ConsultationFilter, viewer
     for (const t of terms) conds.push(ilike(consultations.searchText, `%${t.replace(/[%_]/g, "")}%`));
   }
   if (filter.status && (PUBLIC_STATUSES as string[]).includes(filter.status)) conds.push(eq(consultations.status, filter.status as ConsultationStatus));
-  if (filter.themeId) conds.push(eq(consultations.themeId, filter.themeId));
-  if (filter.regionId) conds.push(eq(consultations.regionId, filter.regionId));
-  if (filter.from) conds.push(gte(consultations.closesAt, new Date(`${filter.from}T00:00:00-03:00`)));
-  if (filter.to) conds.push(lte(consultations.opensAt, new Date(`${filter.to}T23:59:59-03:00`)));
-  if (filter.year) conds.push(sql`extract(year from ${consultations.closesAt} at time zone 'America/Sao_Paulo') = ${Number(filter.year)}`);
+  // Filtros vêm da URL: identificador fora do formato não corresponde a nenhuma consulta e data
+  // inválida é ignorada — antes, ambos chegavam ao banco e derrubavam a página (erro 500).
+  if (filter.themeId) conds.push(isUuid(filter.themeId) ? eq(consultations.themeId, filter.themeId) : sql`false`);
+  if (filter.regionId) conds.push(isUuid(filter.regionId) ? eq(consultations.regionId, filter.regionId) : sql`false`);
+  const from = parseIsoDay(filter.from);
+  const to = parseIsoDay(filter.to);
+  if (from) conds.push(gte(consultations.closesAt, new Date(`${from}T00:00:00-03:00`)));
+  if (to) conds.push(lte(consultations.opensAt, new Date(`${to}T23:59:59-03:00`)));
+  if (filter.year && /^\d{4}$/.test(filter.year)) conds.push(sql`extract(year from ${consultations.closesAt} at time zone 'America/Sao_Paulo') = ${Number(filter.year)}`);
   if (viewerId && filter.notParticipated) conds.push(sql`not exists (select 1 from participations p where p.consultation_id = ${consultations.id} and p.citizen_id = ${viewerId})`);
 
   const order = [
     sql`case ${consultations.status} when 'aberta' then 0 when 'agendada' then 1 when 'suspensa' then 2 else 3 end`,
     sql`case when ${consultations.status} in ('aberta','agendada','suspensa') then ${consultations.closesAt} end asc`,
     desc(consultations.closesAt),
+    // Desempate estável: sem ele, consultas com o mesmo encerramento podiam se repetir ou sumir entre páginas.
+    asc(consultations.id),
   ];
-  let rows = await db
+  const page = Math.max(1, Math.floor(filter.page ?? 1) || 1);
+  const query = db
     .select(baseSelect)
     .from(consultations)
     .leftJoin(themes, eq(themes.id, consultations.themeId))
     .leftJoin(regions, eq(regions.id, consultations.regionId))
     .leftJoin(organs, eq(organs.id, consultations.organId))
     .where(and(...conds))
-    .orderBy(...order);
+    .orderBy(...order)
+    .$dynamic();
+  // Paginação no banco (DT-23): só o filtro "posso participar" depende da elegibilidade calculada
+  // aqui e exige ler todas as linhas. Nos demais casos, o banco devolve só a página pedida — e a
+  // contagem de participações por linha roda para 12 consultas, não para o acervo inteiro.
+  const needsAll = !!(viewerId && filter.canParticipate);
+  let total = 0;
+  let rows: Awaited<typeof query>;
+  if (needsAll) rows = await query;
+  else {
+    const [[{ n }], pageRows] = await Promise.all([db.select({ n: count() }).from(consultations).where(and(...conds)), query.limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE)]);
+    total = n;
+    rows = pageRows;
+  }
 
   // Indicação ao cidadão: onde já participou ou não se enquadra (RF016) e filtro "posso participar" (RF017).
   let viewer: Awaited<ReturnType<typeof loadEligibilityUser>> = null;
@@ -109,10 +129,11 @@ export async function listPublicConsultations(filter: ConsultationFilter, viewer
     }
     return { ...r, viewerState, viewerReason };
   });
-  rows = enriched;
-  const filtered = viewerId && filter.canParticipate ? enriched.filter((r) => r.viewerState === "pode_participar") : enriched;
-  const page = Math.max(1, filter.page ?? 1);
-  return { total: filtered.length, page, pages: Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)), items: filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) };
+  if (needsAll) {
+    const filtered = enriched.filter((r) => r.viewerState === "pode_participar");
+    return { total: filtered.length, page, pages: Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)), items: filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) };
+  }
+  return { total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)), items: enriched };
 }
 
 /** RF018 — página pública da consulta (sem dados pessoais). */
@@ -239,7 +260,7 @@ export async function referenceData(db: DbOrTx = getDb()) {
 /** Administração: lista todas as consultas (todas as situações). */
 export async function listAdminConsultations(filter: { status?: string; q?: string } = {}, db: DbOrTx = getDb()) {
   const conds: SQL[] = [];
-  if (filter.status) conds.push(eq(consultations.status, filter.status as ConsultationStatus));
+  if (filter.status && Object.hasOwn(CONSULTATION_STATUS, filter.status)) conds.push(eq(consultations.status, filter.status as ConsultationStatus));
   if (filter.q) conds.push(ilike(consultations.searchText, `%${normalizeSearch(filter.q).replace(/[%_]/g, "")}%`));
   return db
     .select({ ...baseSelect, version: consultations.version, updatedAt: consultations.updatedAt, author: users.fullName })
