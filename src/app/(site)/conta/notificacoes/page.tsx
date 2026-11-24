@@ -16,7 +16,7 @@ export default async function NotificacoesPage() {
       <PageHeader title="Preferências de aviso" description="Escolha quais avisos deseja receber, por e-mail e na central de avisos, e filtre por tema e bairro." />
       <Card>
         <ActionForm action={savePreferencesAction}>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" role="region" aria-label="Tipos de aviso" tabIndex={0}>
             <table className="w-full min-w-[30rem] text-sm">
               <caption className="sr-only">Tipos de aviso</caption>
               <thead>

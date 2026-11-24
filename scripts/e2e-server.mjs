@@ -16,7 +16,10 @@ const env = {
 rmSync(".data/e2e", { recursive: true, force: true });
 rmSync(".data/e2e-storage", { recursive: true, force: true });
 if (!process.env.E2E_SKIP_BUILD) {
-  const b = spawnSync("npx", ["next", "build"], { stdio: "inherit", env, shell: true });
+  // Build anterior apagado antes: em pasta do OneDrive, o `next build` ficou mais de 15 min parado
+  // tentando limpar sozinho um `.next-e2e` de 264 MB (24/11/2026). Removido aqui, leva menos de 1 s.
+  rmSync(".next-e2e", { recursive: true, force: true });
+  const b =spawnSync("npx", ["next", "build"], { stdio: "inherit", env, shell: true });
   if (b.status !== 0) process.exit(b.status ?? 1);
 }
 const s = spawn("npx", ["next", "start", "-p", port], { stdio: "inherit", env, shell: true });

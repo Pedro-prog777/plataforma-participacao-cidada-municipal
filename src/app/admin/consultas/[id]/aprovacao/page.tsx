@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { ActionForm, RadioGroup, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -11,6 +13,7 @@ export const metadata = { title: "Aprovação" };
 export default async function AprovacaoPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const roles = await consultationRolesOf(a.id, id);
   const c = data.c;

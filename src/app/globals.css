@@ -79,6 +79,20 @@
   textarea {
     font-size: 1rem; /* evita zoom automático em celulares */
   }
+  /*
+   * Item de grade não se alarga além da coluna (RNF03, 320 px). Sem isto, uma tabela com
+   * rolagem própria ou um menu horizontal impunham a largura mínima do conteúdo à página
+   * inteira (ex.: área do cidadão com 930 px de largura em um celular de 320 px).
+   */
+  .grid > * {
+    min-width: 0;
+  }
+  /* A lista de opções não define a largura da página: "Votos contados — resultado em conferência"
+     deixava o filtro de /admin/consultas com 391 px em uma tela de 320 px. */
+  select,
+  .flex-wrap > * {
+    max-width: 100%;
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

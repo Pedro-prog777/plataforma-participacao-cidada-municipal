@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, FieldError, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
@@ -12,6 +14,7 @@ export const metadata = { title: "Responsáveis" };
 export default async function ResponsaveisPage({ params }: { params: Promise<{ id: string }> }) {
   const a = await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const data = await getAdminConsultation(id);
   const candidates = Object.fromEntries(await Promise.all(CONSULTATION_ROLE_KEYS.map(async (r) => [r, await usersWithPermission(CONSULTATION_ROLES[r].permission as Permission)])));
   const allowed = can(a, "responsaveis.designar");

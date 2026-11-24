@@ -61,7 +61,7 @@ export async function completeProviderFlow(userId: string, state: string, assert
       .set({ verificationLevel: "verificado", verificationMethod: assertion.simulated ? "provedor_simulado" : "govbr", verifiedAt: now, domicileVerifiedAt: domicileOk ? now : u.domicileVerifiedAt })
       .where(eq(users.id, userId));
     await audit(tx, { actorId: userId, actorRole: "cidadao", action: "identidade_verificada", objectType: "usuario", objectId: userId, details: { metodo: assertion.simulated ? "provedor_simulado" : "govbr", nivel: assertion.level, domicilio: domicileOk } });
-    await notifyUser(tx, userId, { type: "conta", title: "Identidade verificada", body: domicileOk ? "Sua identidade e seu domicílio foram verificados." : "Sua identidade foi verificada. Para consultas restritas a moradores, comprove o domicílio por documento.", link: "/conta/perfil" });
+    await notifyUser(tx, userId, { type: "conta", title: "Identidade verificada", body: domicileOk ? "Sua identidade e seu domicílio foram verificados." : "Sua identidade foi verificada. Para consultas restritas a moradores, comprove o domicílio por documento.", link: "/conta" });
     return { ok: true as const, domicileVerified: domicileOk };
   });
 }

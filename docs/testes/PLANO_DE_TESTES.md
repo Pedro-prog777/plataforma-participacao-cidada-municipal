@@ -12,16 +12,22 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (23/11/2026, ambiente local Windows 11, Node 24)
+## Última execução registrada (24/11/2026, ambiente local Windows 11, Node 20.20.2) — revisão de qualidade
 
 | Suíte | Resultado |
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração + segurança (11 arquivos) | **145 de 145 aprovados** |
-| E2E (3 arquivos, Chromium) | **42 de 42 aprovados** (a 1ª execução de 23/11 achou identificadores sem link na tela de Parâmetros; corrigido e reexecutado) |
-| `npm audit --omit=dev` | não reexecutado em 23/11 (sem dependências novas); em 15/11: 0 vulnerabilidades |
-| Capturas (`npm run screenshots`) | não refeitas em 23/11; em 15/11: 4 de 4 blocos, 57 capturas |
+| Unitários + integração + segurança (13 arquivos) | **158 de 158 aprovados** (linha de base do dia: 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
+| E2E (4 arquivos, Chromium) | **65 de 65 aprovados** (linha de base do dia: 48 de 48; 17 testes novos em `robustez.spec.ts`) |
+| Varredura exploratória (568 páginas, 7 perfis) | 0 erro 500 (antes 12), 0 violação axe séria (antes 38), sem rolagem a 320 px |
+| `npm audit --omit=dev` | 0 vulnerabilidades (10 moderadas só em ferramentas de desenvolvimento) |
+| Capturas (`npm run screenshots`) | não refeitas em 24/11 |
+
+Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; cobertura por requisito: `docs/testes/MATRIZ_DE_COBERTURA.md`; fluxos: `docs/fluxos/USER_FLOWS.md`.
+
+**Atenção no Windows:** rode o Vitest a partir de `C:…` (PowerShell). Com a letra da unidade minúscula (`c:…`, comum no Git Bash do VS Code), todos os arquivos falham com "failed to find the runner" sem executar nada.
+
 
 **Integração contínua (GitHub Actions, Ubuntu, Node 22, PostgreSQL 16 real), 12/11/2026:** a 1ª execução falhou no `npm ci` (lock fora de sincronia para o npm 10) e foi corrigida; a 2ª foi **aprovada** — tipos, lint, 114 de 114 testes no PostgreSQL 16, auditoria de dependências e 32 de 32 E2E ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)).
 
@@ -34,6 +40,7 @@
 | `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
 | `tests/unit/masks.test.ts` | Pontuação automática de CPF, data, celular e CEP (digitação, colagem e posição do cursor) |
 | `tests/unit/requisitos-pdf.test.ts` | PDF do documento (DT-24): sem citações jurídicas, conteúdo técnico mantido, apêndice das RN, RN02 no RF001 levando ao apêndice, RF004 levando ao RF004 e mais de 900 links com destino válido |
+| `tests/unit/links.test.ts` | Todo caminho fixo usado em `href`, `link` (avisos) ou `redirect` existe no App Router |
 | `tests/unit/requisitos.test.ts` | Referências cruzadas (DT-24): catálogo extraído do documento (68 RF, 15 RNF, 42 RN, 13 RS), RF001 → RN02 ("CPF único"), RF004, identificadores inexistentes e formatos parecidos, texto preservado palavra a palavra, cópias iguais em `AGENTS.md` e `REQUISITOS_COMPLETOS.md`, ausência de citações jurídicas e todo identificador citado em `src/` existente no documento |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
 | `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
@@ -43,6 +50,7 @@
 | `tests/integration/administration.test.ts` | Identidade (RF004), perfil (RF012, RF013), usuários e papéis (RF046, RF047), avisos (RF053, RF055), divulgação (RF062), eventos (RF068), parâmetros (RNF12) |
 | `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão; órgãos da página A Prefeitura (RF050) |
 | `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
+| `tests/e2e/robustez.spec.ts` | Parâmetros de URL manipulados (sem erro 500), identificador malformado → 404, 320 px na área do cidadão e na administração, tabelas roláveis acessíveis, erro antigo do assistente de votação e portal público sem links quebrados |
 | `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px; referências cruzadas: clique em RN02 no RF001 (rolagem, foco, destaque que some, voltar), endereço `#RF004`, referência a verificar e varredura de 7 telas administrativas sem identificador solto; botão Acessibilidade (contraste e tamanho do texto, também a 320 px); varredura das telas do cidadão sem termos técnicos nem códigos de requisito (DT-26) |
 
 ## Cenários obrigatórios do pedido

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { StatusBadge } from "@/components/consultation-card";
 import { Icon } from "@/components/ui/icons";
 import { Alert, Card, LinkButton, PageHeader } from "@/components/ui/primitives";
@@ -11,6 +12,7 @@ export const metadata = { title: "Comprovante de participação" };
 export default async function ComprovanteParticipacaoPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ novo?: string }> }) {
   const a = await requireCitizen("/conta/participacoes");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const { novo } = await searchParams;
   // Apenas o titular vê o próprio comprovante (RF009): a busca é restrita às participações dele.
   const p = (await myParticipations(a.id)).find((x) => x.id === id);

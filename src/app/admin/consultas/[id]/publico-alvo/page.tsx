@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Checkbox, Field, RadioGroup, SelectField, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Card } from "@/components/ui/primitives";
@@ -12,6 +14,7 @@ export const metadata = { title: "Público-alvo" };
 export default async function PublicoAlvoPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const [data, ref] = await Promise.all([getAdminConsultation(id), referenceData()]);
   const editable = ["rascunho", "rejeitada"].includes(data.c.status);
   const crit = (t: string) => data.criteria.find((c) => c.type === t);

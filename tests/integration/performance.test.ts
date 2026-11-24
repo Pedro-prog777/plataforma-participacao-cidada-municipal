@@ -3,7 +3,7 @@
  * mesmo resultado das versões anteriores — RF016, RF017, RF046, RF048, RF058.
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { createTestDb, destroyTestDb } from "../helpers/db";
 import { createAdmin, createCitizen, createOpenConsultation } from "../helpers/fixtures";
 import type { Db } from "@/server/db/client";
@@ -112,6 +112,23 @@ describe("Listagem pública com elegibilidade em lote (RF016, RF017)", () => {
     expect(ids).not.toContain(jaVotei.id);
     // Visitante: nenhuma indicação pessoal.
     expect((await listPublicConsultations({ status: "aberta" }, null, db)).items.every((i) => i.viewerState === null)).toBe(true);
+  });
+
+  it("paginação feita no banco: páginas sem repetição nem falta, mesmo com encerramentos iguais (RF016)", async () => {
+    const elab = await createAdmin(db, ["elaborador"]);
+    // 14 consultas com o MESMO horário de encerramento: só o desempate por id deixa a ordem estável.
+    const mesmas = await Promise.all(Array.from({ length: 14 }, () => createOpenConsultation(db, { createdBy: elab.id, closesInMs: 30 * 86_400_000 })));
+    const fecha = mesmas[0].consultation.closesAt!;
+    await db.update(consultations).set({ closesAt: fecha }).where(inArray(consultations.id, mesmas.map((m) => m.consultation.id)));
+    const primeira = await listPublicConsultations({ status: "aberta" }, null, db);
+    expect(primeira.items.length).toBe(12);
+    const vistos: string[] = [];
+    for (let p = 1; p <= primeira.pages; p++) vistos.push(...(await listPublicConsultations({ status: "aberta", page: p }, null, db)).items.map((i) => i.id));
+    expect(vistos.length).toBe(primeira.total);
+    expect(new Set(vistos).size).toBe(vistos.length);
+    for (const m of mesmas) expect(vistos).toContain(m.consultation.id);
+    // Página além da última: lista vazia, sem erro.
+    expect((await listPublicConsultations({ status: "aberta", page: primeira.pages + 5 }, null, db)).items).toEqual([]);
   });
 
   it("limites da página inicial devolvem só os mais recentes", async () => {

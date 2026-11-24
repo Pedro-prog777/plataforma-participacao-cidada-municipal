@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { isUuid } from "@/lib/text";
 import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, RadioGroup, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, LinkButton, PageHeader } from "@/components/ui/primitives";
@@ -12,6 +13,7 @@ export const metadata = { title: "Incidente" };
 export default async function IncidentePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin("incidentes.tratar");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const r = await getIncident(id).catch(() => null);
   if (!r) notFound();
   const i = r.i;

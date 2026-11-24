@@ -1,7 +1,7 @@
 /** Testes unitários das regras puras (RNF12: RN05–RN08, RN14, RN18 e correlatas). */
 import { describe, expect, it } from "vitest";
 import { formatCpf, generateCpf, isValidCpf, maskCpf } from "@/lib/cpf";
-import { normalizeSearch, sanitizePlainText, slugify } from "@/lib/text";
+import { isUuid, normalizeSearch, parseIsoDay, sanitizePlainText, slugify } from "@/lib/text";
 import { passwordPolicyErrors } from "@/server/lib/password";
 import { base32Decode, base32Encode, totp, verifyTotp } from "@/server/lib/totp";
 import { largestRemainderPercentages, tally } from "@/server/modules/results/tally";
@@ -189,5 +189,17 @@ describe("Datas no horário de Brasília", () => {
     const d = parseLocalDateTime("2026-11-20T09:30")!;
     expect(d.toISOString()).toBe("2026-11-20T12:30:00.000Z");
     expect(toLocalInput(d)).toBe("2026-11-20T09:30");
+  });
+});
+
+describe("Parâmetros de URL (filtros e rotas com identificador)", () => {
+  it("isUuid aceita só o formato UUID", () => {
+    expect(isUuid("2ab4db0d-786e-4061-a244-f5e06bdf25ab")).toBe(true);
+    for (const v of ["abc", "", "2ab4db0d-786e-4061-a244-f5e06bdf25a", "2ab4db0d786e4061a244f5e06bdf25ab", "' OR 1=1 --", null, 42]) expect(isUuid(v), String(v)).toBe(false);
+  });
+  it("parseIsoDay recusa datas inexistentes", () => {
+    expect(parseIsoDay("2026-11-24")).toBe("2026-11-24");
+    expect(parseIsoDay("2028-02-29")).toBe("2028-02-29");
+    for (const v of ["2026-02-30", "2026-13-01", "xyz", "24/11/2026", "", undefined]) expect(parseIsoDay(v), String(v)).toBeNull();
   });
 });
