@@ -3,12 +3,14 @@
 Referência central para qualquer agente ou pessoa que trabalhe neste repositório. Leia antes de alterar código.
 
 ## Identificação
+
 - **Nome:** Plataforma de Participação Cidadã Municipal — **Sigla:** PPCM
 - **Instituição:** CESMAC — **Curso:** Engenharia de Software (trabalho acadêmico)
 - **Equipe:** João Pedro e Flávia Marina
 - **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` (original preservado). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo, sem as citações jurídicas (DT-24); `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
 
 ## Instruções permanentes
+
 1. Não implementar funcionalidade fora do documento sem registrar a decisão em `docs/arquitetura/DECISOES_TECNICAS.md`.
 2. Não excluir funcionalidades existentes sem justificativa registrada.
 3. Manter os identificadores originais (RFxxx, RNFxx, RSxxx, RNxx) em código, testes e documentação.
@@ -26,6 +28,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 15. Não fazer `git push --force`. O repositório é público por decisão da equipe (12/11/2026): antes de cada envio, conferir que não há segredos, `.env` nem dados pessoais reais; os commits usam o e-mail `noreply` do GitHub.
 
 ## Invariantes de sigilo e integridade (não negociáveis)
+
 - `votes` não pode ter coluna, chave, índice ou marca temporal que a ligue a cidadão, participação, sessão ou comprovante. `participations` guarda só a **data**.
 - Participação e voto são gravados na mesma transação; nunca registrar a alternativa em auditoria, logs, e-mails, notificações, URLs ou no código de confirmação.
 - Votos aceitos não são auditados individualmente; só recusas (sem alternativa).
@@ -35,6 +38,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - O teste `tests/integration/voting.test.ts › Sigilo do voto` deve continuar passando; ao criar nova saída de dados (relatório, exportação, log), acrescente-a a esse teste.
 
 ## Guia técnico
+
 - **Stack:** Next.js 15 (App Router, Server Actions) · TypeScript · Tailwind CSS 4 · Drizzle ORM · PostgreSQL (PGlite em desenvolvimento) · Zod · Vitest · Playwright + axe-core.
 - **Estrutura:** `src/app` (rotas: `(site)` público/cidadão, `admin`, `api`) · `src/components` (interface) · `src/server/actions` (ações) · `src/server/auth` (guardas) · `src/server/modules` (domínio) · `src/server/lib` (infraestrutura) · `src/server/db` (schema, cliente, migração) · `src/lib` (compartilhado) · `database/` (migrations SQL, seeds — alias `@database/*` — e diagrama) · `tests/` (unit, integration, security, e2e, screenshots) · `screenshots/` (capturas reais) · `docs/` (requisitos, arquitetura, seguranca, testes, trello). O projeto é um monólito Next.js: não há pastas `frontend/` e `backend/` separadas (DT-18).
 - **Comandos:** `npm run dev` (programar) · `npm run preview` (testar e apresentar: build otimizado) · `npm run check` (tipos + lint + testes) · `npm run test:e2e` · `npm run screenshots` · `npm run db:generate` (após mudar o schema) · `npm run db:reset` (recria o banco local de demonstração).
@@ -48,11 +52,12 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Documentos:** arquitetura (`docs/arquitetura/ARQUITETURA.md`), decisões e interpretações (`docs/arquitetura/DECISOES_TECNICAS.md`), dados (`docs/arquitetura/MODELO_DE_DADOS.md`), riscos, rastreabilidade, mapeamento por RF, pendências, plano de testes, Trello e status — todos em `docs/`.
 
 ## Estado atual (resumo)
+
 Os 68 RFs estão implementados e testados; RF064, RF067 e RF068 ficam desligados por padrão (\*). gov.br e SMS são simulados. O documento é exibido em `/requisitos` com referências cruzadas automáticas (DT-24): a página e o catálogo de identificadores vêm de `docs/requisitos/REQUISITOS_COMPLETOS.md` no build — ao citar RF/RNF/RN/RS em texto de interface, use os componentes base ou `<RefText>`; o teste `tests/unit/requisitos.test.ts` falha se um identificador citado não existir. Protótipo conceitual no Figma: <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51>. Repositório: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>. Trello: <https://trello.com/b/AQX3bDST> (quadro público, montado por `npm run trello:sync` a partir de `docs/trello/quadro.json`; ao mudar o estado do projeto, atualize a definição e reaplique). Detalhes e pendências em `docs/STATUS_DO_DESENVOLVIMENTO.md`.
 
 ---
 
-# Requisitos (conteúdo do Documento de Requisitos v6, sem citações jurídicas — DT-24)
+## Requisitos (conteúdo do Documento de Requisitos v6, sem citações jurídicas — DT-24)
 
 ## 1. Introdução
 
@@ -74,7 +79,7 @@ A referência a requisitos é feita pelo nome da subseção seguido do identific
 
 A PPCM é um portal web cujo objetivo é aproximar a população da administração municipal. Pela plataforma, o cidadão conhece as consultas públicas abertas pela Prefeitura, entende o assunto em discussão, registra a sua opinião por votação, envia propostas e acompanha os resultados e o que foi feito depois da consulta (encaminhamentos). A votação é uma proposta da equipe e tem **caráter consultivo (\*)**: o resultado orienta a administração, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios (RN34).
 
-**Usuários**
+**Usuários:**
 
 1. **Visitante** — pessoa não autenticada; consulta o portal de transparência (consultas, resultados, encaminhamentos e histórico) e verifica comprovantes, mas não vota nem envia propostas.
 2. **Cidadão** — pessoa cadastrada com conta ativa; mantém o perfil, verifica a identidade, vota nas consultas cujo público-alvo o inclui, recebe comprovante, envia e acompanha propostas, denuncia conteúdos e escolhe os avisos que quer receber.
@@ -97,7 +102,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
   - **Nome completo** – texto, obrigatório.
   - **CPF** – texto no formato XXX.XXX.XXX-XX, com validação do dígito verificador (*). Único e nunca exibido em páginas públicas. Serve para garantir uma conta por pessoa (RN02) e pode vir do gov.br em vez de ser digitado.
   - **Data de nascimento** – data DD/MM/AAAA, obrigatória. Só é usada em consulta com critério de idade justificado; não existe idade mínima geral (RN01, RN40).
-  - **E-mail** – texto, obrigatório, formato texto@texto.texto. Único entre as contas de cidadão.
+  - **E-mail** – texto, obrigatório, formato `texto@texto.texto`. Único entre as contas de cidadão.
   - **Celular** – máscara (XX) XXXXX-XXXX, opcional.
   - **Endereço no município** – CEP (XXXXX-XXX), logradouro, número e bairro, obrigatórios. Usado nas consultas restritas a bairros ou regiões (RF027).
   - **Senha** – mínimo de 8 caracteres, com letra e número, diferente do CPF, da data de nascimento e do e-mail (RN23). Guardada só como hash.
@@ -752,11 +757,10 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 - **Regras:** Conteúdo mínimo (RN37); Manifestação não é voto (RN38); Limites administrativos (RN39).
 - **A validar com o cliente (*):** Quais formas de participação entram nesta versão.
 
-
 ## 4. Requisitos não funcionais
 
 | ID | Requisito | Descrição | Prioridade |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | RNF01 | Externo – acessibilidade | **Acesso para todos.** Páginas e conteúdos conformes ao nível AA da WCAG 2.2 e às recomendações do eMAG 3.1; verificação automática e manual com leitor de tela nas páginas inicial, de consulta, de participação e de resultado, sem falhas de nível A ou AA. | Essencial |
 | RNF02 | Produto – facilidade de uso | **Linguagem simples.** Textos da interface e das consultas em linguagem simples, conferidos na revisão (RF028); participar a partir da página da consulta em até 3 passos, sem contar o login. | Importante |
 | RNF03 | Produto – portabilidade | **Uso no celular.** Uso completo a partir de 320 px de largura sem rolagem horizontal (WCAG 1.4.10) e alvos de toque com no mínimo 24 × 24 px (WCAG 2.5.8). | Importante |
@@ -776,7 +780,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 ## 5. Requisitos de segurança
 
 | ID | Perigo | Soluções |
-|---|---|---|
+| --- | --- | --- |
 | RS001 | No RF037 e no RF039 foi verificado que o mesmo cidadão poderia registrar mais de um voto na consulta, por outro dispositivo, por duplo clique, por requisições ao mesmo tempo ou por nova conta com o mesmo CPF. | 1. Restrição de unicidade do par cidadão–consulta no banco de dados, além da verificação na tela e na regra de negócio (RF039, RN05). 2. Manter o hash do CPF mesmo depois da desativação da conta (RN33). 3. Teste de concorrência com envios simultâneos do mesmo cidadão (RNF07). |
 | RS002 | Nos RF037, RF041 e RF049 foi verificado que alguém, inclusive um administrador, poderia descobrir em qual alternativa um cidadão votou. | 1. Gravar participação e voto em estruturas sem vínculo, sem horário exato e sem o código do comprovante junto ao voto (RN07). 2. O comprovante não informa a alternativa escolhida (RF038). 3. Relatórios só com dados agregados, ocultando grupos com menos de 10 pessoas (RF049). |
 | RS003 | Nos RF042, RF043 e RF066 foi verificado que votos ou resultados poderiam ser alterados por uma ferramenta administrativa ou de moderação. | 1. Nenhuma ação administrativa ou de moderação altera, exclui ou revela votos (RN39). 2. Resultado final imutável; só muda por retificação justificada e visível (RN29). 3. Hash da base apurada e verificação de integridade antes da apuração (RF059). |
@@ -794,7 +798,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 ## 6. Matriz de avaliação de risco
 
 | Probabilidade \ Severidade | Catastrófico (1) | Crítico (2) | Marginal (3) | Insignificante (4) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Frequente (A) | | | | |
 | Provável (B) | | | RS011 | |
 | Ocasional (C) | | RS004, RS010 | RS007 | |
@@ -809,7 +813,7 @@ Cores do documento original: vermelho (A1, A2, B1, B2, C1), laranja (A3, B3, C2,
 ### 7.1 Matriz principal (D = depende de; R = relaciona-se com)
 
 | Linha → Coluna | RF018 | RF022 | RF025 | RF026 | RF027 | RF028 | RF029 | RF030 | RF037 | RF042 | RF043 | RF044 | RF061 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | RF018 | | | | | | | | | | | | D | |
 | RF022 | | | | | | R | | | | | | | |
 | RF025 | | D | | D | D | | R | | | | | | D |
@@ -827,7 +831,7 @@ Cores do documento original: vermelho (A1, A2, B1, B2, C1), laranja (A3, B3, C2,
 ### 7.2 Dependências de todos os requisitos
 
 | Requisito | D (depende de) | R (relaciona-se com) |
-|---|---|---|
+| --- | --- | --- |
 | RF001 | RF002, RF003 | RF004, RF007, RF027 |
 | RF002 | — | RF001, RF013, RF036 |
 | RF003 | — | RF004 |
@@ -904,7 +908,7 @@ Contagem do tipo **projeto em desenvolvimento**. Escopo: os 68 requisitos funcio
 Pesos usados:
 
 | Componente | Baixa | Média | Alta |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | Consulta Externa (CE) | 3 | 4 | 6 |
 | Entrada Externa (EE) | 3 | 4 | 6 |
 | Saída Externa (SE) | 4 | 5 | 7 |
@@ -912,7 +916,7 @@ Pesos usados:
 | Arquivo Lógico Interno (ALI) | 7 | 10 | 15 |
 
 | Requisito | Complexidade | ALI | AIE | SE | EE | CE | Total |
-|---|---|---:|---:|---:|---:|---:|---:|
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | RF001 | MÉDIA | 10 | 0 | 0 | 4 | 0 | 14 |
 | RF002 | — | 0 | 0 | 0 | 0 | 0 | 0 |
 | RF003 | BAIXA | 0 | 5 | 0 | 3 | 0 | 8 |
