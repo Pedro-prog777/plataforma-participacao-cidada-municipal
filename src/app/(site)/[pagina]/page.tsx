@@ -1,5 +1,5 @@
 /** Páginas institucionais estáticas: privacidade (LGPD), termos de uso, acessibilidade e acesso negado. */
-import { ContrastToggle } from "@/components/layout/client-bits";
+import { ContrastToggle, ControleTamanhoTexto } from "@/components/layout/client-bits";
 import { notFound } from "next/navigation";
 import { MainContainer } from "@/components/layout/site-chrome";
 import { Card, LinkButton, PageHeader } from "@/components/ui/primitives";
@@ -13,7 +13,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <p>Controlador: Prefeitura de {m.replace(/^Município de /, "")} (dados fictícios nesta demonstração).</p>
         <h2 className="text-lg font-bold">Dados coletados e finalidade</h2>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>CPF</strong> — garantir uma conta por pessoa e verificar a identidade. É guardado apenas como código protegido (HMAC) e em forma mascarada; nunca é exibido.</li>
+          <li><strong>CPF</strong> — garantir uma conta por pessoa e verificar a identidade. É guardado de forma protegida e só aparece parcialmente escondido (ex.: ***.456.789-**) para você; nunca é exibido em páginas públicas.</li>
           <li><strong>Data de nascimento</strong> — usada somente em consultas com critério de idade justificado. Não há idade mínima geral.</li>
           <li><strong>Endereço no município</strong> — usado em consultas restritas a bairros ou regiões.</li>
           <li><strong>E-mail e celular</strong> — confirmação de conta, recuperação de senha, comprovantes e avisos.</li>
@@ -21,7 +21,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <h2 className="text-lg font-bold">O seu voto</h2>
         <p>O voto é secreto. A escolha é gravada sem vínculo com a sua identidade, sem horário e sem o código do comprovante. Nem a cópia dos seus dados contém a alternativa escolhida.</p>
         <h2 className="text-lg font-bold">Seus direitos</h2>
-        <p>Na área “Privacidade e meus dados” você pode baixar uma cópia dos seus dados (JSON ou PDF) e desativar a conta. Na desativação, nome, e-mail, celular e endereço são anonimizados; os votos e resultados não são alterados e o código protegido do CPF é mantido para impedir novo voto na mesma consulta.</p>
+        <p>Na área “Privacidade e meus dados” você pode baixar uma cópia dos seus dados (em PDF ou em arquivo de dados) e desativar a conta. Na desativação, nome, e-mail, celular e endereço são anonimizados; os votos e resultados não são alterados e o código protegido do CPF é mantido para impedir novo voto na mesma consulta.</p>
         <p>Páginas públicas, exportações e relatórios contêm apenas dados agregados. Relatórios ocultam grupos com menos de 10 pessoas.</p>
       </>
     ),
@@ -57,6 +57,10 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <h2 className="text-lg font-bold">Alto contraste</h2>
         <p>Deixa o fundo preto, o texto branco e os links e botões em amarelo. A escolha fica guardada neste navegador e vale para todas as páginas.</p>
         <ContrastToggle />
+        <h2 className="text-lg font-bold">Tamanho do texto</h2>
+        <p>Aumenta as letras de todas as páginas (até 130%). A escolha também fica guardada neste navegador.</p>
+        <ControleTamanhoTexto />
+        <p>Os dois controles também ficam no botão <strong>Acessibilidade</strong>, na faixa azul do topo de todas as páginas.</p>
         <h2 className="text-lg font-bold">Recursos</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>Funciona a partir de 320 px de largura, sem rolagem horizontal; alvos de toque com no mínimo 24 × 24 px.</li>

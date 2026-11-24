@@ -15,7 +15,7 @@ export const metadata = { title: "A Prefeitura" };
 const ETAPAS: [IconName, string, string, string, string][] = [
   ["clipboard", "Prepara a consulta", "Cada consulta parte de uma proposta de um órgão municipal. Quem elabora não aprova: a revisão e a aprovação são feitas por outras pessoas, com registro de cada etapa.", "/consultas", "Ver consultas"],
   ["megaphone", "Divulga e abre a participação", "A consulta é publicada com antecedência, com período, público-alvo e materiais em linguagem simples. A votação abre e fecha sozinha, no horário divulgado.", "/como-funciona", "Como funciona"],
-  ["chart", "Publica o resultado", "Ao encerrar, o resultado é conferido e publicado com metodologia e nota oficial. A votação é consultiva: orienta a administração, sem substituir os ritos próprios de cada tema.", "/resultados", "Ver resultados"],
+  ["chart", "Publica o resultado", "Ao encerrar, o resultado é conferido e publicado com a explicação de como foi calculado e com nota oficial. A votação é consultiva: orienta a administração, sem substituir os ritos próprios de cada tema.", "/resultados", "Ver resultados"],
   ["route", "Presta contas do que foi feito", "Depois do resultado, o órgão responsável registra os encaminhamentos — decisão, providências e situação — e todo o histórico fica público.", "/encaminhamentos", "Ver encaminhamentos"],
 ];
 
@@ -65,7 +65,7 @@ export default async function PrefeituraPage() {
 
       <Section title="Atendimento" className="mt-10">
         <p className="max-w-3xl text-sm text-ink">
-          Nos eventos participativos ligados a uma consulta (audiências, reuniões e debates), perguntas feitas por telefone podem ser registradas por um servidor do atendimento. O voto, porém, é sempre pessoal e secreto: ninguém vota no lugar de outra pessoa.
+          Nos eventos participativos ligados a uma consulta (audiências, reuniões e debates), perguntas feitas por telefone podem ser registradas por um atendente da Prefeitura. O voto, porém, é sempre pessoal e secreto: ninguém vota no lugar de outra pessoa.
         </p>
       </Section>
     </MainContainer>

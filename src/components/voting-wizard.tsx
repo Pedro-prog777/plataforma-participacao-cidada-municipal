@@ -100,7 +100,7 @@ export function VotingWizard({
             </label>
             {hasPhone && (
               <label className="inline-flex items-center gap-2">
-                <input type="radio" name="channel" value="celular" className="size-4 accent-brand-700" /> Celular (SMS simulado)
+                <input type="radio" name="channel" value="celular" className="size-4 accent-brand-700" /> Celular (SMS — simulado nesta demonstração)
               </label>
             )}
           </fieldset>

@@ -15,7 +15,7 @@ export default async function ResultadosPage() {
     <MainContainer>
       <PageHeader
         title="Resultados das consultas"
-        description="Resultados finais homologados. São resultados de participação voluntária e não representam estatisticamente toda a população."
+        description="Resultados oficiais publicados. São resultados de participação voluntária e não representam estatisticamente toda a população."
         breadcrumbs={[{ href: "/", label: "Início" }, { label: "Resultados" }]}
         actions={<LinkButton href="/dados-abertos" variant="secondary" icon="download">Dados abertos</LinkButton>}
       />
@@ -27,7 +27,7 @@ export default async function ResultadosPage() {
               <li key={r.id} className="rounded-xl border border-line bg-white p-5">
                 <div className="flex flex-wrap gap-2">
                   {r.theme && <Badge tone="primary">{r.theme}</Badge>}
-                  <Badge tone={r.kind === "retificacao" ? "warning" : "success"}>{r.kind === "retificacao" ? "Retificado" : "Final"}</Badge>
+                  <Badge tone={r.kind === "retificacao" ? "warning" : "success"}>{r.kind === "retificacao" ? "Corrigido" : "Final"}</Badge>
                 </div>
                 <h2 className="mt-2 text-lg font-bold">
                   <Link href={`/consultas/${r.slug}/resultado`} className="hover:underline">

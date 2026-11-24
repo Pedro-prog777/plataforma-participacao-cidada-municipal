@@ -1,5 +1,6 @@
 "use client";
 /** Pequenos componentes interativos do layout (contraste, mensagens, contagem regressiva). */
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { FLASH } from "@/lib/flash";
@@ -59,11 +60,139 @@ export function ContrastToggle() {
   return (
     <button type="button" aria-pressed={on} onClick={toggle} className="inline-flex min-h-11 items-center gap-3 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-brand-800 hover:bg-brand-50">
       <span aria-hidden="true" className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${on ? "border-brand-700 bg-brand-700" : "border-slate-400 bg-slate-200"}`}>
-        <span className={`ac-preenchido absolute left-0 top-1/2 size-3.5 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${on ? "translate-x-[18px]" : "translate-x-0.5"}`} />
+        <span className={`ac-preenchido absolute left-0 top-1/2 size-3.5 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${on ? "translate-x-4.5" : "translate-x-0.5"}`} />
       </span>
       Alto contraste
       <span className="text-sm font-normal text-muted">{on ? "ligado" : "desligado"}</span>
     </button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Tamanho do texto (A−, A, A+): escala o texto da página inteira (rem) */
+/* ------------------------------------------------------------------ */
+
+const TEXTO_KEY = "ppcm-texto";
+const TEXTO_EVENT = "ppcm:texto";
+const TAMANHOS = [100, 115, 130] as const;
+
+function aplicarTamanhoTexto(nivel: number) {
+  const n = Math.max(0, Math.min(TAMANHOS.length - 1, nivel));
+  document.documentElement.style.fontSize = n ? `${TAMANHOS[n]}%` : "";
+  document.documentElement.dataset.texto = String(n);
+  try {
+    localStorage.setItem(TEXTO_KEY, String(n));
+  } catch {
+    /* armazenamento indisponível */
+  }
+  window.dispatchEvent(new Event(TEXTO_EVENT));
+}
+
+function useTamanhoTexto() {
+  const [nivel, setNivel] = useState(0);
+  useEffect(() => {
+    const ler = () => setNivel(Number(document.documentElement.dataset.texto) || 0);
+    ler();
+    window.addEventListener(TEXTO_EVENT, ler);
+    return () => window.removeEventListener(TEXTO_EVENT, ler);
+  }, []);
+  return [nivel, aplicarTamanhoTexto] as const;
+}
+
+/** Aplica em todas as páginas o tamanho de texto escolhido (guardado neste navegador). */
+export function TamanhoTextoPreferencia() {
+  useEffect(() => {
+    try {
+      const v = Number(localStorage.getItem(TEXTO_KEY));
+      if (v > 0) aplicarTamanhoTexto(v);
+    } catch {
+      /* armazenamento indisponível */
+    }
+  }, []);
+  return null;
+}
+
+const botaoTexto = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-2 font-bold text-brand-800 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40";
+
+export function ControleTamanhoTexto() {
+  const [nivel, aplicar] = useTamanhoTexto();
+  return (
+    <div role="group" aria-label="Tamanho do texto" className="flex items-center gap-2">
+      <button type="button" className={botaoTexto} onClick={() => aplicar(nivel - 1)} disabled={nivel === 0}>
+        A−<span className="sr-only"> (diminuir o texto)</span>
+      </button>
+      <button type="button" className={botaoTexto} onClick={() => aplicar(0)} aria-pressed={nivel === 0}>
+        A<span className="sr-only"> (texto no tamanho normal)</span>
+      </button>
+      <button type="button" className={`${botaoTexto} text-lg`} onClick={() => aplicar(nivel + 1)} disabled={nivel === TAMANHOS.length - 1}>
+        A+<span className="sr-only"> (aumentar o texto)</span>
+      </button>
+      <span className="text-sm text-muted" aria-live="polite">
+        {TAMANHOS[nivel]}%
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Botão "Acessibilidade" da faixa superior (DT-22): abre um painel com alto contraste, tamanho do
+ * texto e o link para a página de Acessibilidade. Esc ou clique fora fecham o painel.
+ */
+export function MenuAcessibilidade() {
+  const [aberto, setAberto] = useState(false);
+  const raiz = useRef<HTMLDivElement>(null);
+  const botao = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!aberto) return;
+    const fora = (e: MouseEvent) => {
+      if (raiz.current && !raiz.current.contains(e.target as Node)) setAberto(false);
+    };
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setAberto(false);
+        botao.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", fora);
+    document.addEventListener("keydown", tecla);
+    return () => {
+      document.removeEventListener("mousedown", fora);
+      document.removeEventListener("keydown", tecla);
+    };
+  }, [aberto]);
+  return (
+    <div ref={raiz} className="relative">
+      <button
+        ref={botao}
+        type="button"
+        aria-expanded={aberto}
+        aria-controls="menu-acessibilidade"
+        onClick={() => setAberto((v) => !v)}
+        className="inline-flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-white/10"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="7" r="1.2" fill="currentColor" />
+          <path d="m7 10 5 1 5-1m-5 1v3m0 0-2.5 4.5M12 14l2.5 4.5" />
+        </svg>
+        <span className="sr-only sm:not-sr-only">Acessibilidade</span>
+      </button>
+      {aberto && (
+        <div id="menu-acessibilidade" role="group" aria-label="Opções de acessibilidade" className="absolute right-0 top-full z-50 mt-1 w-72 max-w-[calc(100vw-2rem)] space-y-4 whitespace-normal rounded-xl border border-line bg-white p-4 text-sm text-ink shadow-lg">
+          <div className="space-y-1.5">
+            <p className="font-semibold">Cores</p>
+            <ContrastToggle />
+          </div>
+          <div className="space-y-1.5">
+            <p className="font-semibold">Tamanho do texto</p>
+            <ControleTamanhoTexto />
+          </div>
+          <Link href="/acessibilidade" onClick={() => setAberto(false)} className="inline-block font-semibold text-brand-700 underline">
+            Mais recursos de acessibilidade
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 

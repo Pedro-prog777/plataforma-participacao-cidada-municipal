@@ -9,8 +9,8 @@ export const CONSULTATION_STATUS = {
   agendada: { label: "Agendada", tone: "info" },
   aberta: { label: "Aberta", tone: "success" },
   suspensa: { label: "Suspensa", tone: "warning" },
-  encerrada: { label: "Encerrada — em apuração", tone: "neutral" },
-  apurada: { label: "Apurada — resultado em homologação", tone: "neutral" },
+  encerrada: { label: "Encerrada — contando os votos", tone: "neutral" },
+  apurada: { label: "Votos contados — resultado em conferência", tone: "neutral" },
   finalizada: { label: "Resultado publicado", tone: "primary" },
   cancelada: { label: "Cancelada", tone: "danger" },
 } as const;

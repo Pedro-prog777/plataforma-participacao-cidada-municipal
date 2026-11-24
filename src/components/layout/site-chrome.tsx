@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { Icon } from "../ui/icons";
-import { FlashMessage } from "./client-bits";
+import { FlashMessage, MenuAcessibilidade } from "./client-bits";
 
 export function Emblem({ className = "size-10" }: { className?: string }) {
   // Desenho próprio, inspirado nos elementos do brasão de Maceió (coroa mural, jangada, ondas e
@@ -56,6 +56,7 @@ export function TopBar({ municipio, uf }: { municipio: string; uf: string }) {
           <Link href="/prefeitura" className="hidden rounded px-1.5 py-1 hover:bg-white/10 sm:inline">
             A Prefeitura
           </Link>
+          <MenuAcessibilidade />
         </nav>
       </div>
       {/* Faixa nas cores do município (verde, vermelho e azul do brasão). */}
@@ -175,11 +176,15 @@ export function SiteFooter({ municipio, demo }: { municipio: string; demo: boole
         </div>
         <FooterCol title="Participar" links={[["/consultas", "Consultas públicas"], ["/propostas", "Propostas cidadãs"], ["/conta/propostas/nova", "Enviar proposta"], ["/comprovante", "Verificar comprovante"]]} />
         <FooterCol title="Transparência" links={[["/transparencia", "Portal de transparência"], ["/resultados", "Resultados"], ["/encaminhamentos", "Encaminhamentos"], ["/dados-abertos", "Dados abertos"]]} />
-        <FooterCol title="Informações" links={[["/prefeitura", "A Prefeitura"], ["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e dados pessoais"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"], ["/requisitos", "Documento de requisitos"]]} />
+        <FooterCol title="Informações" links={[["/prefeitura", "A Prefeitura"], ["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e dados pessoais"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"]]} />
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-4 text-xs text-muted sm:flex-row sm:justify-between">
-          <p>Trabalho acadêmico — Engenharia de Software, CESMAC. Equipe: João Pedro e Flávia Marina. Não é um serviço oficial da Prefeitura de {municipio.replace(/^Município de /, "")}.</p>
+          <p>Trabalho acadêmico — Engenharia de Software, CESMAC. Equipe: João Pedro e Flávia Marina. Não é um serviço oficial da Prefeitura de {municipio.replace(/^Município de /, "")}.{" "}
+            <Link href="/requisitos" className="underline hover:text-brand-700">
+              Documento de requisitos do projeto
+            </Link>
+          </p>
           {demo && <p className="font-semibold text-civic-700">Ambiente de demonstração: consultas e pessoas são fictícias.</p>}
         </div>
       </div>
@@ -223,7 +228,7 @@ export function DemoBanner() {
           <strong>Demonstração:</strong> não é o site oficial.
         </span>
         <span className="hidden lg:inline">
-          <strong>Demonstração acadêmica.</strong> Não é o site oficial da Prefeitura; consultas e pessoas são fictícias, e-mails e provedor de identidade são simulados.
+          <strong>Demonstração acadêmica.</strong> Não é o site oficial da Prefeitura; consultas e pessoas são fictícias; e-mails e login gov.br são simulados.
         </span>
         <Link href="/demo" className="font-semibold underline">
           Contas <span className="hidden lg:inline">e ferramentas </span>de teste

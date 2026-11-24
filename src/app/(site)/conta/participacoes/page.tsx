@@ -28,7 +28,7 @@ export default async function ParticipacoesPage({ searchParams }: { searchParams
             <option value="aberta">Aberta</option>
             <option value="finalizada">Resultado publicado</option>
             <option value="cancelada">Cancelada</option>
-            <option value="apurada">Em homologação</option>
+            <option value="apurada">Resultado em conferência</option>
           </select>
         </div>
         <div>

@@ -13,9 +13,9 @@ export default function DemoPage() {
   if (!demoMode()) notFound();
   return (
     <MainContainer>
-      <PageHeader title="Contas e ferramentas de demonstração" description="Esta página existe apenas no modo demonstração (DEMO_MODE=true). Todas as contas e dados são fictícios." />
+      <PageHeader title="Contas e ferramentas de demonstração" description="Esta página só existe na versão de demonstração. Todas as contas e dados são fictícios." />
       <Alert tone="warning" title="Não use estas credenciais fora da demonstração">
-        Senha de todas as contas: <code className="font-bold">{DEMO_PASSWORD}</code>. Os códigos TOTP abaixo mudam a cada 30 segundos (recarregue a página).
+        Senha de todas as contas: <code className="font-bold">{DEMO_PASSWORD}</code>. Os códigos do aplicativo autenticador (segundo fator) mudam a cada 30 segundos — recarregue a página.
       </Alert>
       <Section title="Cidadãos" className="mt-8">
         <Table
@@ -28,17 +28,17 @@ export default function DemoPage() {
       </Section>
       <Section title="Contas administrativas (com segundo fator)" className="mt-8">
         <Table
-          head={["Conta", "E-mail", "Papéis", "Código TOTP agora"]}
+          head={["Conta", "E-mail", "Papéis", "Código do autenticador agora"]}
           rows={DEMO_ADMINS.map((a) => [a.name, <code key="e">{a.email}</code>, a.roles.map((r) => ROLE_LABELS[r] ?? r).join(", "), <code key="t" className="text-lg font-bold tracking-widest">{totp(a.totp)}</code>])}
         />
       </Section>
       <Section title="Serviços simulados" className="mt-8">
         <Card className="flex flex-wrap gap-3">
           <LinkButton href="/demo/caixa-de-email" icon="bell">
-            Caixa de e-mail simulada
+            Caixa de e-mail de teste
           </LinkButton>
           <LinkButton href="/conta/verificacao" variant="secondary" icon="shield">
-            Provedor de identidade simulado
+            Login gov.br simulado
           </LinkButton>
         </Card>
       </Section>

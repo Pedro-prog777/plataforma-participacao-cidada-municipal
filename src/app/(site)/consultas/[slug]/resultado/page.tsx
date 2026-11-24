@@ -12,7 +12,7 @@ const CONDITION: Record<ResultData["condition"], string> = {
   vencedora: "Alternativa mais votada pela maioria simples dos votos válidos.",
   empate: "Empate entre alternativas, sem regra de desempate publicada: não há alternativa vencedora.",
   sem_votos: "Não houve votos válidos.",
-  abaixo_quorum: "O quórum de referência não foi atingido: não há alternativa vencedora.",
+  abaixo_quorum: "A participação ficou abaixo do mínimo de referência: não há alternativa vencedora.",
 };
 
 export default async function ResultadoPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -29,18 +29,15 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
       <PageHeader
         title={`Resultado: ${c.title}`}
         breadcrumbs={[{ href: "/resultados", label: "Resultados" }, { href: `/consultas/${slug}`, label: c.title }, { label: "Resultado" }]}
-        eyebrow={shown ? <Badge tone={current ? "success" : "warning"}>{current ? (current.kind === "retificacao" ? "Final (retificado)" : "Final") : "Preliminar"}</Badge> : undefined}
+        eyebrow={shown ? <Badge tone={current ? "success" : "warning"}>{current ? (current.kind === "retificacao" ? "Final (corrigido)" : "Final") : "Preliminar"}</Badge> : undefined}
         actions={
           shown ? (
             <>
-              <LinkButton href={`/api/dados-abertos/resultados?formato=csv&consulta=${id}`} variant="secondary" icon="download">
-                CSV
-              </LinkButton>
-              <LinkButton href={`/api/dados-abertos/resultados?formato=json&consulta=${id}`} variant="secondary" icon="download">
-                JSON
-              </LinkButton>
               <LinkButton href={`/api/dados-abertos/resultados?formato=pdf&consulta=${id}`} variant="secondary" icon="download">
-                PDF
+                Baixar em PDF
+              </LinkButton>
+              <LinkButton href={`/api/dados-abertos/resultados?formato=csv&consulta=${id}`} variant="secondary" icon="download">
+                Planilha
               </LinkButton>
             </>
           ) : undefined
@@ -48,7 +45,7 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
       />
       {!shown ? (
         <Alert tone={c.status === "cancelada" ? "danger" : "info"} title={c.status === "cancelada" ? "Consulta cancelada" : "Resultado ainda não publicado"}>
-          {c.status === "cancelada" ? "Os votos foram lacrados e não foram apurados. Não há números por alternativa." : "Durante a votação, apenas o número de participações é divulgado. O resultado por alternativa aparece depois da apuração e da homologação."}
+          {c.status === "cancelada" ? "Os votos foram guardados sem contagem e não entram em nenhum resultado. Não há números por alternativa." : "Durante a votação, só o número de participações é divulgado. O resultado por alternativa aparece depois que os votos forem contados e conferidos."}
         </Alert>
       ) : (
         <div className="space-y-8">
@@ -71,11 +68,11 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
                   { term: "Participações", detail: shown.data.participations.toLocaleString("pt-BR") },
                   { term: "Votos válidos", detail: shown.data.validVotes.toLocaleString("pt-BR") },
                   { term: "Abstenções", detail: shown.data.abstentions.toLocaleString("pt-BR") },
-                  { term: "Elegíveis estimados", detail: shown.data.estimatedEligible?.toLocaleString("pt-BR") ?? "—" },
-                  { term: "Participação sobre elegíveis", detail: shown.data.participationRate ? `${shown.data.participationRate.replace(".", ",")}% (indicador descritivo)` : "—" },
+                  { term: "Pessoas que podiam participar (estimativa)", detail: shown.data.estimatedEligible?.toLocaleString("pt-BR") ?? "—" },
+                  { term: "Participação entre quem podia participar", detail: shown.data.participationRate ? `${shown.data.participationRate.replace(".", ",")}%` : "—" },
                   {
-                    term: "Quórum de referência",
-                    detail: shown.data.quorum.type === "nenhum" ? "Não adotado" : `${shown.data.quorum.required ?? "—"} participações — ${shown.data.quorum.met ? "atingido" : "não atingido"}`,
+                    term: "Participação mínima de referência",
+                    detail: shown.data.quorum.type === "nenhum" ? "Não adotado" : `${shown.data.quorum.required ?? "—"} participações — ${shown.data.quorum.met ? "atingida" : "não atingida"}`,
                   },
                   { term: "Período", detail: `${fmtDateTime(c.opensAt)} a ${fmtDateTime(c.closesAt)}` },
                   ...(c.exceptionalDeadline ? [{ term: "Prazo reduzido", detail: c.emergencyJustification ?? "" }] : []),
@@ -84,7 +81,7 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
             </Card>
           </div>
 
-          <Section title="Tabela de dados" description="Mesmos números do gráfico, para leitores de tela e conferência.">
+          <Section title="Números em tabela" description="Os mesmos números do gráfico, também para quem usa leitor de tela.">
             <Table
               caption="Votos por alternativa"
               head={["Alternativa", "Votos", "% dos válidos"]}
@@ -96,20 +93,24 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
             />
           </Section>
 
-          <Section title="Metodologia">
+          <Section title="Como o resultado foi calculado">
             <Card className="space-y-2 text-sm">
               <p>
-                <strong>Forma de contabilização:</strong> maioria simples dos votos válidos, definida e publicada antes da abertura. Percentuais calculados sobre os votos válidos com duas casas decimais (método do maior resto, somando 100%).
+                <strong>Regra:</strong> vence a alternativa com mais votos válidos. A regra foi definida e publicada antes de a votação abrir. As porcentagens são calculadas sobre os votos válidos, com duas casas decimais, e somam 100%.
               </p>
               <p>
-                <strong>Sigilo:</strong> os votos são gravados sem identificação de quem votou, sem comprovante e sem horário. A apuração é automática e determinística.
+                <strong>Sigilo:</strong> os votos são guardados sem identificar quem votou, sem o comprovante e sem horário. A contagem é automática e, se for refeita, chega sempre ao mesmo resultado.
               </p>
-              <p className="break-all">
-                <strong>Hash do resultado:</strong> <code>{shown.hash}</code>
-              </p>
-              <p className="break-all">
-                <strong>Hash da base apurada:</strong> <code>{shown.baseHash}</code>
-              </p>
+              <details className="rounded-lg border border-line px-3 py-2">
+                <summary className="cursor-pointer font-semibold text-brand-800">Códigos de verificação (para conferência técnica)</summary>
+                <p className="mt-2 text-muted">Permitem que qualquer pessoa confira que o resultado publicado e os votos contados não foram alterados.</p>
+                <p className="mt-2 break-all">
+                  <strong>Código do resultado:</strong> <code>{shown.hash}</code>
+                </p>
+                <p className="break-all">
+                  <strong>Código dos votos contados:</strong> <code>{shown.baseHash}</code>
+                </p>
+              </details>
               {current?.note && (
                 <p>
                   <strong>Nota oficial:</strong> {current.note}
@@ -120,10 +121,10 @@ export default async function ResultadoPage({ params }: { params: Promise<{ slug
           </Section>
 
           {history.length > 1 && (
-            <Section title="Versões publicadas" description="O resultado original permanece visível após retificações.">
+            <Section title="Versões publicadas" description="Quando o resultado é corrigido, a versão original continua visível.">
               <Table
-                head={["Tipo", "Data", "Justificativa", "Hash"]}
-                rows={history.map((h) => [h.kind === "retificacao" ? "Retificação" : "Final", fmtDateTime(h.createdAt), h.justification ?? "—", <code key={h.id}>{h.hash.slice(0, 16)}…</code>])}
+                head={["Tipo", "Data", "Justificativa", "Código de verificação"]}
+                rows={history.map((h) => [h.kind === "retificacao" ? "Correção" : "Final", fmtDateTime(h.createdAt), h.justification ?? "—", <code key={h.id}>{h.hash.slice(0, 16)}…</code>])}
               />
             </Section>
           )}

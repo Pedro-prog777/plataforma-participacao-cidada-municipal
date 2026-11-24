@@ -28,7 +28,7 @@ export default async function PerfilPage() {
         }
       />
       <div className="space-y-8">
-        <Section title="Situação para participar" description="Resumo de elegibilidade: o motivo e a ação necessária quando houver impedimento.">
+        <Section title="Situação para participar" description="Veja se você pode participar e, se houver algum impedimento, o motivo e o que fazer.">
           <div className="grid gap-3 md:grid-cols-2">
             {summary.map((s) => (
               <Card key={s.label} className={s.ok ? "border-green-300" : "border-amber-300"}>

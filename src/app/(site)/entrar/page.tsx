@@ -35,7 +35,7 @@ export default async function EntrarPage({ searchParams }: { searchParams: Promi
           </div>
           {providerName && (
             <p className="border-t border-line pt-4 text-xs text-muted">
-              Entrada pelo provedor de identidade: disponível após o cadastro, na etapa de verificação. Nesta versão o provedor é <strong>{providerName}</strong>; a integração oficial com o gov.br depende de credenciamento.
+              Entrar com <strong>{providerName}</strong>: disponível depois do cadastro, na etapa de verificação de identidade.
             </p>
           )}
         </Card>

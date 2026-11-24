@@ -65,7 +65,7 @@ export default async function ParticiparPage({ params }: { params: Promise<{ slu
           </Card>
           {demoMode() && (
             <Alert tone="info" title="Demonstração">
-              O código chega na <Link href="/demo/caixa-de-email">caixa de e-mail simulada</Link>.
+              Nesta demonstração os e-mails não são enviados de verdade: o código aparece na <Link href="/demo/caixa-de-email">caixa de e-mail de teste</Link>.
             </Alert>
           )}
         </aside>

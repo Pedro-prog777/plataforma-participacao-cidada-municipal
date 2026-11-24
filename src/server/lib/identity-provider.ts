@@ -19,7 +19,7 @@ export interface IdentityProvider {
 }
 
 export class SimulatedIdentityProvider implements IdentityProvider {
-  readonly name = "Provedor de identidade simulado (demonstração acadêmica)";
+  readonly name = "gov.br (simulado)";
   readonly simulated = true;
   authorizationUrl(state: string, returnTo: string) {
     return `/demo/provedor-identidade?state=${encodeURIComponent(state)}&retorno=${encodeURIComponent(returnTo)}`;

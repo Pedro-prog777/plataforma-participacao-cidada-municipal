@@ -27,10 +27,10 @@ export function ReceiptChecker({ action }: { action: (s: FormState, fd: FormData
                 <p>Data da participação: {result.date.split("-").reverse().join("/")}</p>
                 <p className="text-xs">
                   {result.situation === "Contabilizado"
-                    ? "A participação foi incluída na apuração."
+                    ? "A participação foi contada no resultado."
                     : result.situation === "Registrado"
-                      ? "A participação está registrada e será contabilizada na apuração."
-                      : "A consulta foi cancelada e os votos não foram apurados."}
+                      ? "A participação está registrada e será contada quando a votação terminar."
+                      : "A consulta foi cancelada e os votos não foram contados."}
                 </p>
               </Alert>
             )}

@@ -37,24 +37,24 @@ export default async function VerificacaoPage() {
       )}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="space-y-3">
-          <h2 className="text-lg font-bold">Opção 1 — Provedor de identidade</h2>
-          <p className="text-sm text-muted">Mais rápido: entre na sua conta do provedor oficial (nível prata ou ouro). O sistema confere se o CPF é o mesmo do cadastro.</p>
+          <h2 className="text-lg font-bold">Opção 1 — Conta gov.br</h2>
+          <p className="text-sm text-muted">Mais rápido: entre com a sua conta gov.br (nível prata ou ouro). O sistema confere se o CPF é o mesmo do cadastro.</p>
           {provider?.simulated && (
             <Alert tone="warning" title="Demonstração">
-              Nesta versão acadêmica o provedor é simulado (“{provider.name}”). A integração real com o gov.br exige credenciamento oficial.
+              Nesta demonstração, a entrada com gov.br é simulada: nenhum dado é enviado ao gov.br de verdade.
             </Alert>
           )}
           {provider && !(verified && p.domicileVerifiedAt) ? (
             <form action={startIdentityProviderAction}>
-              <button className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-5 font-semibold text-white hover:bg-brand-800">Continuar no provedor de identidade</button>
+              <button className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-5 font-semibold text-white hover:bg-brand-800">Continuar com gov.br</button>
             </form>
           ) : (
-            !provider && <Alert tone="neutral">Provedor de identidade indisponível. Use a verificação por documentos.</Alert>
+            !provider && <Alert tone="neutral">A entrada com gov.br está indisponível no momento. Use a verificação por documentos.</Alert>
           )}
         </Card>
         <Card className="space-y-3">
           <h2 className="text-lg font-bold">Opção 2 — Análise de documentos</h2>
-          <p className="text-sm text-muted">Envie documento com foto e, se quiser comprovar domicílio, um comprovante de residência. Um servidor analisa e aprova ou recusa com motivo.</p>
+          <p className="text-sm text-muted">Envie documento com foto e, se quiser comprovar domicílio, um comprovante de residência. Um atendente da Prefeitura analisa e aprova ou recusa, sempre explicando o motivo.</p>
           {pending ? (
             <Alert tone="info">Você já tem documentos em análise. Aguarde a decisão.</Alert>
           ) : (
@@ -81,7 +81,7 @@ export default async function VerificacaoPage() {
       <Section title="Histórico de verificações" className="mt-8">
         <Table
           head={["Data", "Método", "Situação", "Motivo"]}
-          rows={history.map((h) => [fmtDateTime(h.createdAt), h.method === "govbr" ? "Provedor de identidade" : "Documentos", h.status === "aprovada" ? <Badge key="a" tone="success">Aprovada</Badge> : h.status === "recusada" ? <Badge key="r" tone="danger">Recusada</Badge> : <Badge key="e" tone="info">Em análise</Badge>, h.reason ?? "—"])}
+          rows={history.map((h) => [fmtDateTime(h.createdAt), h.method === "govbr" ? "Conta gov.br" : "Documentos", h.status === "aprovada" ? <Badge key="a" tone="success">Aprovada</Badge> : h.status === "recusada" ? <Badge key="r" tone="danger">Recusada</Badge> : <Badge key="e" tone="info">Em análise</Badge>, h.reason ?? "—"])}
           empty="Nenhuma verificação realizada."
         />
       </Section>

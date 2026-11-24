@@ -699,7 +699,7 @@ export async function closeSuspendedForTally(actor: Actor, id: string, justifica
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
     if (c.status !== "suspensa" || !c.closesAt || c.closesAt > clock.now()) throw new DomainError("Disponível apenas para consulta suspensa cujo prazo já terminou.");
     await tx.update(consultations).set({ status: "encerrada", closedAt: clock.now(), statusBeforeSuspension: null }).where(eq(consultations.id, id));
-    await recordPublicEvent(tx, id, "encerramento", "Consulta encerrada após suspensão; decidiu-se apurar os votos registrados.", j);
+    await recordPublicEvent(tx, id, "encerramento", "Consulta encerrada após suspensão; decidiu-se contar os votos registrados.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_encerrada_apos_suspensao", objectType: "consulta", objectId: id, justification: j });
   });
 }
@@ -718,8 +718,8 @@ export async function cancelConsultation(actor: Actor, id: string, input: { just
     if ((input.confirmTitle ?? "").trim() !== c.title.trim()) throw new ValidationError({ confirmTitle: ["Digite o título exatamente como aparece para confirmar."] });
     await tx.update(consultations).set({ status: "cancelada", statusReason: j, closedAt: c.closedAt ?? clock.now() }).where(eq(consultations.id, id));
     await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, c.municipalProposalId));
-    await recordPublicEvent(tx, id, "cancelamento", "Consulta cancelada de forma irreversível. Os votos registrados foram lacrados e não serão apurados.", j);
+    await recordPublicEvent(tx, id, "cancelamento", "Consulta cancelada de forma definitiva. Os votos registrados foram guardados sem contagem e não entram em nenhum resultado.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_cancelada", objectType: "consulta", objectId: id, justification: j });
-    await notifyChange(tx, id, `Consulta cancelada: ${c.title}`, `Justificativa: ${j}\nEfeito sobre os votos: os votos registrados foram lacrados e NÃO serão apurados.`);
+    await notifyChange(tx, id, `Consulta cancelada: ${c.title}`, `Justificativa: ${j}\nEfeito sobre os votos: os votos registrados foram guardados sem contagem e não entram em nenhum resultado.`);
   });
 }

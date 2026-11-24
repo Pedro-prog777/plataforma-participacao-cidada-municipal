@@ -58,7 +58,7 @@ export default async function CadastroPage() {
               </div>
               {/* Só aparece quando a pessoa escolhe “Moro fora” no bairro (regra em globals.css, sem JavaScript). */}
               <div className="so-quem-mora-fora">
-                <Field label="Município e UF onde você mora" name="externalCity" required hint="O cadastro é aceito; a elegibilidade é verificada em cada consulta." />
+                <Field label="Município e UF onde você mora" name="externalCity" required hint="O cadastro é aceito; quem pode participar é definido em cada consulta." />
               </div>
             </fieldset>
             <fieldset className="space-y-4">
@@ -93,7 +93,7 @@ export default async function CadastroPage() {
             <p className="font-semibold text-brand-900">Depois do cadastro</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">
               <li>Confirme o e-mail pelo link enviado (vale 24 h).</li>
-              <li>Verifique sua identidade pelo provedor de identidade ou por documentos.</li>
+              <li>Confirme sua identidade com a conta gov.br ou enviando documentos.</li>
               <li>Pronto: você pode votar nas consultas do seu público-alvo.</li>
             </ol>
           </Card>

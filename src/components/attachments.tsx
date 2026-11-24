@@ -36,7 +36,6 @@ export function AttachmentList({ items }: { items: AttachmentView[] }) {
               </p>
               <p className="text-xs text-muted">
                 {a.kind === "link" ? "Link externo" : `${a.mime?.split("/")[1]?.toUpperCase() ?? "Arquivo"} · ${size(a.sizeBytes)}`}
-                {a.sha256 && <span title={a.sha256}> · SHA-256 {a.sha256.slice(0, 12)}…</span>}
               </p>
               {a.addedAfterPublication && (
                 <p className="mt-1 text-xs">

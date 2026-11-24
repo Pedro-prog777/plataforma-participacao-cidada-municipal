@@ -174,7 +174,7 @@ export default async function HomePage() {
                             Mais votada: <strong>{winner.label}</strong> ({winner.percentage.replace(".", ",")}% dos votos válidos)
                           </>
                         ) : (
-                          "Sem alternativa vencedora (empate, quórum ou ausência de votos)."
+                          "Sem alternativa vencedora (empate, participação abaixo do mínimo de referência ou nenhum voto)."
                         )}
                       </p>
                     </Link>
