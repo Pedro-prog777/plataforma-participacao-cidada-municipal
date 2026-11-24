@@ -1,5 +1,5 @@
 /** Páginas institucionais estáticas: privacidade (LGPD), termos de uso, acessibilidade e acesso negado. */
-import { ContrastToggle, ControleTamanhoTexto } from "@/components/layout/client-bits";
+import { ControleTamanhoTexto, EspacamentoToggle } from "@/components/layout/client-bits";
 import { notFound } from "next/navigation";
 import { MainContainer } from "@/components/layout/site-chrome";
 import { Card, LinkButton, PageHeader } from "@/components/ui/primitives";
@@ -52,15 +52,14 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
           <li>Alt + 2: ir para o menu</li>
           <li>Alt + 3: ir para a busca de consultas</li>
           <li>Alt + 4: ir para o rodapé</li>
-          <li>Alt + 5: ligar ou desligar o alto contraste (fundo preto, texto branco, links e botões em amarelo)</li>
+          <li>Alt + 5: ligar ou desligar o espaçamento ampliado para leitura</li>
         </ul>
-        <h2 className="text-lg font-bold">Alto contraste</h2>
-        <p>Deixa o fundo preto, o texto branco e os links e botões em amarelo. A escolha fica guardada neste navegador e vale para todas as páginas.</p>
-        <ContrastToggle />
+        <h2 className="text-lg font-bold">Espaçamento para leitura</h2>
+        <p>Aumenta o espaço entre as linhas, as palavras e as letras, o que facilita a leitura para quem tem dislexia ou baixa visão. A escolha fica guardada neste navegador e vale para todas as páginas.</p>
+        <EspacamentoToggle />
         <h2 className="text-lg font-bold">Tamanho do texto</h2>
         <p>Aumenta as letras de todas as páginas (até 130%). A escolha também fica guardada neste navegador.</p>
         <ControleTamanhoTexto />
-        <p>Os dois controles também ficam no botão <strong>Acessibilidade</strong>, na faixa azul do topo de todas as páginas.</p>
         <h2 className="text-lg font-bold">Recursos</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>Funciona a partir de 320 px de largura, sem rolagem horizontal; alvos de toque com no mínimo 24 × 24 px.</li>

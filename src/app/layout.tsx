@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Public_Sans } from "next/font/google";
 import { Suspense } from "react";
-import { ContrastPreference, NavigationProgress, TamanhoTextoPreferencia } from "@/components/layout/client-bits";
+import { EspacamentoPreferencia, NavigationProgress, TamanhoTextoPreferencia } from "@/components/layout/client-bits";
 import { ProvedorCatalogoRequisitos } from "@/components/requisitos/ref-text";
 import { resumoCatalogoRequisitos } from "@/server/lib/documento-requisitos";
 import "./globals.css";
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense>
           <NavigationProgress />
         </Suspense>
-        <ContrastPreference />
+        <EspacamentoPreferencia />
         <TamanhoTextoPreferencia />
         {/* Catálogo de requisitos extraído do documento: transforma RF/RNF/RN/RS citados na interface em links (DT-24). */}
         <ProvedorCatalogoRequisitos catalogo={resumoCatalogoRequisitos()}>{children}</ProvedorCatalogoRequisitos>

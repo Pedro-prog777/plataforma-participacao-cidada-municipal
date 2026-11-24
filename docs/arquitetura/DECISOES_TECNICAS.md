@@ -81,7 +81,7 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 
 ## DT-16 — Interface
 - Tailwind CSS 4 com tokens próprios (azul institucional, laranja de destaque), fonte Public Sans, componentes acessíveis próprios. A marca é um desenho próprio (DT-21) e não reproduz o padrão visual do gov.br.
-- Atalhos de teclado (eMAG) e alto contraste (DT-22); gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
+- Atalhos de teclado (eMAG), espaçamento ampliado para leitura e tamanho do texto (DT-22); gráficos sempre acompanhados de tabela; formulários com erros por campo associados por `aria-describedby`.
 - CSP com nonce por requisição (middleware), `frame-ancestors 'none'`, HSTS em produção.
 - Formulários: a pontuação de CPF, data, celular e CEP entra sozinha (`src/lib/masks.ts`); a máscara só formata, a validação continua no servidor (RF002). A dica de cada campo fica abaixo dele, para que campos lado a lado permaneçam alinhados. No cadastro, o campo do município só aparece para quem escolhe “Moro fora”.
 - Topo no celular: o aviso de demonstração usa texto curto, para o conteúdo começar mais acima.
@@ -119,17 +119,18 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Não é serviço oficial.** O aviso aparece na faixa de demonstração, no rodapé (sempre, mesmo fora do modo demonstração) e no README. O sistema não deve ser publicado na internet com o nome da Prefeitura sem autorização dela.
 - **Marca:** escudo desenhado para o projeto, inspirado nos elementos do brasão da cidade (coroa mural, jangada, ondas, faixas verde, branca e azul). **Não é o brasão oficial**, cujo uso depende de autorização da Prefeitura (pendência registrada em `docs/requisitos/PENDENCIAS_CLIENTE.md`).
 - **Topo:** faixa institucional com o nome da Prefeitura, serviços de uso rápido e faixa nas cores do município (layout atual em DT-22).
-- **Alto contraste (eMAG 6.1):** regra única — fundo preto, texto branco, links e botões em amarelo, bordas brancas — aplicada a qualquer componente. A versão anterior trocava as cores da marca por amarelo e deixava textos ilegíveis (branco sobre amarelo). Elementos cujo significado é só a cor usam a classe `.ac-preenchido`.
+- **Alto contraste (eMAG 6.1):** regra única — fundo preto, texto branco, links e botões em amarelo, bordas brancas — aplicada a qualquer componente. A versão anterior trocava as cores da marca por amarelo e deixava textos ilegíveis (branco sobre amarelo). Elementos cujo significado é só a cor usam a classe `.ac-preenchido`. *(Alto contraste retirado em 24/11/2026 a pedido da equipe; ver DT-22.)*
 - A lista de bairros e regiões deve ser conferida com a Prefeitura antes de qualquer uso real.
 
-## DT-22 — Acessibilidade e alto contraste fora da faixa do topo
+## DT-22 — Controles de acessibilidade fora da faixa do topo
 - A pedido da equipe (14/11/2026), a faixa do topo deixou de mostrar o link “Acessibilidade” e a chave “Alto contraste”. Ela traz o nome da Prefeitura e dois serviços para o cidadão: “Verificar comprovante” e “Dados abertos”.
 - **Nenhum recurso foi excluído** (RNF01 continua valendo — WCAG 2.2 AA e eMAG 3.1):
   - os atalhos “Ir para o conteúdo / menu / rodapé” (WCAG 2.4.1) continuam na página, invisíveis até receberem foco pelo teclado, com as teclas de acesso 1, 2 e 4;
   - o alto contraste é ligado na página **Acessibilidade** (link no rodapé) ou pela tecla de acesso 5; a preferência fica guardada no navegador e vale para todas as páginas, inclusive a administração;
   - a página Acessibilidade descreve os atalhos e os recursos.
 - Consequência conhecida: o eMAG recomenda que esses controles fiquem visíveis no topo. Deixá-los no rodapé é um afastamento dessa recomendação, a ser reavaliado com o cliente (registrado em `docs/requisitos/PENDENCIAS_CLIENTE.md`).
-- **Atualização (24/11/2026, pedido da equipe):** os controles voltaram ao topo de forma compacta — o botão **Acessibilidade** na faixa superior (só o ícone no celular, para a faixa continuar em uma linha) abre um painel com alto contraste, **tamanho do texto** (100%, 115% e 130%, guardado no navegador) e o link para a página Acessibilidade. Esc ou clique fora fecham o painel. Isso atende à recomendação do eMAG de manter os controles visíveis no topo. O atalho do topo “Dados abertos” virou “A Prefeitura” (DT-25).
+- **Atualização (24/11/2026, pedido da equipe):** um botão “Acessibilidade” chegou a ser colocado na faixa superior e foi retirado no mesmo dia, porque não combinou com o topo; a faixa traz “Verificar comprovante” e “A Prefeitura” (DT-25).
+- **Alto contraste retirado (24/11/2026, pedido da equipe)** e substituído pelo **espaçamento ampliado para leitura** (WCAG 2.2, critério 1.4.12): mais espaço entre linhas, palavras (0,16 em) e letras (0,12 em), útil para quem tem dislexia ou baixa visão. Fica na página Acessibilidade, ao lado do **tamanho do texto** (100%, 115% e 130%); as duas escolhas ficam guardadas no navegador e valem para todas as páginas, inclusive a administração. A tecla de acesso 5 passou a ligar e desligar o espaçamento. O contraste mínimo AA das cores do site continua (RNF01). O E2E confere as páginas a 320 px com espaçamento e texto ampliados, sem rolagem horizontal.
 
 ## DT-23 — Desempenho: diagnóstico e otimizações (15/11/2026)
 - **Causa principal da lentidão percebida:** o sistema estava sendo usado em modo de desenvolvimento (`npm run dev`), em que cada página é compilada no primeiro acesso (de 0,7 s a 30 s medidos) e mesmo depois responde em 200–500 ms. A versão otimizada (`next build` + `next start`) responde em 12–36 ms. Foi criado o comando `npm run preview`, indicado para testar e apresentar. O Turbopack foi testado e descartado: neste ambiente (pasta no OneDrive) ficou mais lento (1,4–1,8 s por página já compilada).

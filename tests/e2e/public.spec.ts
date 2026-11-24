@@ -82,21 +82,21 @@ for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/com
   });
 }
 
-test("alto contraste: ligado na página de Acessibilidade, vale nas páginas seguintes e mantém o contraste (RNF01, eMAG)", async ({ page }) => {
+test("espaçamento ampliado para leitura: ligado na página de Acessibilidade, vale nas páginas seguintes (RNF01, WCAG 1.4.12)", async ({ page }) => {
   await page.goto("/acessibilidade");
-  const botao = page.getByRole("button", { name: /^Alto contraste/ });
+  const botao = page.getByRole("button", { name: /^Espaçamento ampliado/ });
   await expect(botao).toHaveAttribute("aria-pressed", "false");
   await botao.click();
   await expect(botao).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
+  await expect(page.locator("html")).toHaveAttribute("data-espacamento", "amplo");
   await expectAccessible(page);
   // A preferência é lembrada ao navegar.
   await page.goto("/resultados");
-  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
+  await expect(page.locator("html")).toHaveAttribute("data-espacamento", "amplo");
   await expectAccessible(page);
   await page.goto("/acessibilidade");
-  await page.getByRole("button", { name: /^Alto contraste/ }).click();
-  await expect(page.locator("html")).not.toHaveAttribute("data-contraste", "alto");
+  await page.getByRole("button", { name: /^Espaçamento ampliado/ }).click();
+  await expect(page.locator("html")).not.toHaveAttribute("data-espacamento", "amplo");
 });
 
 test("o topo identifica o município e avisa que não é o site oficial", async ({ page }) => {
@@ -104,11 +104,11 @@ test("o topo identifica o município e avisa que não é o site oficial", async 
   await expect(page.getByText("Prefeitura de Maceió").first()).toBeAttached();
   await expect(page.getByText("Não é o site oficial da Prefeitura", { exact: false })).toBeVisible();
   await expect(page.locator("footer")).toContainText("Não é um serviço oficial da Prefeitura de Maceió");
-  // A faixa do topo traz serviços para o cidadão e o botão Acessibilidade, que abre os controles só quando pedido (DT-22).
+  // A faixa do topo traz serviços para o cidadão; os controles de leitura ficam na página Acessibilidade (DT-22).
   const servicos = page.getByRole("navigation", { name: "Serviços" });
   await expect(servicos.getByRole("link", { name: "Verificar comprovante" })).toBeVisible();
-  await expect(servicos.getByRole("button", { name: "Acessibilidade" })).toHaveAttribute("aria-expanded", "false");
-  await expect(page.getByRole("button", { name: /^Alto contraste/ })).toHaveCount(0);
+  await expect(servicos.getByRole("button")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Espaçamento ampliado/ })).toHaveCount(0);
   await expect(page.locator("footer").getByRole("link", { name: "Acessibilidade" })).toBeVisible();
   // Os atalhos de teclado continuam existindo e aparecem ao receber foco.
   await page.keyboard.press("Tab");
@@ -194,42 +194,38 @@ test("o atalho do topo leva à página da Prefeitura, e os dados abertos seguem 
   await expect(page.getByRole("link", { name: /Dados abertos/ }).first()).toHaveAttribute("href", "/dados-abertos");
 });
 
-test("botão Acessibilidade no topo: alto contraste e tamanho do texto, lembrados ao navegar (RNF01)", async ({ page }) => {
-  await page.goto("/");
-  const botao = page.getByRole("navigation", { name: "Serviços" }).getByRole("button", { name: "Acessibilidade" });
-  await botao.click();
-  await expect(botao).toHaveAttribute("aria-expanded", "true");
-  const painel = page.getByRole("group", { name: "Opções de acessibilidade" });
-  await painel.getByRole("button", { name: /aumentar o texto/ }).click();
+test("tamanho do texto na página Acessibilidade: vale nas páginas seguintes e volta ao normal (RNF01)", async ({ page }) => {
+  await page.goto("/acessibilidade");
+  const grupo = page.getByRole("group", { name: "Tamanho do texto" });
+  await grupo.getByRole("button", { name: /aumentar o texto/ }).click();
   await expect(page.locator("html")).toHaveAttribute("data-texto", "1");
-  await expect(painel.getByText("115%")).toBeVisible();
-  await painel.getByRole("button", { name: /^Alto contraste/ }).click();
-  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
-  await page.keyboard.press("Escape");
-  await expect(painel).toHaveCount(0);
-  await expect(botao).toBeFocused();
-  // As escolhas valem nas páginas seguintes.
+  await expect(grupo.getByText("115%")).toBeVisible();
   await page.goto("/consultas");
   await expect(page.locator("html")).toHaveAttribute("data-texto", "1");
-  await expect(page.locator("html")).toHaveAttribute("data-contraste", "alto");
-  await expectAccessible(page);
-  await page.getByRole("navigation", { name: "Serviços" }).getByRole("button", { name: "Acessibilidade" }).click();
-  const painel2 = page.getByRole("group", { name: "Opções de acessibilidade" });
-  await painel2.getByRole("button", { name: /texto no tamanho normal/ }).click();
-  await painel2.getByRole("button", { name: /^Alto contraste/ }).click();
+  await page.goto("/acessibilidade");
+  await page.getByRole("group", { name: "Tamanho do texto" }).getByRole("button", { name: /texto no tamanho normal/ }).click();
   await expect(page.locator("html")).toHaveAttribute("data-texto", "0");
-  await expect(page.locator("html")).not.toHaveAttribute("data-contraste", "alto");
 });
 
-test.describe("botão Acessibilidade no celular", () => {
+test.describe("leitura ampliada no celular (320 px)", () => {
   test.use({ viewport: { width: 320, height: 720 } });
-  test("o topo continua em uma linha e o painel cabe na tela", async ({ page }) => {
-    await page.goto("/");
-    const botao = page.getByRole("navigation", { name: "Serviços" }).getByRole("button", { name: "Acessibilidade" });
-    await botao.click();
-    const painel = page.getByRole("group", { name: "Opções de acessibilidade" });
-    await expect(painel).toBeInViewport({ ratio: 1 });
-    await expectNoHorizontalScroll(page);
+  test("com espaçamento ampliado e texto em 130%, as páginas continuam sem rolagem horizontal (RNF03)", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("ppcm-espacamento", "amplo");
+      localStorage.setItem("ppcm-texto", "2");
+    });
+    await page.goto("/consultas");
+    const consulta = await page.locator('main a[href^="/consultas/"]:not([href*="encerradas"])').first().getAttribute("href");
+    await page.goto("/resultados");
+    const resultado = await page.locator('main a[href$="/resultado"]').first().getAttribute("href");
+    const paginas = ["/", "/consultas", "/resultados", "/transparencia", "/indicadores", "/encaminhamentos", "/propostas", "/como-funciona", "/acessibilidade", "/prefeitura", "/cadastro", "/entrar", "/comprovante"];
+    for (const extra of [consulta, resultado]) if (extra) paginas.push(extra);
+    for (const path of paginas) {
+      await page.goto(path);
+      await expect(page.locator("html")).toHaveAttribute("data-espacamento", "amplo");
+      await expect(page.locator("html")).toHaveAttribute("data-texto", "2");
+      const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+      expect(largura, `rolagem horizontal em ${path}`).toBeLessThanOrEqual(320);
+    }
   });
 });
-

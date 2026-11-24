@@ -2,7 +2,7 @@
 
 /*
  * Identidade visual da PPCM — tokens de cor e tipografia.
- * Contraste mínimo AA (RNF01). Modo de alto contraste (eMAG) via [data-contraste="alto"].
+ * Contraste mínimo AA (RNF01). Espaçamento ampliado para leitura via [data-espacamento="amplo"].
  */
 @theme {
   --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
@@ -105,56 +105,25 @@
 }
 
 /*
- * Alto contraste (eMAG 3.1 — recomendação 6.1), ligado pelo botão da barra superior.
- * Regra única e previsível: fundo preto, texto branco, links e botões em amarelo, bordas
- * brancas. Vale para qualquer componente, sem depender das cores de cada tela.
- * Elementos cujo significado é só a cor (barras de gráfico, chave liga/desliga) usam a
- * classe .ac-preenchido para continuar visíveis.
+ * Espaçamento ampliado para leitura (WCAG 2.2, critério 1.4.12), ligado na página Acessibilidade.
+ * Mais espaço entre linhas, palavras e letras: ajuda pessoas com dislexia ou baixa visão. Os
+ * blocos crescem junto com o texto, sem cortar conteúdo.
  */
-html[data-contraste="alto"] {
-  color-scheme: dark;
-  accent-color: #ff0;
+html[data-espacamento="amplo"] body {
+  line-height: 1.9;
 }
-html[data-contraste="alto"] body,
-html[data-contraste="alto"] body *:not(svg):not(svg *):not(img) {
-  background-color: #000 !important;
-  background-image: none !important;
-  color: #fff !important;
-  border-color: #fff !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
+html[data-espacamento="amplo"] body *:not(svg):not(svg *) {
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
 }
-html[data-contraste="alto"] a,
-html[data-contraste="alto"] a *:not(svg):not(svg *) {
-  color: #ff0 !important;
+html[data-espacamento="amplo"] body :is(p, li, dd, dt, td, th, label, blockquote, summary) {
+  line-height: 1.9 !important;
 }
-html[data-contraste="alto"] a {
-  text-decoration: underline !important;
-}
-/* Botões e links com aparência de botão: contorno amarelo para se distinguirem do texto. */
-html[data-contraste="alto"] :is(button, summary, [type="submit"], a[class*="min-h-11"]),
-html[data-contraste="alto"] :is(button, summary, [type="submit"], a[class*="min-h-11"]) *:not(svg):not(svg *) {
-  color: #ff0 !important;
-}
-html[data-contraste="alto"] :is(button, [type="submit"], a[class*="min-h-11"]) {
-  border: 2px solid #ff0 !important;
-  text-decoration: none !important;
-}
-html[data-contraste="alto"] :is(button, [type="submit"]):disabled {
-  border-style: dashed !important;
-}
-html[data-contraste="alto"] :is(input, select, textarea) {
-  border: 2px solid #fff !important;
-}
-html[data-contraste="alto"] ::placeholder {
-  color: #d4d4d4 !important;
-}
-html[data-contraste="alto"] :focus-visible {
-  outline: 3px solid #0ff !important;
-  outline-offset: 2px;
-}
-html[data-contraste="alto"] body :is(.ac-preenchido, .barra-de-navegacao) {
-  background-color: #ff0 !important;
+/* Com leitura ampliada (espaçamento ou texto maior), palavras longas quebram com hífen para não
+   criar rolagem horizontal no celular (RNF03). No tamanho normal nada muda. */
+html:is([data-espacamento="amplo"], [data-texto="1"], [data-texto="2"]) body {
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 @layer components {
@@ -295,18 +264,6 @@ html[data-contraste="alto"] body :is(.ac-preenchido, .barra-de-navegacao) {
       0 0 0 3px var(--color-civic-500),
       0 8px 24px -12px rgb(161 74 5 / 0.45);
   }
-}
-
-/* No alto contraste as sombras são removidas: o destaque passa a ser um contorno amarelo. */
-html[data-contraste="alto"] .req-destaque {
-  outline: 4px solid #ff0 !important;
-  outline-offset: 3px;
-}
-html[data-contraste="alto"] .ref-req-verificar {
-  text-decoration: underline wavy !important;
-}
-html[data-contraste="alto"] .req-id {
-  border: 1px solid #fff !important;
 }
 
 @layer components {

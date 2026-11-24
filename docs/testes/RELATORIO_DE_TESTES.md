@@ -113,7 +113,7 @@ descobrir o voto.
 ### 5.4 Interface e acessibilidade
 axe-core (WCAG 2.2 A/AA) sem violações sérias nas **526 páginas HTML** visitadas pelos 7 perfis (antes: 38 com
 violação); 320 px sem rolagem horizontal em 8 páginas públicas, 7 da área do cidadão e 7 administrativas; botão
-Acessibilidade (alto contraste e tamanho do texto); navegação por teclado nas tabelas roláveis; nenhum link interno
+Acessibilidade (espaçamento ampliado e tamanho do texto); navegação por teclado nas tabelas roláveis; nenhum link interno
 quebrado no portal público (E2E) e no código (teste estático).
 
 ## 6. Pendências (não corrigidas nesta revisão)

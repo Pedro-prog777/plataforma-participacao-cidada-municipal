@@ -47,12 +47,12 @@ export function ConsultationCard({ c }: { c: CardConsultation }) {
       </h3>
       <p className="mt-1.5 line-clamp-3 text-sm text-muted">{c.summary}</p>
       <div className="mt-auto space-y-2 pt-4 text-sm">
-        <p className="flex items-center gap-2 text-ink">
+        <p className="flex flex-wrap items-center gap-x-2 text-ink">
           <Icon name="calendar" className="size-4 text-brand-600" />
           {fmtDate(c.opensAt)} a {fmtDate(c.closesAt)}
           {left && <strong className="text-civic-700">· {left}</strong>}
         </p>
-        <p className="flex items-center gap-2 text-ink">
+        <p className="flex flex-wrap items-center gap-x-2 text-ink">
           <Icon name="users" className="size-4 text-brand-600" />
           {c.participations.toLocaleString("pt-BR")} participaç{c.participations === 1 ? "ão" : "ões"}
           {c.region && <span className="text-muted">· {c.region}</span>}

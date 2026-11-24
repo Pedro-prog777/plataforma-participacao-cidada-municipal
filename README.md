@@ -81,7 +81,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
 - Página "A Prefeitura" (atalho no topo): papel da Prefeitura em cada consulta e órgãos municipais com suas consultas e encaminhamentos.
-- Botão **Acessibilidade** no topo de todas as páginas: alto contraste e tamanho do texto (guardados no navegador); atalhos de teclado e página Acessibilidade no rodapé.
+- Página **Acessibilidade** (link no rodapé): espaçamento ampliado para leitura e tamanho do texto, guardados no navegador, e atalhos de teclado.
 - Textos em linguagem simples para o cidadão (sem termos técnicos).
 - Documento de requisitos navegável (`/requisitos`): todo RF, RNF, RN ou RS citado vira link para o requisito, que é destacado por alguns segundos; identificador que não consta do documento fica marcado "a verificar". O reconhecimento é automático, a partir do próprio documento, e vale também para os textos da interface (DT-24).
 

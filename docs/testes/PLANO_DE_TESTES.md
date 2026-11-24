@@ -51,7 +51,7 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 | `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão; órgãos da página A Prefeitura (RF050) |
 | `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
 | `tests/e2e/robustez.spec.ts` | Parâmetros de URL manipulados (sem erro 500), identificador malformado → 404, 320 px na área do cidadão e na administração, tabelas roláveis acessíveis, erro antigo do assistente de votação e portal público sem links quebrados |
-| `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px; referências cruzadas: clique em RN02 no RF001 (rolagem, foco, destaque que some, voltar), endereço `#RF004`, referência a verificar e varredura de 7 telas administrativas sem identificador solto; botão Acessibilidade (contraste e tamanho do texto, também a 320 px); varredura das telas do cidadão sem termos técnicos nem códigos de requisito (DT-26) |
+| `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px; referências cruzadas: clique em RN02 no RF001 (rolagem, foco, destaque que some, voltar), endereço `#RF004`, referência a verificar e varredura de 7 telas administrativas sem identificador solto; espaçamento ampliado e tamanho do texto na página Acessibilidade, inclusive a 320 px sem rolagem horizontal; varredura das telas do cidadão sem termos técnicos nem códigos de requisito (DT-26) |
 
 ## Cenários obrigatórios do pedido
 

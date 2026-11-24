@@ -1,68 +1,72 @@
 "use client";
-/** Pequenos componentes interativos do layout (contraste, mensagens, contagem regressiva). */
-import Link from "next/link";
+/** Pequenos componentes interativos do layout (acessibilidade, mensagens, contagem regressiva). */
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { FLASH } from "@/lib/flash";
 
-const CONTRAST_KEY = "ppcm-contraste";
-const CONTRAST_EVENT = "ppcm:contraste";
+/* ------------------------------------------------------------------ */
+/* Espaçamento ampliado para leitura (WCAG 1.4.12): linhas, palavras e  */
+/* letras mais espaçadas na página inteira (DT-22).                     */
+/* ------------------------------------------------------------------ */
 
-function applyContrast(on: boolean) {
-  document.documentElement.dataset.contraste = on ? "alto" : "";
+const ESPACO_KEY = "ppcm-espacamento";
+const ESPACO_EVENT = "ppcm:espacamento";
+
+function aplicarEspacamento(on: boolean) {
+  document.documentElement.dataset.espacamento = on ? "amplo" : "";
   try {
-    localStorage.setItem(CONTRAST_KEY, on ? "alto" : "");
+    localStorage.setItem(ESPACO_KEY, on ? "amplo" : "");
   } catch {
     /* armazenamento indisponível */
   }
-  window.dispatchEvent(new Event(CONTRAST_EVENT));
+  window.dispatchEvent(new Event(ESPACO_EVENT));
 }
 
-/** Estado do alto contraste, sincronizado entre os controles da página. */
-function useContrast() {
+/** Estado do espaçamento ampliado, sincronizado entre os controles da página. */
+function useEspacamento() {
   const [on, setOn] = useState(false);
   useEffect(() => {
-    const read = () => setOn(document.documentElement.dataset.contraste === "alto");
-    read();
-    window.addEventListener(CONTRAST_EVENT, read);
-    return () => window.removeEventListener(CONTRAST_EVENT, read);
+    const ler = () => setOn(document.documentElement.dataset.espacamento === "amplo");
+    ler();
+    window.addEventListener(ESPACO_EVENT, ler);
+    return () => window.removeEventListener(ESPACO_EVENT, ler);
   }, []);
-  return [on, () => applyContrast(!on)] as const;
+  return [on, () => aplicarEspacamento(!on)] as const;
 }
 
 /**
- * Aplica em todas as páginas a preferência de alto contraste guardada no navegador e mantém o
- * atalho de teclado (tecla de acesso 5). Não aparece na tela: o controle visível fica na página
- * de Acessibilidade (DT-22).
+ * Aplica em todas as páginas o espaçamento ampliado guardado no navegador e mantém o atalho de
+ * teclado (tecla de acesso 5). Não aparece na tela: o controle visível fica na página de
+ * Acessibilidade (DT-22).
  */
-export function ContrastPreference() {
-  const [on, toggle] = useContrast();
+export function EspacamentoPreferencia() {
+  const [on, alternar] = useEspacamento();
   useEffect(() => {
     try {
-      if (localStorage.getItem(CONTRAST_KEY) === "alto") {
-        document.documentElement.dataset.contraste = "alto";
-        window.dispatchEvent(new Event(CONTRAST_EVENT));
+      if (localStorage.getItem(ESPACO_KEY) === "amplo") {
+        document.documentElement.dataset.espacamento = "amplo";
+        window.dispatchEvent(new Event(ESPACO_EVENT));
       }
     } catch {
       /* armazenamento indisponível */
     }
   }, []);
   return (
-    <button type="button" accessKey="5" tabIndex={-1} aria-pressed={on} onClick={toggle} className="sr-only">
-      Alternar alto contraste (tecla de acesso 5)
+    <button type="button" accessKey="5" tabIndex={-1} aria-pressed={on} onClick={alternar} className="sr-only">
+      Alternar espaçamento ampliado para leitura (tecla de acesso 5)
     </button>
   );
 }
 
-/** Controle visível do alto contraste (eMAG 3.1), na página de Acessibilidade. */
-export function ContrastToggle() {
-  const [on, toggle] = useContrast();
+/** Controle visível do espaçamento ampliado, na página de Acessibilidade. */
+export function EspacamentoToggle() {
+  const [on, alternar] = useEspacamento();
   return (
-    <button type="button" aria-pressed={on} onClick={toggle} className="inline-flex min-h-11 items-center gap-3 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-brand-800 hover:bg-brand-50">
+    <button type="button" aria-pressed={on} onClick={alternar} className="inline-flex min-h-11 max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-left font-semibold text-brand-800 hover:bg-brand-50">
       <span aria-hidden="true" className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${on ? "border-brand-700 bg-brand-700" : "border-slate-400 bg-slate-200"}`}>
-        <span className={`ac-preenchido absolute left-0 top-1/2 size-3.5 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${on ? "translate-x-4.5" : "translate-x-0.5"}`} />
+        <span className={`absolute left-0 top-1/2 size-3.5 -translate-y-1/2 rounded-full bg-white shadow transition-transform ${on ? "translate-x-4.5" : "translate-x-0.5"}`} />
       </span>
-      Alto contraste
+      Espaçamento ampliado
       <span className="text-sm font-normal text-muted">{on ? "ligado" : "desligado"}</span>
     </button>
   );
@@ -130,68 +134,6 @@ export function ControleTamanhoTexto() {
       <span className="text-sm text-muted" aria-live="polite">
         {TAMANHOS[nivel]}%
       </span>
-    </div>
-  );
-}
-
-/**
- * Botão "Acessibilidade" da faixa superior (DT-22): abre um painel com alto contraste, tamanho do
- * texto e o link para a página de Acessibilidade. Esc ou clique fora fecham o painel.
- */
-export function MenuAcessibilidade() {
-  const [aberto, setAberto] = useState(false);
-  const raiz = useRef<HTMLDivElement>(null);
-  const botao = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!aberto) return;
-    const fora = (e: MouseEvent) => {
-      if (raiz.current && !raiz.current.contains(e.target as Node)) setAberto(false);
-    };
-    const tecla = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setAberto(false);
-        botao.current?.focus();
-      }
-    };
-    document.addEventListener("mousedown", fora);
-    document.addEventListener("keydown", tecla);
-    return () => {
-      document.removeEventListener("mousedown", fora);
-      document.removeEventListener("keydown", tecla);
-    };
-  }, [aberto]);
-  return (
-    <div ref={raiz} className="relative">
-      <button
-        ref={botao}
-        type="button"
-        aria-expanded={aberto}
-        aria-controls="menu-acessibilidade"
-        onClick={() => setAberto((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-white/10"
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
-          <circle cx="12" cy="12" r="10" />
-          <circle cx="12" cy="7" r="1.2" fill="currentColor" />
-          <path d="m7 10 5 1 5-1m-5 1v3m0 0-2.5 4.5M12 14l2.5 4.5" />
-        </svg>
-        <span className="sr-only sm:not-sr-only">Acessibilidade</span>
-      </button>
-      {aberto && (
-        <div id="menu-acessibilidade" role="group" aria-label="Opções de acessibilidade" className="absolute right-0 top-full z-50 mt-1 w-72 max-w-[calc(100vw-2rem)] space-y-4 whitespace-normal rounded-xl border border-line bg-white p-4 text-sm text-ink shadow-lg">
-          <div className="space-y-1.5">
-            <p className="font-semibold">Cores</p>
-            <ContrastToggle />
-          </div>
-          <div className="space-y-1.5">
-            <p className="font-semibold">Tamanho do texto</p>
-            <ControleTamanhoTexto />
-          </div>
-          <Link href="/acessibilidade" onClick={() => setAberto(false)} className="inline-block font-semibold text-brand-700 underline">
-            Mais recursos de acessibilidade
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { Icon } from "../ui/icons";
-import { FlashMessage, MenuAcessibilidade } from "./client-bits";
+import { FlashMessage } from "./client-bits";
 
 export function Emblem({ className = "size-10" }: { className?: string }) {
   // Desenho próprio, inspirado nos elementos do brasão de Maceió (coroa mural, jangada, ondas e
@@ -56,7 +56,6 @@ export function TopBar({ municipio, uf }: { municipio: string; uf: string }) {
           <Link href="/prefeitura" className="hidden rounded px-1.5 py-1 hover:bg-white/10 sm:inline">
             A Prefeitura
           </Link>
-          <MenuAcessibilidade />
         </nav>
       </div>
       {/* Faixa nas cores do município (verde, vermelho e azul do brasão). */}

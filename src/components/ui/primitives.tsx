@@ -300,7 +300,7 @@ export function BarChart({ data, title, highlightId, unit = "votos" }: { data: {
               </span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-brand-50">
-              <div className={cx("ac-preenchido h-full rounded-full", highlightId === d.id ? "bg-civic-500" : "bg-brand-600")} style={{ width: `${(d.value / max) * 100}%` }} />
+              <div className={cx("h-full rounded-full", highlightId === d.id ? "bg-civic-500" : "bg-brand-600")} style={{ width: `${(d.value / max) * 100}%` }} />
             </div>
           </li>
         ))}

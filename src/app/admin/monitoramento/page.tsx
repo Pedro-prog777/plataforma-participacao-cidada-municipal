@@ -73,7 +73,7 @@ export default async function MonitoramentoPage() {
                   {m.daily.length ? (
                     <div className="flex h-16 items-end gap-1" role="img" aria-label={`Participações por dia: ${m.daily.map((d) => `${fmtDate(d.day)}: ${d.n}`).join("; ")}`}>
                       {m.daily.map((d) => (
-                        <div key={d.day} title={`${fmtDate(d.day)}: ${d.n}`} className="ac-preenchido flex-1 rounded-t bg-brand-500" style={{ height: `${(d.n / max) * 100}%` }} />
+                        <div key={d.day} title={`${fmtDate(d.day)}: ${d.n}`} className="flex-1 rounded-t bg-brand-500" style={{ height: `${(d.n / max) * 100}%` }} />
                       ))}
                     </div>
                   ) : (

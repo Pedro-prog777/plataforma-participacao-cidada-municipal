@@ -75,7 +75,7 @@ flowchart TD
     CV -- não --> ERR["“Código não encontrado…”"] -.-> CO
     CO -. mais de 10 por minuto do mesmo IP .-> CAP["Pede CAPTCHA"]
     H --> CF["Como funciona /como-funciona"]
-    H --> AC["Acessibilidade /acessibilidade<br/>alto contraste, tamanho do texto, atalhos Alt+1…5"]
+    H --> AC["Acessibilidade /acessibilidade<br/>espaçamento ampliado, tamanho do texto, atalhos Alt+1…5"]
     H --> PR["Propostas publicadas /propostas"]
     H --> INS["Privacidade · Termos · A Prefeitura · Requisitos"]
     L -. URL inexistente .-> N404["Página não encontrada 404"]
