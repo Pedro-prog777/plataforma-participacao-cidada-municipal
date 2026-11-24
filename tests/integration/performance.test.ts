@@ -7,12 +7,12 @@ import { eq } from "drizzle-orm";
 import { createTestDb, destroyTestDb } from "../helpers/db";
 import { createAdmin, createCitizen, createOpenConsultation } from "../helpers/fixtures";
 import type { Db } from "@/server/db/client";
-import { audienceCriteria, incidents, participations, regions, roles, sessions, users } from "@/server/db/schema";
+import { audienceCriteria, consultations, incidents, organs, participations, regions, roles, sessions, users } from "@/server/db/schema";
 import { monitoringPanel } from "@/server/modules/admin/monitoring.service";
 import { searchUsers, setUserRoles, USERS_PAGE_SIZE } from "@/server/modules/admin/users.service";
 import { audit, countAudit, searchAudit } from "@/server/modules/audit/audit.service";
 import { createSession, validateSession } from "@/server/modules/auth/session.service";
-import { listPublicConsultations, listPublicOutcomes, listPublishedResults } from "@/server/modules/consultations/queries.service";
+import { listPublicConsultations, listPublicOutcomes, listPublishedResults, municipalOrgansSummary } from "@/server/modules/consultations/queries.service";
 import { loadAudienceCriteria } from "@/server/modules/voting/eligibility";
 import { clock } from "@/server/lib/clock";
 import { resetRateLimits } from "@/server/lib/rate-limit";
@@ -173,3 +173,24 @@ describe("Sessão com o nome de exibição (uma consulta a menos por página)", 
     expect(await validateSession(token, db)).toBeNull();
   });
 });
+
+describe("Página A Prefeitura — órgãos em uma consulta agrupada (RF050)", () => {
+  it("conta consultas públicas, abertas e encaminhamentos por órgão, sem dados pessoais", async () => {
+    const elab = await createAdmin(db, ["elaborador"]);
+    const { consultation } = await createOpenConsultation(db, { createdBy: elab.id });
+    // Rascunho do mesmo órgão não é público e não entra na contagem.
+    const [rascunho] = await db.select().from(consultations).where(eq(consultations.id, consultation.id));
+    await db.insert(consultations).values({ ...rascunho, id: undefined, slug: `${rascunho.slug}-rascunho`, status: "rascunho" });
+    const antes = await municipalOrgansSummary(db);
+    const todos = await db.select().from(organs);
+    expect(antes).toHaveLength(todos.length);
+    const [orgao] = todos.filter((o) => o.id === consultation.organId);
+    const linha = antes.find((o) => o.sigla === orgao.acronym)!;
+    expect(linha.consultas).toBeGreaterThanOrEqual(1);
+    expect(linha.abertas).toBeGreaterThanOrEqual(1);
+    const publicas = await db.select().from(consultations).where(eq(consultations.organId, orgao.id));
+    expect(linha.consultas).toBe(publicas.filter((c) => c.status !== "rascunho" && c.status !== "em_revisao" && c.status !== "em_analise" && c.status !== "rejeitada").length);
+    for (const o of antes) expect(Object.keys(o).sort()).toEqual(["abertas", "consultas", "encaminhamentos", "nome", "sigla"]);
+  });
+});
+

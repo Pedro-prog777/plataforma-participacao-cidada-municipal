@@ -1,6 +1,6 @@
 # Status do desenvolvimento — PPCM
 
-Atualizado em 23/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
+Atualizado em 24/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
 
 ## Resumo
 
@@ -9,7 +9,8 @@ Atualizado em 23/11/2026. Estados: Não iniciado · Em desenvolvimento · Implem
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
 - **Município de referência:** Maceió/AL — nome e 50 bairros reais em 8 regiões administrativas; consultas, pessoas e órgãos fictícios; avisos de que não é serviço oficial (DT-21).
 - **Trello:** quadro público montado em 13/11/2026 — <https://trello.com/b/AQX3bDST>: 10 listas, 41 cartões (documentação, requisitos, telas, o que falta, segurança, testes, módulos concluídos e pendências), com checklists, 68 links para o GitHub e as 57 capturas anexadas. Definição em `docs/trello/quadro.json`, aplicada por `npm run trello:sync`.
-- **Referências cruzadas (DT-24):** página pública `/requisitos` com o Documento de Requisitos navegável; todo RF/RNF/RN/RS citado no documento ou na interface vira link para o requisito, com rolagem e destaque temporário; identificador inexistente fica marcado "a verificar". Catálogo extraído do próprio documento (68 RF, 15 RNF, 42 RN, 13 RS). Citações jurídicas retiradas do documento transcrito e da interface; o PDF original segue íntegro.
+- **Referências cruzadas (DT-24):** página pública `/requisitos` com o Documento de Requisitos navegável; todo RF/RNF/RN/RS citado no documento ou na interface vira link para o requisito, com rolagem e destaque temporário; identificador inexistente fica marcado "a verificar". Catálogo extraído do próprio documento (68 RF, 15 RNF, 42 RN, 13 RS). Citações jurídicas retiradas do documento transcrito, da interface e do próprio PDF (`Documento_de_Requisitos_v6.pdf`), que também ganhou 988 links internos entre requisitos e um apêndice com o índice das RN (`npm run requisitos:pdf`); o original fica em `docs/requisitos/original/`.
+- **A Prefeitura (DT-25):** o atalho "Dados abertos" da faixa superior virou "A Prefeitura" (`/prefeitura`: papel da Prefeitura, órgãos municipais com consultas e encaminhamentos, atendimento); os dados abertos (RF045) continuam em Transparência, Resultados e no rodapé.
 - **Figma:** protótipo atualizado em 23/11/2026 com a seção "Referências cruzadas entre requisitos" — <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51>. Pendência: as molduras de destaque dos cartões RN02, RF004 e RN16 precisam voltar a "posição absoluta" (ver Próxima etapa).
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 

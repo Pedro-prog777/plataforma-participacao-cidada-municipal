@@ -7,7 +7,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Nome:** Plataforma de Participação Cidadã Municipal — **Sigla:** PPCM
 - **Instituição:** CESMAC — **Curso:** Engenharia de Software (trabalho acadêmico)
 - **Equipe:** João Pedro e Flávia Marina
-- **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` (original preservado). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo, sem as citações jurídicas (DT-24); `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
+- **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` — sem as citações jurídicas, com links internos entre requisitos e apêndice das regras de negócio, gerado por `npm run requisitos:pdf` a partir do original preservado em `docs/requisitos/original/` (DT-24). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo, sem as citações jurídicas (DT-24); `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
 
 ## Instruções permanentes
 

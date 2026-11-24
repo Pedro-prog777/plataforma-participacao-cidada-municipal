@@ -33,6 +33,7 @@
 |---|---|
 | `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
 | `tests/unit/masks.test.ts` | Pontuação automática de CPF, data, celular e CEP (digitação, colagem e posição do cursor) |
+| `tests/unit/requisitos-pdf.test.ts` | PDF do documento (DT-24): sem citações jurídicas, conteúdo técnico mantido, apêndice das RN, RN02 no RF001 levando ao apêndice, RF004 levando ao RF004 e mais de 900 links com destino válido |
 | `tests/unit/requisitos.test.ts` | Referências cruzadas (DT-24): catálogo extraído do documento (68 RF, 15 RNF, 42 RN, 13 RS), RF001 → RN02 ("CPF único"), RF004, identificadores inexistentes e formatos parecidos, texto preservado palavra a palavra, cópias iguais em `AGENTS.md` e `REQUISITOS_COMPLETOS.md`, ausência de citações jurídicas e todo identificador citado em `src/` existente no documento |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
 | `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
@@ -40,7 +41,7 @@
 | `tests/integration/voting.test.ts` | Elegibilidade, voto único, concorrência, **sigilo do voto**, comprovante, integridade |
 | `tests/integration/participation.test.ts` | Propostas, anexos, moderação, direitos do titular de dados, resultados, dados abertos |
 | `tests/integration/administration.test.ts` | Identidade (RF004), perfil (RF012, RF013), usuários e papéis (RF046, RF047), avisos (RF053, RF055), divulgação (RF062), eventos (RF068), parâmetros (RNF12) |
-| `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão |
+| `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão; órgãos da página A Prefeitura (RF050) |
 | `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
 | `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px; referências cruzadas: clique em RN02 no RF001 (rolagem, foco, destaque que some, voltar), endereço `#RF004`, referência a verificar e varredura de 7 telas administrativas sem identificador solto |
 
@@ -87,8 +88,8 @@
 **Limites desta verificação:** não houve teste de intrusão independente, varredura dinâmica (DAST) nem teste de carga. A proteção CSRF apoia-se na verificação de origem das Server Actions do Next.js e em `SameSite=Lax` (não há teste automatizado específico). Portanto, o sistema **não deve ser declarado “seguro” para produção** sem essas etapas e sem o RIPD (RNF06).
 
 ## Acessibilidade e responsividade
-- axe-core (WCAG 2.2 A/AA) sem violações sérias/críticas em: início, consultas, detalhe, resultado, como funciona, transparência, comprovante, cadastro, login, documento de requisitos, votação e acesso negado administrativo. Corrigidos nesta rodada: contraste do botão de destaque e do contador de avisos.
-- Sem rolagem horizontal a 320 px em 7 páginas públicas (E2E, incluindo `/requisitos`) e inspeção manual do início.
+- axe-core (WCAG 2.2 A/AA) sem violações sérias/críticas em: início, consultas, detalhe, resultado, como funciona, transparência, comprovante, cadastro, login, documento de requisitos, A Prefeitura, votação e acesso negado administrativo. Corrigidos nesta rodada: contraste do botão de destaque e do contador de avisos.
+- Sem rolagem horizontal a 320 px em 8 páginas públicas (E2E, incluindo `/requisitos` e `/prefeitura`) e inspeção manual do início.
 - **Pendente:** inspeção manual com NVDA e TalkBack; páginas administrativas não cobertas pelo axe além de uma.
 
 ## Requisitos não funcionais sem medição

@@ -163,6 +163,28 @@ export async function portalIndicators(db: DbOrTx = getDb()) {
   return r.rows[0] as Record<string, number>;
 }
 
+/**
+ * Página "A Prefeitura" (RF050): órgãos municipais com quantas consultas públicas conduzem e quantos
+ * encaminhamentos registraram. Só agregados; uma única consulta agrupada (sem consulta por órgão).
+ */
+export async function municipalOrgansSummary(db: DbOrTx = getDb()) {
+  const r = await db.execute(sql`
+    select o.name as nome, o.acronym as sigla,
+      coalesce(c.consultas, 0)::int as consultas,
+      coalesce(c.abertas, 0)::int as abertas,
+      coalesce(e.encaminhamentos, 0)::int as encaminhamentos
+    from organs o
+    left join (
+      select organ_id,
+        count(*) filter (where status in ('agendada','aberta','suspensa','encerrada','apurada','finalizada','cancelada')) as consultas,
+        count(*) filter (where status = 'aberta') as abertas
+      from consultations group by organ_id
+    ) c on c.organ_id = o.id
+    left join (select organ_id, count(*) as encaminhamentos from outcomes group by organ_id) e on e.organ_id = o.id
+    order by o.name`);
+  return r.rows as { nome: string; sigla: string; consultas: number; abertas: number; encaminhamentos: number }[];
+}
+
 /** Participações por tema (portal) — agregados. */
 export async function participationByTheme(db: DbOrTx = getDb()) {
   const r = await db.execute(sql`
