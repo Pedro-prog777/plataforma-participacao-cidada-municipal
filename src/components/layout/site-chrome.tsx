@@ -53,8 +53,8 @@ export function TopBar({ municipio, uf }: { municipio: string; uf: string }) {
           <Link href="/comprovante" className="rounded px-1.5 py-1 hover:bg-white/10">
             Verificar comprovante
           </Link>
-          <Link href="/dados-abertos" className="hidden rounded px-1.5 py-1 hover:bg-white/10 sm:inline">
-            Dados abertos
+          <Link href="/prefeitura" className="hidden rounded px-1.5 py-1 hover:bg-white/10 sm:inline">
+            A Prefeitura
           </Link>
         </nav>
       </div>
@@ -175,7 +175,7 @@ export function SiteFooter({ municipio, demo }: { municipio: string; demo: boole
         </div>
         <FooterCol title="Participar" links={[["/consultas", "Consultas públicas"], ["/propostas", "Propostas cidadãs"], ["/conta/propostas/nova", "Enviar proposta"], ["/comprovante", "Verificar comprovante"]]} />
         <FooterCol title="Transparência" links={[["/transparencia", "Portal de transparência"], ["/resultados", "Resultados"], ["/encaminhamentos", "Encaminhamentos"], ["/dados-abertos", "Dados abertos"]]} />
-        <FooterCol title="Informações" links={[["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e dados pessoais"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"], ["/requisitos", "Documento de requisitos"]]} />
+        <FooterCol title="Informações" links={[["/prefeitura", "A Prefeitura"], ["/como-funciona", "Como funciona"], ["/privacidade", "Privacidade e dados pessoais"], ["/termos", "Termos de uso"], ["/acessibilidade", "Acessibilidade"], ["/requisitos", "Documento de requisitos"]]} />
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-4 text-xs text-muted sm:flex-row sm:justify-between">

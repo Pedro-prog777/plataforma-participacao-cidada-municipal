@@ -12,7 +12,7 @@ Projeto acadêmico da disciplina de Engenharia de Software — **CESMAC**.
 | **Repositório** | <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal> |
 | **Quadro Trello** | <https://trello.com/b/AQX3bDST> (público) |
 | **Protótipo (Figma)** | <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51> — seção "Referências cruzadas entre requisitos" |
-| **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) |
+| **Documento-base** | [Documento de Requisitos v6 (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) — com links entre requisitos (clique em um RF, RNF, RN ou RS citado) e sem citações jurídicas; [original](docs/requisitos/original/Documento_de_Requisitos_v6_original.pdf) |
 
 > **Projeto acadêmico — não é o site oficial da Prefeitura de Maceió.** O sistema é ambientado em Maceió/AL (nome do município e seus 50 bairros reais), mas as consultas, as pessoas, os órgãos e os números são **fictícios**. A marca é um desenho próprio inspirado no brasão da cidade, não o brasão oficial. O login gov.br e o envio de SMS são **simulados** e identificados como tal; não existe integração oficial.
 
@@ -80,6 +80,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Lista, busca e filtros de consultas; página de cada consulta com período, público-alvo, documentos e histórico.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
+- Página "A Prefeitura" (atalho no topo): papel da Prefeitura em cada consulta e órgãos municipais com suas consultas e encaminhamentos.
 - Atalhos de teclado e modo de alto contraste (na página Acessibilidade, no rodapé).
 - Documento de requisitos navegável (`/requisitos`): todo RF, RNF, RN ou RS citado vira link para o requisito, que é destacado por alguns segundos; identificador que não consta do documento fica marcado "a verificar". O reconhecimento é automático, a partir do próprio documento, e vale também para os textos da interface (DT-24).
 
@@ -115,7 +116,7 @@ plataforma-participacao-cidada-municipal/
 ├── .env.example               Modelo de configuração (sem segredos)
 ├── docs/
 │   ├── STATUS_DO_DESENVOLVIMENTO.md
-│   ├── requisitos/            PDF original, transcrição, mapeamento, rastreabilidade, pendências
+│   ├── requisitos/            PDF (com links) e original, transcrição, mapeamento, rastreabilidade, pendências
 │   ├── arquitetura/           Arquitetura, modelo de dados, decisões técnicas
 │   ├── seguranca/             Matriz de riscos
 │   ├── testes/                Plano de testes e resultados
@@ -253,7 +254,7 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Assunto | Documento |
 |---|---|
 | Regras do projeto e requisitos completos | [AGENTS.md](AGENTS.md) |
-| Requisitos | [Documento original (PDF)](docs/requisitos/Documento_de_Requisitos_v6.pdf) · [Transcrição](docs/requisitos/REQUISITOS_COMPLETOS.md) · [Mapeamento requisito → código → teste](docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md) · [Rastreabilidade](docs/requisitos/MATRIZ_DE_RASTREABILIDADE.md) · [Pendências com o cliente](docs/requisitos/PENDENCIAS_CLIENTE.md) |
+| Requisitos | [Documento de requisitos (PDF com links)](docs/requisitos/Documento_de_Requisitos_v6.pdf) · [Original (PDF)](docs/requisitos/original/Documento_de_Requisitos_v6_original.pdf) · [Transcrição](docs/requisitos/REQUISITOS_COMPLETOS.md) · [Mapeamento requisito → código → teste](docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md) · [Rastreabilidade](docs/requisitos/MATRIZ_DE_RASTREABILIDADE.md) · [Pendências com o cliente](docs/requisitos/PENDENCIAS_CLIENTE.md) |
 | Arquitetura | [Arquitetura](docs/arquitetura/ARQUITETURA.md) · [Modelo de dados](docs/arquitetura/MODELO_DE_DADOS.md) · [Diagrama ER](database/diagrams/modelo-er.md) · [Decisões técnicas](docs/arquitetura/DECISOES_TECNICAS.md) |
 | Segurança | [Matriz de riscos](docs/seguranca/MATRIZ_DE_RISCOS.md) |
 | Testes | [Plano de testes e resultados](docs/testes/PLANO_DE_TESTES.md) |

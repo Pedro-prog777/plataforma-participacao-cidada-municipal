@@ -66,7 +66,7 @@
 | RF047 | Gerenciar papéis e permissões | /admin/papeis, /admin/usuarios/[id] | Implementado |
 | RF048 | Monitorar consultas em andamento | /admin/monitoramento | Implementado |
 | RF049 | Gerar relatórios e estatísticas | /admin/relatorios, /api/admin/relatorio | Implementado |
-| RF050 | Disponibilizar portal público de transparência | /transparencia, /indicadores, /como-funciona | Implementado |
+| RF050 | Disponibilizar portal público de transparência | /transparencia, /indicadores, /como-funciona, /prefeitura | Implementado |
 | RF051 | Exibir histórico público da consulta | /consultas/[slug]/historico | Implementado |
 | RF052 | Gerenciar preferências de notificação | /conta/notificacoes, /avisos/descadastrar | Implementado |
 | RF053 | Notificar nova consulta e abertura | e-mail e /conta/avisos | Implementado |
@@ -770,8 +770,8 @@
 ### RF050 — Disponibilizar portal público de transparência
 
 - **Objetivo:** O sistema deve oferecer, sem login, portal com consultas, propostas publicadas, resultados, encaminhamentos, histórico e indicadores gerais, e a página "Como funciona", que explica a natureza consultiva, o sigilo, o voto único, a apuração e a verificação de comprovantes.
-- **Funcionalidade implementada:** /transparencia, /indicadores, /como-funciona
-- **Código:** queries.service.ts (portalIndicators)
+- **Funcionalidade implementada:** /transparencia, /indicadores, /como-funciona, /prefeitura (órgãos municipais e papel da Prefeitura, DT-25)
+- **Código:** queries.service.ts (portalIndicators, municipalOrgansSummary)
 - **Regras de negócio:** Sigilo do voto (RN07); Sigilo das parciais (RN16); Proteção de dados (RN27); Natureza consultiva (RN34).
 - **Dependências (matriz do documento):** depende de RF016, RF017, RF018, RF044, RF045, RF056, RF063; relaciona-se com —
 - **Requisitos de segurança relacionados:** —

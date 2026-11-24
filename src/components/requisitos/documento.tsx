@@ -36,7 +36,8 @@ function Trechos({ c, resumo, semReferencias }: { c: Inline[]; resumo: ResumoCat
             );
           case "codigo":
             return (
-              <code key={i} className="rounded bg-slate-100 px-1 py-0.5 text-[0.9em] text-ink">
+              // Caminhos de arquivo longos quebram em qualquer ponto para não criar rolagem horizontal a 320 px (RNF03).
+              <code key={i} className="rounded bg-slate-100 px-1 py-0.5 text-[0.9em] text-ink wrap-anywhere">
                 {texto(n.v)}
               </code>
             );

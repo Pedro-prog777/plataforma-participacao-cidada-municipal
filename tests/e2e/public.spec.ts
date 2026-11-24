@@ -75,7 +75,7 @@ test("áreas protegidas redirecionam visitantes ao login (RF009)", async ({ page
   expect(r.status()).toBe(403);
 });
 
-for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/comprovante", "/cadastro", "/entrar", "/requisitos"]) {
+for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/comprovante", "/cadastro", "/entrar", "/requisitos", "/prefeitura"]) {
   test(`acessibilidade WCAG 2.2 AA (axe) em ${path}`, async ({ page }) => {
     await page.goto(path);
     await expectAccessible(page);
@@ -133,7 +133,7 @@ test("páginas de consulta e resultado acessíveis (axe)", async ({ page }) => {
 
 test.describe("celular a partir de 320 px (RNF03)", () => {
   test.use({ viewport: { width: 320, height: 720 } });
-  for (const path of ["/", "/consultas", "/transparencia", "/cadastro", "/resultados", "/propostas", "/requisitos"]) {
+  for (const path of ["/", "/consultas", "/transparencia", "/cadastro", "/resultados", "/propostas", "/requisitos", "/prefeitura"]) {
     test(`sem rolagem horizontal em ${path}`, async ({ page }) => {
       await page.goto(path);
       await expectNoHorizontalScroll(page);
@@ -182,3 +182,14 @@ test.describe("referências cruzadas no documento de requisitos (DT-24)", () => 
     await expect(page.locator('[data-ref-situacao="verificar"]')).toHaveCount(1);
   });
 });
+
+test("o atalho do topo leva à página da Prefeitura, e os dados abertos seguem na Transparência", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation", { name: "Serviços" }).getByRole("link", { name: "A Prefeitura" }).click();
+  await expect(page).toHaveURL(/\/prefeitura$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Prefeitura de");
+  await expect(page.getByRole("table", { name: /Órgãos municipais/ })).toBeVisible();
+  await page.goto("/transparencia");
+  await expect(page.getByRole("link", { name: /Dados abertos/ }).first()).toHaveAttribute("href", "/dados-abertos");
+});
+
