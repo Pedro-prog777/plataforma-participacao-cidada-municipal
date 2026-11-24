@@ -75,7 +75,7 @@ test("áreas protegidas redirecionam visitantes ao login (RF009)", async ({ page
   expect(r.status()).toBe(403);
 });
 
-for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/comprovante", "/cadastro", "/entrar"]) {
+for (const path of ["/", "/consultas", "/como-funciona", "/transparencia", "/comprovante", "/cadastro", "/entrar", "/requisitos"]) {
   test(`acessibilidade WCAG 2.2 AA (axe) em ${path}`, async ({ page }) => {
     await page.goto(path);
     await expectAccessible(page);
@@ -133,10 +133,52 @@ test("páginas de consulta e resultado acessíveis (axe)", async ({ page }) => {
 
 test.describe("celular a partir de 320 px (RNF03)", () => {
   test.use({ viewport: { width: 320, height: 720 } });
-  for (const path of ["/", "/consultas", "/transparencia", "/cadastro", "/resultados", "/propostas"]) {
+  for (const path of ["/", "/consultas", "/transparencia", "/cadastro", "/resultados", "/propostas", "/requisitos"]) {
     test(`sem rolagem horizontal em ${path}`, async ({ page }) => {
       await page.goto(path);
       await expectNoHorizontalScroll(page);
     });
   }
+});
+
+test.describe("referências cruzadas no documento de requisitos (DT-24)", () => {
+  test("RN02 citada no RF001 leva à regra, rola até ela e a destaca por alguns segundos", async ({ page }) => {
+    await page.goto("/requisitos");
+    const link = page.locator('#RF001 a.ref-req[data-ref="RN02"]').first();
+    await expect(link).toHaveAttribute("title", "RN02 — CPF único");
+    await link.click();
+    await expect(page).toHaveURL(/#RN02$/);
+    const destino = page.locator("#RN02");
+    await expect(destino).toHaveClass(/req-destaque/);
+    await expect(destino).toBeInViewport();
+    await expect(destino).toBeFocused();
+    await expect(destino).toContainText("CPF único");
+    await expect(destino).not.toHaveClass(/req-destaque/, { timeout: 10_000 });
+    // Voltar refaz o caminho até o requisito anterior, que é destacado de novo.
+    await destino.getByRole("link", { name: /RF004/ }).click();
+    await expect(page.locator("#RF004")).toHaveClass(/req-destaque/);
+    await page.goBack();
+    await expect(page).toHaveURL(/#RN02$/);
+    await expect(destino).toHaveClass(/req-destaque/);
+  });
+
+  test("endereço com âncora abre o RF004 destacado", async ({ page }) => {
+    await page.goto("/requisitos#RF004");
+    const rf004 = page.locator("#RF004");
+    await expect(rf004.getByRole("heading", { level: 3 })).toHaveText("RF004 – Verificar identidade e domicílio do cidadão");
+    await expect(rf004).toHaveClass(/req-destaque/);
+    await expect(rf004).toBeInViewport();
+  });
+
+  test("identificador inexistente não vira link e fica sinalizado", async ({ page }) => {
+    await page.goto("/requisitos");
+    await expect(page.locator('a[data-ref="RF999"]')).toHaveCount(0);
+    const marcado = page.locator('[data-ref="RF999"][data-ref-situacao="verificar"]');
+    await expect(marcado).toHaveCount(1);
+    await expect(marcado).toContainText("?");
+    // Todo link de referência tem destino na página; o documento não tem referências a verificar.
+    const semDestino = await page.evaluate(() => [...document.querySelectorAll<HTMLAnchorElement>("a.ref-req")].map((a) => a.hash.slice(1)).filter((id) => !document.getElementById(id)));
+    expect(semDestino).toEqual([]);
+    await expect(page.locator('[data-ref-situacao="verificar"]')).toHaveCount(1);
+  });
 });

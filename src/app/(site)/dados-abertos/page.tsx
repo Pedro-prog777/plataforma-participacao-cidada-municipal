@@ -11,7 +11,7 @@ export default function DadosAbertosPage() {
     <MainContainer>
       <PageHeader
         title="Dados abertos"
-        description="Resultados e encaminhamentos em formato aberto (LAI, art. 8º, §3º). Somente dados agregados: sem dados pessoais e sem votos individuais."
+        description="Resultados e encaminhamentos em formato aberto. Somente dados agregados: sem dados pessoais e sem votos individuais."
         breadcrumbs={[{ href: "/", label: "Início" }, { href: "/transparencia", label: "Transparência" }, { label: "Dados abertos" }]}
       />
       <div className="grid gap-6 md:grid-cols-2">

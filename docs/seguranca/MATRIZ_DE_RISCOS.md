@@ -24,7 +24,7 @@
 | RS007 — força bruta / sequestro | C3 | Bloqueio 15 min após 5 falhas; CAPTCHA por IP; link de 30 min uso único; inatividade; sessão no servidor; HSTS | `auth.test.ts` | Limites em memória por processo (DT-13) |
 | RS008 — parciais | E3 | Nenhuma tela/rota mostra contagem por alternativa antes da apuração | `voting.test.ts`, `e2e/public.spec.ts` | — |
 | RS009 — voto fora do período | E3 | Horário do servidor dentro da transação com a consulta bloqueada (FOR SHARE); recusa auditada | `voting.test.ts` | — |
-| RS010 — crianças e adolescentes | C2 | Critério etário justificado; modalidade e salvaguardas obrigatórias | `unit/rules.test.ts` | Consentimento parental e análise da Lei 15.211/2025 pendentes (*) |
+| RS010 — crianças e adolescentes | C2 | Critério etário justificado; modalidade e salvaguardas obrigatórias | `unit/rules.test.ts` | Consentimento parental e análise jurídica pendentes (*) |
 | RS011 — conteúdo ofensivo | B3 | Denúncia com protocolo; ocultação preventiva; moderação justificada com revisão por outro moderador | `participation.test.ts` | Política de uso a validar (*) |
 | RS012 — arquivo com vírus | D2 | Tipo real, tamanho, antivírus, SHA-256, armazenamento fora da pasta pública, CSP sandbox no download | `participation.test.ts`, `unit/rules.test.ts` | Sem ClamAV a verificação é básica (DT-11) |
 | RS013 — auditoria adulterada | E2 | Somente acréscimo, encadeamento SHA-256, verificação com incidente automático | `database.test.ts`, `e2e/admin.spec.ts` | Backup diário depende da implantação |

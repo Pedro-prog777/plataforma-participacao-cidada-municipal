@@ -1,18 +1,20 @@
 # Status do desenvolvimento — PPCM
 
-Atualizado em 15/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
+Atualizado em 23/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
 
 ## Resumo
 
 - **Requisitos funcionais:** 68 implementados e cobertos por teste automatizado (68 no total); RF004, RF005 e RF011 com provedor de identidade/SMS simulados. RF064, RF067 e RF068 existem, mas ficam desligados até a validação do cliente.
-- **Testes:** 128/128 unitários, de integração e de segurança; 36/36 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
+- **Testes:** 145/145 unitários, de integração e de segurança; 42/42 E2E (com acessibilidade axe e 320 px); tipos e lint limpos; `npm audit` de produção sem vulnerabilidades.
 - **Telas:** 60+ rotas reais e navegáveis; capturas reais em `screenshots/` (`area-publica`, `cidadao`, `administrador`, `celular`).
 - **Município de referência:** Maceió/AL — nome e 50 bairros reais em 8 regiões administrativas; consultas, pessoas e órgãos fictícios; avisos de que não é serviço oficial (DT-21).
 - **Trello:** quadro público montado em 13/11/2026 — <https://trello.com/b/AQX3bDST>: 10 listas, 41 cartões (documentação, requisitos, telas, o que falta, segurança, testes, módulos concluídos e pendências), com checklists, 68 links para o GitHub e as 57 capturas anexadas. Definição em `docs/trello/quadro.json`, aplicada por `npm run trello:sync`.
+- **Referências cruzadas (DT-24):** página pública `/requisitos` com o Documento de Requisitos navegável; todo RF/RNF/RN/RS citado no documento ou na interface vira link para o requisito, com rolagem e destaque temporário; identificador inexistente fica marcado "a verificar". Catálogo extraído do próprio documento (68 RF, 15 RNF, 42 RN, 13 RS). Citações jurídicas retiradas do documento transcrito e da interface; o PDF original segue íntegro.
+- **Figma:** protótipo atualizado em 23/11/2026 com a seção "Referências cruzadas entre requisitos" — <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51>. Pendência: as molduras de destaque dos cartões RN02, RF004 e RN16 precisam voltar a "posição absoluta" (ver Próxima etapa).
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
 ## O que funciona (verificado)
-Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação de senha, verificação de identidade (provedor simulado e documental), perfil e LGPD, ciclo completo da consulta com segregação de funções, abertura/encerramento automáticos, votação em 3 passos com sigilo estrutural e voto único, comprovante e verificação pública, integridade, apuração, homologação, retificação, dados abertos, encaminhamentos, propostas cidadãs, denúncia e moderação, notificações, auditoria encadeada, incidentes, monitoramento, relatórios, usuários, papéis e parâmetros.
+Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação de senha, verificação de identidade (provedor simulado e documental), perfil e direitos do titular de dados, ciclo completo da consulta com segregação de funções, abertura/encerramento automáticos, votação em 3 passos com sigilo estrutural e voto único, comprovante e verificação pública, integridade, apuração, homologação, retificação, dados abertos, encaminhamentos, propostas cidadãs, denúncia e moderação, notificações, auditoria encadeada, incidentes, monitoramento, relatórios, usuários, papéis e parâmetros; documento de requisitos navegável com referências cruzadas automáticas (DT-24).
 
 ## Parcial, simulado ou não medido
 | Item | Estado | Observação |
@@ -48,7 +50,7 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | RF012 | Visualizar perfil | Testado | — |
 | RF013 | Atualizar dados do perfil | Testado | Nome civil/nascimento só por verificação documental. |
 | RF014 | Acompanhar participações e propostas | Testado | Proposta da equipe (*) — mantida ativa por ser essencial ao comprovante. |
-| RF015 | Exercer direitos do titular de dados (LGPD) | Testado | — |
+| RF015 | Exercer direitos do titular de dados | Testado | — |
 | RF016 | Listar consultas públicas | Testado | — |
 | RF017 | Pesquisar e filtrar consultas | Testado | — |
 | RF018 | Visualizar detalhes da consulta | Testado | — |
@@ -112,7 +114,7 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | RNF03 Celular 320 px | Testado | E2E sem rolagem horizontal |
 | RNF04 Internet fraca | Medido localmente (parcial) | Sem vídeo obrigatório; cerca de 172 KB no primeiro acesso (meta sugerida: 1 MB); não testado em rede lenta real |
 | RNF05 Segurança da comunicação e acesso | Testado (parcial) | Argon2id, guardas, cabeçalhos; TLS depende da implantação |
-| RNF06 LGPD | Implementado | Minimização e exportações agregadas testadas; RIPD não iniciado |
+| RNF06 Proteção dos dados pessoais | Implementado | Minimização e exportações agregadas testadas; RIPD não iniciado |
 | RNF07 Integridade do voto | Testado | Transação única, sem vínculo, concorrência, hash da base |
 | RNF08 Registro de atos | Testado | Auditoria encadeada; valores pessoais não gravados (pendência 17) |
 | RNF09 Tempo de resposta | Medido localmente (parcial) | Versão otimizada: páginas em 12–36 ms no servidor e 52–112 ms até carregar, com dados de demonstração; sem teste de carga |
@@ -139,9 +141,12 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Topo do site ocupava cerca de 240 px no celular e cortava o nome do portal → barra de acessibilidade e faixa de demonstração em uma linha cada (122 px).
 - Modo de alto contraste deixava textos ilegíveis (branco sobre amarelo, botão amarelo sobre amarelo) → reescrito com regra única (DT-21) e coberto por teste com axe.
 - Navegação lenta: o sistema era usado em modo de desenvolvimento → comando `npm run preview`; painel de monitoramento fazia 28 consultas ao banco por acesso e listas administrativas vinham sem paginação → consultas em lote, paginação e índices (DT-23).
+- Referências cruzadas (DT-24): o E2E que percorre as telas administrativas achou identificadores sem link na tela de Parâmetros (rótulos vindos de `settings.ts`) → passaram por `<RefText>`; tabelas, listas de descrição e linha do tempo dos componentes base também passaram a reconhecer os identificadores.
+- Na página `/requisitos`, o destaque de 3 s terminava antes do fim da rolagem suave em saltos longos e o destino parava 160 px abaixo do topo (margem do cabeçalho aplicada duas vezes) → o destaque passou a contar a partir do fim da rolagem e a margem duplicada saiu.
 - Bloqueios de arquivo `EBUSY` causados pelo OneDrive durante builds → recomenda-se mover o projeto para fora do OneDrive.
 
 ## Próxima etapa recomendada
+0. Figma: nos cartões "Regra · RN02", "Requisito · RF004" e "Regra · RN16" da seção "Referências cruzadas entre requisitos", selecionar a instância "Destaque do requisito" e ativar "Posição absoluta" (Absolute position), com restrições Esquerda e direita / Topo e base e tamanho igual ao do cartão. A última correção não pôde ser aplicada porque o limite de chamadas do Figma MCP do plano Starter foi atingido em 23/11/2026.
 1. Manter o quadro Trello em dia: mover os cartões de "A fazer" conforme forem concluídos.
 2. Levar `docs/requisitos/PENDENCIAS_CLIENTE.md` ao cliente e ajustar parâmetros.
 3. Executar o `docker compose` e exercitar backup e restauração (RNF14).

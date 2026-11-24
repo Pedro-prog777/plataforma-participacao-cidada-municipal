@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  webpack(config) {
+    // `import texto from "arquivo.md?raw"`: o Documento de Requisitos entra no build como texto
+    // (página /requisitos e referências cruzadas automáticas, DT-24). O Vitest já entende `?raw`.
+    config.module.rules.push({ resourceQuery: /raw/, type: "asset/source" });
+    return config;
+  },
 };
 
 export default nextConfig;

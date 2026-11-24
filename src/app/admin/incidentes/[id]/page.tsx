@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, RadioGroup, SubmitButton, TextArea } from "@/components/ui/form";
 import { Alert, Badge, Card, DescriptionList, LinkButton, PageHeader } from "@/components/ui/primitives";
 import { requireAdmin } from "@/server/auth/current";
@@ -19,7 +20,7 @@ export default async function IncidentePage({ params }: { params: Promise<{ id: 
       <PageHeader title={`Incidente: ${i.type}`} eyebrow={<Badge tone={i.severity === "alta" ? "danger" : i.severity === "media" ? "warning" : "neutral"}>Severidade {i.severity}</Badge>} breadcrumbs={[{ href: "/admin/incidentes", label: "Incidentes" }, { label: i.type }]} />
       {i.suggestion && (
         <Alert tone="danger" className="mb-4" title="Sugestão do sistema">
-          {i.suggestion} {i.consultationId && <LinkButton href={`/admin/consultas/${i.consultationId}/conducao`} variant="secondary" className="ml-2">Ir para a condução</LinkButton>}
+          <RefText>{i.suggestion}</RefText> {i.consultationId && <LinkButton href={`/admin/consultas/${i.consultationId}/conducao`} variant="secondary" className="ml-2">Ir para a condução</LinkButton>}
         </Alert>
       )}
       {i.type === "cadastro_suspeito" && <Alert tone="info" className="mb-4">Se contas fraudulentas já votaram, como os votos não são vinculados às contas, decide-se publicamente entre manter o resultado e cancelar a consulta (RF034).</Alert>}

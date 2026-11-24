@@ -5,7 +5,7 @@ import { Card, LinkButton, PageHeader, Section } from "@/components/ui/primitive
 export const metadata = { title: "Como funciona" };
 
 const TOPICS: [IconName, string, string][] = [
-  ["info", "Natureza consultiva", "A votação é consultiva: o resultado orienta a administração municipal, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios previstos em lei. Cada resultado traz uma nota oficial explicando os próximos passos."],
+  ["info", "Natureza consultiva", "A votação é consultiva: o resultado orienta a administração municipal, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios. Cada resultado traz uma nota oficial explicando os próximos passos."],
   ["lock", "Sigilo do voto", "Quando você vota, o sistema grava duas coisas separadas: que você participou (para impedir voto duplo) e qual alternativa foi escolhida, sem nenhuma ligação com você, sem horário e sem o código do comprovante. Por isso, ninguém — nem servidores da Prefeitura — consegue saber em quem você votou."],
   ["check", "Voto único e irretratável", "Cada pessoa vota uma única vez em cada consulta. O banco de dados recusa um segundo voto mesmo em outro aparelho ou com cliques repetidos. Depois de confirmado, o voto não pode ser alterado."],
   ["users", "Quem pode participar", "Pessoas com conta ativa e identidade verificada (pelo provedor de identidade ou por documentos). Cada consulta informa seu público-alvo: aberta ao público em geral ou com limitações justificadas, como morar em determinado bairro. Contas administrativas não votam."],

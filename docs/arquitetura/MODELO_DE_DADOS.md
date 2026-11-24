@@ -42,7 +42,7 @@ O diagrama está em [`database/diagrams/modelo-er.md`](../../database/diagrams/m
 | `comments`, `comment_helpful`, `content_reports`, `moderation_decisions` | Comentários, denúncias e moderação | denúncia única por (alvo, denunciante); decisões **somente acréscimo** |
 | `participatory_events`, `event_questions` | Eventos (RF068) | protocolo único |
 | `settings` | Parâmetros e recursos condicionados (RNF12) | — |
-| `data_exports` | Cópias LGPD por 48 h | removidas pela rotina |
+| `data_exports` | Cópias dos dados pessoais (RF015) por 48 h | removidas pela rotina |
 
 ## Dados pessoais e proteção
 

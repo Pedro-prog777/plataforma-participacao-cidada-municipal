@@ -113,7 +113,7 @@ export async function exportDataset(dataset: "resultados" | "encaminhamentos", f
     return {
       filename,
       contentType: "application/json; charset=utf-8",
-      body: JSON.stringify({ fonte: `${env.municipio} — Plataforma de Participação Cidadã`, gerado_em: clock.now().toISOString(), licenca: "Dados abertos (LAI, art. 8º, §3º)", dicionario: DATA_DICTIONARY[dataset], registros: rows }, null, 2),
+      body: JSON.stringify({ fonte: `${env.municipio} — Plataforma de Participação Cidadã`, gerado_em: clock.now().toISOString(), licenca: "Dados abertos", dicionario: DATA_DICTIONARY[dataset], registros: rows }, null, 2),
       empty: rows.length === 0,
     };
   }

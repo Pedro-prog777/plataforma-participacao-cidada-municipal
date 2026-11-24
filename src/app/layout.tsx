@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Public_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { ContrastPreference, NavigationProgress } from "@/components/layout/client-bits";
+import { ProvedorCatalogoRequisitos } from "@/components/requisitos/ref-text";
+import { resumoCatalogoRequisitos } from "@/server/lib/documento-requisitos";
 import "./globals.css";
 
 const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-public-sans", display: "swap" });
@@ -26,7 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavigationProgress />
         </Suspense>
         <ContrastPreference />
-        {children}
+        {/* Catálogo de requisitos extraído do documento: transforma RF/RNF/RN/RS citados na interface em links (DT-24). */}
+        <ProvedorCatalogoRequisitos catalogo={resumoCatalogoRequisitos()}>{children}</ProvedorCatalogoRequisitos>
       </body>
     </html>
   );

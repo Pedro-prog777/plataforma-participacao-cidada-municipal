@@ -12,16 +12,16 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (15/11/2026, ambiente local Windows 11, Node 24)
+## Última execução registrada (23/11/2026, ambiente local Windows 11, Node 24)
 
 | Suíte | Resultado |
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração + segurança (10 arquivos) | **128 de 128 aprovados** |
-| E2E (3 arquivos, Chromium) | **36 de 36 aprovados** em execução única |
-| `npm audit --omit=dev` | 0 vulnerabilidades (após atualizar nodemailer e forçar postcss ≥ 8.5.32) |
-| Capturas (`npm run screenshots`) | 4 de 4 blocos concluídos; 57 capturas |
+| Unitários + integração + segurança (11 arquivos) | **145 de 145 aprovados** |
+| E2E (3 arquivos, Chromium) | **42 de 42 aprovados** (a 1ª execução de 23/11 achou identificadores sem link na tela de Parâmetros; corrigido e reexecutado) |
+| `npm audit --omit=dev` | não reexecutado em 23/11 (sem dependências novas); em 15/11: 0 vulnerabilidades |
+| Capturas (`npm run screenshots`) | não refeitas em 23/11; em 15/11: 4 de 4 blocos, 57 capturas |
 
 **Integração contínua (GitHub Actions, Ubuntu, Node 22, PostgreSQL 16 real), 12/11/2026:** a 1ª execução falhou no `npm ci` (lock fora de sincronia para o npm 10) e foi corrigida; a 2ª foi **aprovada** — tipos, lint, 114 de 114 testes no PostgreSQL 16, auditoria de dependências e 32 de 32 E2E ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)).
 
@@ -33,15 +33,16 @@
 |---|---|
 | `tests/unit/rules.test.ts` | CPF, senha, apuração, percentuais, tipo real de arquivo, exportações |
 | `tests/unit/masks.test.ts` | Pontuação automática de CPF, data, celular e CEP (digitação, colagem e posição do cursor) |
+| `tests/unit/requisitos.test.ts` | Referências cruzadas (DT-24): catálogo extraído do documento (68 RF, 15 RNF, 42 RN, 13 RS), RF001 → RN02 ("CPF único"), RF004, identificadores inexistentes e formatos parecidos, texto preservado palavra a palavra, cópias iguais em `AGENTS.md` e `REQUISITOS_COMPLETOS.md`, ausência de citações jurídicas e todo identificador citado em `src/` existente no documento |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
 | `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
 | `tests/integration/lifecycle.test.ts` | Ciclo da consulta, separação de funções, prazos, rotina automática |
 | `tests/integration/voting.test.ts` | Elegibilidade, voto único, concorrência, **sigilo do voto**, comprovante, integridade |
-| `tests/integration/participation.test.ts` | Propostas, anexos, moderação, LGPD, resultados, dados abertos |
+| `tests/integration/participation.test.ts` | Propostas, anexos, moderação, direitos do titular de dados, resultados, dados abertos |
 | `tests/integration/administration.test.ts` | Identidade (RF004), perfil (RF012, RF013), usuários e papéis (RF046, RF047), avisos (RF053, RF055), divulgação (RF062), eventos (RF068), parâmetros (RNF12) |
 | `tests/integration/performance.test.ts` | Consultas em lote e paginação devolvem o mesmo resultado: monitoramento (RF048), listagem com elegibilidade (RF016, RF017), usuários e auditoria (RF046, RF058), sessão |
 | `tests/security/security.test.ts` | SSRF em links, injeção em buscas, conteúdo executável, redirecionamento aberto |
-| `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px |
+| `tests/e2e/*.spec.ts` | Portal público, cidadão e administração no navegador, com axe-core e 320 px; referências cruzadas: clique em RN02 no RF001 (rolagem, foco, destaque que some, voltar), endereço `#RF004`, referência a verificar e varredura de 7 telas administrativas sem identificador solto |
 
 ## Cenários obrigatórios do pedido
 
@@ -66,7 +67,7 @@
 | 17 | Exportação sem dados pessoais | `integration/voting.test.ts`, `integration/participation.test.ts`, `e2e/public.spec.ts` | aprovado |
 | 18 | Cadeia de auditoria | `integration/database.test.ts`, `e2e/admin.spec.ts` | aprovado |
 | 19 | Upload inválido | `integration/participation.test.ts` (extensão falsa, EICAR, tamanho, sem texto alternativo) | aprovado |
-| 20 | Dados de outro cidadão | `integration/participation.test.ts` (proposta e cópia LGPD) | aprovado |
+| 20 | Dados de outro cidadão | `integration/participation.test.ts` (proposta e cópia dos dados pessoais) | aprovado |
 
 ## Segurança (referência OWASP Top 10) — o que foi efetivamente verificado
 
@@ -86,8 +87,8 @@
 **Limites desta verificação:** não houve teste de intrusão independente, varredura dinâmica (DAST) nem teste de carga. A proteção CSRF apoia-se na verificação de origem das Server Actions do Next.js e em `SameSite=Lax` (não há teste automatizado específico). Portanto, o sistema **não deve ser declarado “seguro” para produção** sem essas etapas e sem o RIPD (RNF06).
 
 ## Acessibilidade e responsividade
-- axe-core (WCAG 2.2 A/AA) sem violações sérias/críticas em: início, consultas, detalhe, resultado, como funciona, transparência, comprovante, cadastro, login, votação e acesso negado administrativo. Corrigidos nesta rodada: contraste do botão de destaque e do contador de avisos.
-- Sem rolagem horizontal a 320 px em 6 páginas públicas (E2E) e inspeção manual do início.
+- axe-core (WCAG 2.2 A/AA) sem violações sérias/críticas em: início, consultas, detalhe, resultado, como funciona, transparência, comprovante, cadastro, login, documento de requisitos, votação e acesso negado administrativo. Corrigidos nesta rodada: contraste do botão de destaque e do contador de avisos.
+- Sem rolagem horizontal a 320 px em 7 páginas públicas (E2E, incluindo `/requisitos`) e inspeção manual do início.
 - **Pendente:** inspeção manual com NVDA e TalkBack; páginas administrativas não cobertas pelo axe além de uma.
 
 ## Requisitos não funcionais sem medição

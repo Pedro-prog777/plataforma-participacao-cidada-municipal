@@ -10,7 +10,14 @@ import { demoMode } from "@/server/lib/env";
 import type { Permission } from "@/lib/permissions";
 
 const NAV: { group: string; items: [string, string, IconName, Permission | null][] }[] = [
-  { group: "Visão geral", items: [["/admin", "Painel", "home", null], ["/admin/monitoramento", "Monitoramento", "chart", "consultas.acompanhar"]] },
+  {
+    group: "Visão geral",
+    items: [
+      ["/admin", "Painel", "home", null],
+      ["/admin/monitoramento", "Monitoramento", "chart", "consultas.acompanhar"],
+      ["/requisitos", "Documento de requisitos", "file", null],
+    ],
+  },
   {
     group: "Consultas",
     items: [

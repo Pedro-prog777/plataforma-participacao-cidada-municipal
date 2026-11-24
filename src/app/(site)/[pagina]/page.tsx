@@ -7,7 +7,7 @@ import { env } from "@/server/lib/env";
 
 const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNode }> = {
   privacidade: {
-    title: "Privacidade e proteção de dados (LGPD)",
+    title: "Privacidade e proteção de dados",
     body: (m) => (
       <>
         <p>Controlador: Prefeitura de {m.replace(/^Município de /, "")} (dados fictícios nesta demonstração).</p>
@@ -35,7 +35,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
           <li>A plataforma destina-se à participação consultiva em consultas públicas municipais e ao envio de propostas.</li>
           <li>Cada pessoa pode ter apenas uma conta de cidadão. Informações falsas podem levar ao bloqueio da conta.</li>
           <li>O voto é único, secreto e irretratável depois de confirmado.</li>
-          <li>Conteúdos enviados (propostas, comentários) devem respeitar a lei e a política de uso: são proibidos ofensas, discurso de ódio, exposição de dados pessoais, propaganda e conteúdo ilegal. Conteúdos denunciados podem ser moderados com justificativa, com direito a um pedido de revisão.</li>
+          <li>Conteúdos enviados (propostas, comentários) devem respeitar a política de uso: são proibidos ofensas, discurso de ódio, exposição de dados pessoais, propaganda e conteúdo ilegal. Conteúdos denunciados podem ser moderados com justificativa, com direito a um pedido de revisão.</li>
           <li>O resultado das consultas tem caráter consultivo e não substitui os ritos legais de participação.</li>
         </ol>
       </>
@@ -45,7 +45,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
     title: "Acessibilidade",
     body: () => (
       <>
-        <p>Este portal busca conformidade com o nível AA da WCAG 2.2 e as recomendações do eMAG 3.1 (Lei Brasileira de Inclusão, art. 63).</p>
+        <p>Este portal busca conformidade com o nível AA da WCAG 2.2 e as recomendações do eMAG 3.1.</p>
         <h2 className="text-lg font-bold">Atalhos de teclado</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>Alt + 1 (ou Alt + Shift + 1 no Firefox): ir para o conteúdo</li>

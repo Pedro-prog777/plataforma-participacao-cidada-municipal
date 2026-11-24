@@ -54,7 +54,7 @@ flowchart LR
 | Autenticação e sessões | `auth/auth.service.ts`, `auth/session.service.ts` | RF001–RF003, RF005–RF008, RF010, RF046 (convite) |
 | Controle de acesso | `access/access.service.ts` | RF009, RF047, RF061 |
 | Identidade | `identity/identity.service.ts` | RF004 |
-| Perfil e LGPD | `profile/profile.service.ts` | RF012, RF013, RF015 |
+| Perfil e direitos do titular de dados | `profile/profile.service.ts` | RF012, RF013, RF015 |
 | Consultas — ciclo de vida | `consultations/lifecycle.service.ts` | RF024–RF030, RF032–RF034, RF061 |
 | Consultas — leitura | `consultations/queries.service.ts` | RF016–RF018, RF050, RF056 |
 | Votação | `voting/eligibility.ts`, `voting/voting.service.ts` | RF011, RF036–RF041 |
@@ -98,7 +98,7 @@ sequenceDiagram
 
 ## Rotina automática (RF019)
 
-A cada minuto (`src/instrumentation-node.ts`): abre consultas agendadas no horário (com retrato dos parâmetros), encerra as abertas no horário (o `UPDATE` aguarda votos em andamento), verifica integridade e apura, envia lembretes 48 h antes, encerra propostas sem ajuste no prazo, remove cópias LGPD expiradas, reordena fisicamente os votos e processa a fila de e-mails. Pode ser executada manualmente em `/admin/monitoramento` ou com `npm run jobs:tick`.
+A cada minuto (`src/instrumentation-node.ts`): abre consultas agendadas no horário (com retrato dos parâmetros), encerra as abertas no horário (o `UPDATE` aguarda votos em andamento), verifica integridade e apura, envia lembretes 48 h antes, encerra propostas sem ajuste no prazo, remove cópias de dados pessoais expiradas (RF015), reordena fisicamente os votos e processa a fila de e-mails. Pode ser executada manualmente em `/admin/monitoramento` ou com `npm run jobs:tick`.
 
 ## Segurança transversal
 

@@ -1,4 +1,5 @@
 "use client";
+import { RefText } from "@/components/requisitos/ref-text";
 import { ActionForm, Field, SelectField, SubmitButton, TextArea, type FormState } from "../ui/form";
 
 type Opt = { value: string; label: string };
@@ -23,7 +24,7 @@ export function MunicipalProposalForm({ action, themes, organs, d = {}, disabled
           <Field label="Fonte de recursos" name="fundingSource" defaultValue={d.fundingSource} />
           <Field label="Prazo de execução" name="executionDeadline" defaultValue={d.executionDeadline} />
         </div>
-        <p className="text-xs text-muted">Rascunhos incompletos podem ser salvos; a validação completa ocorre no envio da consulta para revisão (RF028). Conteúdo executável (HTML/scripts) é removido.</p>
+        <p className="text-xs text-muted"><RefText>Rascunhos incompletos podem ser salvos; a validação completa ocorre no envio da consulta para revisão (RF028). Conteúdo executável (HTML/scripts) é removido.</RefText></p>
         {!disabled && <SubmitButton>Salvar</SubmitButton>}
       </fieldset>
     </ActionForm>

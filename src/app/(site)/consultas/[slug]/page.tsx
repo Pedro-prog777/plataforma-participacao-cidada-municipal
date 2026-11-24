@@ -159,9 +159,9 @@ export default async function ConsultaPage({ params }: { params: Promise<{ slug:
           <Section title="Natureza consultiva e o que acontece depois" id="depois">
             <Alert tone="primary">
               <p>
-                <strong>A votação é consultiva:</strong> o resultado orienta a administração municipal, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios previstos em lei.
+                <strong>A votação é consultiva:</strong> o resultado orienta a administração municipal, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios.
               </p>
-              {c.ownRite && <p>Este tema possui rito próprio previsto em lei; a norma aplicável foi verificada pela administração.</p>}
+              {c.ownRite && <p>Este tema possui rito próprio; a norma aplicável foi verificada pela administração.</p>}
             </Alert>
             <p className="prose-civic">{c.nextSteps}</p>
             <p className="text-sm text-muted">Unidade responsável: {data.organ ?? "—"}</p>

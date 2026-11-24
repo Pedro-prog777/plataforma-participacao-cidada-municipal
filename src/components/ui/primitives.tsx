@@ -1,10 +1,16 @@
 /** Componentes de apresentação reutilizáveis (servidor). */
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { RefText } from "@/components/requisitos/ref-text";
 import { Icon, type IconName } from "./icons";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
+}
+
+/** Texto simples ganha referências automáticas a requisitos (RF/RNF/RN/RS → link, DT-24). */
+export function comReferencias(conteudo: ReactNode): ReactNode {
+  return typeof conteudo === "string" ? <RefText>{conteudo}</RefText> : conteudo;
 }
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "civic";
@@ -86,8 +92,8 @@ export function Alert({ tone = "info", title, children, className, role }: { ton
     <div role={role ?? (tone === "danger" ? "alert" : "status")} className={cx("flex gap-3 rounded-lg border px-4 py-3 text-sm", t.cls, className)}>
       <Icon name={t.icon} className="mt-0.5 size-5 shrink-0" />
       <div className="min-w-0 space-y-1">
-        {title && <p className="font-semibold">{title}</p>}
-        {children && <div className="[&_a]:font-semibold [&_a]:underline">{children}</div>}
+        {title && <p className="font-semibold">{comReferencias(title)}</p>}
+        {children && <div className="[&_a]:font-semibold [&_a]:underline">{comReferencias(children)}</div>}
       </div>
     </div>
   );
@@ -100,8 +106,8 @@ export function PageHeader({ title, description, eyebrow, actions, breadcrumbs }
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 space-y-1.5">
           {eyebrow && <div className="text-sm font-semibold text-civic-700">{eyebrow}</div>}
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-          {description && <div className="max-w-3xl text-base text-muted">{description}</div>}
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{comReferencias(title)}</h1>
+          {description && <div className="max-w-3xl text-base text-muted">{comReferencias(description)}</div>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
@@ -164,9 +170,9 @@ export function Section({ title, description, children, actions, id, className }
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 id={id ? `${id}-titulo` : undefined} className="text-lg font-bold sm:text-xl">
-            {title}
+            {comReferencias(title)}
           </h2>
-          {description && <p className="text-sm text-muted">{description}</p>}
+          {description && <p className="text-sm text-muted">{comReferencias(description)}</p>}
         </div>
         {actions}
       </div>
@@ -181,7 +187,7 @@ export function DescriptionList({ items }: { items: { term: string; detail: Reac
       {items.map((it) => (
         <div key={it.term} className="grid gap-1 py-2.5 sm:grid-cols-3 sm:gap-4">
           <dt className="text-sm font-medium text-muted">{it.term}</dt>
-          <dd className="text-sm sm:col-span-2">{it.detail}</dd>
+          <dd className="text-sm sm:col-span-2">{comReferencias(it.detail)}</dd>
         </div>
       ))}
     </dl>
@@ -197,7 +203,7 @@ export function Table({ head, rows, caption, empty = "Nenhum registro." }: { hea
           <tr>
             {head.map((h, i) => (
               <th key={i} scope="col" className="px-4 py-3 font-semibold">
-                {h}
+                {comReferencias(h)}
               </th>
             ))}
           </tr>
@@ -214,7 +220,7 @@ export function Table({ head, rows, caption, empty = "Nenhum registro." }: { hea
               <tr key={i} className="align-top hover:bg-brand-50/40">
                 {r.map((c, j) => (
                   <td key={j} className="px-4 py-3">
-                    {c}
+                    {comReferencias(c)}
                   </td>
                 ))}
               </tr>
@@ -259,8 +265,8 @@ export function Timeline({ items }: { items: { title: ReactNode; date: ReactNode
         <li key={i} className="relative">
           <span className={cx("absolute -left-[31px] top-1.5 size-3.5 rounded-full ring-4 ring-white", it.tone === "danger" ? "bg-bad-700" : it.tone === "warning" ? "bg-civic-500" : it.tone === "success" ? "bg-ok-700" : "bg-brand-600")} />
           <p className="text-xs font-medium uppercase tracking-wide text-muted">{it.date}</p>
-          <p className="font-semibold text-brand-900">{it.title}</p>
-          {it.body && <div className="mt-1 text-sm text-ink/90">{it.body}</div>}
+          <p className="font-semibold text-brand-900">{comReferencias(it.title)}</p>
+          {it.body && <div className="mt-1 text-sm text-ink/90">{comReferencias(it.body)}</div>}
         </li>
       ))}
     </ol>
@@ -304,7 +310,7 @@ export function KeyValue({ label, children }: { label: string; children: ReactNo
   return (
     <div className="flex flex-col">
       <span className="text-xs font-medium uppercase tracking-wide text-muted">{label}</span>
-      <span className="text-sm font-medium text-ink">{children}</span>
+      <span className="text-sm font-medium text-ink">{comReferencias(children)}</span>
     </div>
   );
 }

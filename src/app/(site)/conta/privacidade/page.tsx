@@ -14,7 +14,7 @@ export default async function PrivacidadeContaPage() {
   const [exports, sessions] = await Promise.all([listDataExports(a.id), listActiveSessions(a.id)]);
   return (
     <>
-      <PageHeader title="Privacidade e meus dados" description="Direitos do titular previstos na LGPD: obter cópia dos dados e desativar a conta." />
+      <PageHeader title="Privacidade e meus dados" description="Direitos do titular de dados: obter cópia dos dados e desativar a conta." />
       <div className="space-y-8">
         <Section title="Baixar meus dados" description="Cópia estruturada dos seus dados pessoais, disponível por 48 horas. A alternativa votada não consta porque não é vinculada à sua conta.">
           <Card>

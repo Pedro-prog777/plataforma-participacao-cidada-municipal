@@ -42,3 +42,32 @@ test("responsável publica resultado da consulta apurada (RF043)", async ({ page
   await page.goto("/resultados");
   await expect(page.getByRole("link", { name: "Feira livre aos domingos no Poço" })).toBeVisible();
 });
+
+test("identificadores citados nas telas administrativas viram links para o documento (DT-24)", async ({ page, context }) => {
+  await loginAdmin(page, "gestor");
+  for (const path of ["/admin/monitoramento", "/admin/papeis", "/admin/configuracoes", "/admin/usuarios", "/admin/incidentes", "/admin/relatorios", "/admin/auditoria"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    // Nenhum RF/RNF/RN/RS fica como texto solto: ou é link, ou está marcado "a verificar".
+    const soltos = await page.evaluate(() => {
+      const padrao = /\b(RNF|RF|RN|RS)\d{2,4}\b/;
+      const ignorar = "a, [data-ref], option, script, style, title, textarea, noscript";
+      const andar = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      const achados: string[] = [];
+      for (let n = andar.nextNode(); n; n = andar.nextNode()) if (padrao.test(n.textContent ?? "") && !n.parentElement?.closest(ignorar)) achados.push(n.textContent!.trim());
+      return achados;
+    });
+    expect(soltos, path).toEqual([]);
+  }
+
+  await page.goto("/admin/monitoramento");
+  const rn16 = page.locator('a.ref-req[data-ref="RN16"]').first();
+  await expect(rn16).toHaveAttribute("href", "/requisitos#RN16");
+  await expect(rn16).toHaveAttribute("target", "_blank");
+  const [aba] = await Promise.all([context.waitForEvent("page"), rn16.click()]);
+  await aba.waitForLoadState();
+  await expect(aba).toHaveURL(/\/requisitos#RN16$/);
+  await expect(aba.locator("#RN16")).toHaveClass(/req-destaque/);
+  await expect(aba.locator("#RN16")).toBeInViewport();
+  await aba.close();
+});
