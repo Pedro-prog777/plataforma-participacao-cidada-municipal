@@ -25,7 +25,7 @@ A referência a requisitos é feita pelo nome da subseção seguido do identific
 
 A PPCM é um portal web cujo objetivo é aproximar a população da administração municipal. Pela plataforma, o cidadão conhece as consultas públicas abertas pela Prefeitura, entende o assunto em discussão, registra a sua opinião por votação, envia propostas e acompanha os resultados e o que foi feito depois da consulta (encaminhamentos). A votação é uma proposta da equipe e tem **caráter consultivo (\*)**: o resultado orienta a administração, mas não substitui audiência pública, plebiscito, referendo ou iniciativa popular, que seguem ritos próprios (RN34).
 
-**Usuários**
+**Usuários:**
 
 1. **Visitante** — pessoa não autenticada; consulta o portal de transparência (consultas, resultados, encaminhamentos e histórico) e verifica comprovantes, mas não vota nem envia propostas.
 2. **Cidadão** — pessoa cadastrada com conta ativa; mantém o perfil, verifica a identidade, vota nas consultas cujo público-alvo o inclui, recebe comprovante, envia e acompanha propostas, denuncia conteúdos e escolhe os avisos que quer receber.
@@ -48,7 +48,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
   - **Nome completo** – texto, obrigatório.
   - **CPF** – texto no formato XXX.XXX.XXX-XX, com validação do dígito verificador (*). Único e nunca exibido em páginas públicas. Serve para garantir uma conta por pessoa (RN02) e pode vir do gov.br em vez de ser digitado.
   - **Data de nascimento** – data DD/MM/AAAA, obrigatória. Só é usada em consulta com critério de idade justificado; não existe idade mínima geral (RN01, RN40).
-  - **E-mail** – texto, obrigatório, formato texto@texto.texto. Único entre as contas de cidadão.
+  - **E-mail** – texto, obrigatório, formato `texto@texto.texto`. Único entre as contas de cidadão.
   - **Celular** – máscara (XX) XXXXX-XXXX, opcional.
   - **Endereço no município** – CEP (XXXXX-XXX), logradouro, número e bairro, obrigatórios. Usado nas consultas restritas a bairros ou regiões (RF027).
   - **Senha** – mínimo de 8 caracteres, com letra e número, diferente do CPF, da data de nascimento e do e-mail (RN23). Guardada só como hash.
@@ -703,11 +703,10 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 - **Regras:** Conteúdo mínimo (RN37); Manifestação não é voto (RN38); Limites administrativos (RN39).
 - **A validar com o cliente (*):** Quais formas de participação entram nesta versão.
 
-
 ## 4. Requisitos não funcionais
 
 | ID | Requisito | Descrição | Prioridade |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | RNF01 | Externo – acessibilidade | **Acesso para todos.** Páginas e conteúdos conformes ao nível AA da WCAG 2.2 e às recomendações do eMAG 3.1; verificação automática e manual com leitor de tela nas páginas inicial, de consulta, de participação e de resultado, sem falhas de nível A ou AA. | Essencial |
 | RNF02 | Produto – facilidade de uso | **Linguagem simples.** Textos da interface e das consultas em linguagem simples, conferidos na revisão (RF028); participar a partir da página da consulta em até 3 passos, sem contar o login. | Importante |
 | RNF03 | Produto – portabilidade | **Uso no celular.** Uso completo a partir de 320 px de largura sem rolagem horizontal (WCAG 1.4.10) e alvos de toque com no mínimo 24 × 24 px (WCAG 2.5.8). | Importante |
@@ -727,7 +726,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 ## 5. Requisitos de segurança
 
 | ID | Perigo | Soluções |
-|---|---|---|
+| --- | --- | --- |
 | RS001 | No RF037 e no RF039 foi verificado que o mesmo cidadão poderia registrar mais de um voto na consulta, por outro dispositivo, por duplo clique, por requisições ao mesmo tempo ou por nova conta com o mesmo CPF. | 1. Restrição de unicidade do par cidadão–consulta no banco de dados, além da verificação na tela e na regra de negócio (RF039, RN05). 2. Manter o hash do CPF mesmo depois da desativação da conta (RN33). 3. Teste de concorrência com envios simultâneos do mesmo cidadão (RNF07). |
 | RS002 | Nos RF037, RF041 e RF049 foi verificado que alguém, inclusive um administrador, poderia descobrir em qual alternativa um cidadão votou. | 1. Gravar participação e voto em estruturas sem vínculo, sem horário exato e sem o código do comprovante junto ao voto (RN07). 2. O comprovante não informa a alternativa escolhida (RF038). 3. Relatórios só com dados agregados, ocultando grupos com menos de 10 pessoas (RF049). |
 | RS003 | Nos RF042, RF043 e RF066 foi verificado que votos ou resultados poderiam ser alterados por uma ferramenta administrativa ou de moderação. | 1. Nenhuma ação administrativa ou de moderação altera, exclui ou revela votos (RN39). 2. Resultado final imutável; só muda por retificação justificada e visível (RN29). 3. Hash da base apurada e verificação de integridade antes da apuração (RF059). |
@@ -745,7 +744,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 ## 6. Matriz de avaliação de risco
 
 | Probabilidade \ Severidade | Catastrófico (1) | Crítico (2) | Marginal (3) | Insignificante (4) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Frequente (A) | | | | |
 | Provável (B) | | | RS011 | |
 | Ocasional (C) | | RS004, RS010 | RS007 | |
@@ -760,7 +759,7 @@ Cores do documento original: vermelho (A1, A2, B1, B2, C1), laranja (A3, B3, C2,
 ### 7.1 Matriz principal (D = depende de; R = relaciona-se com)
 
 | Linha → Coluna | RF018 | RF022 | RF025 | RF026 | RF027 | RF028 | RF029 | RF030 | RF037 | RF042 | RF043 | RF044 | RF061 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | RF018 | | | | | | | | | | | | D | |
 | RF022 | | | | | | R | | | | | | | |
 | RF025 | | D | | D | D | | R | | | | | | D |
@@ -778,7 +777,7 @@ Cores do documento original: vermelho (A1, A2, B1, B2, C1), laranja (A3, B3, C2,
 ### 7.2 Dependências de todos os requisitos
 
 | Requisito | D (depende de) | R (relaciona-se com) |
-|---|---|---|
+| --- | --- | --- |
 | RF001 | RF002, RF003 | RF004, RF007, RF027 |
 | RF002 | — | RF001, RF013, RF036 |
 | RF003 | — | RF004 |
@@ -855,7 +854,7 @@ Contagem do tipo **projeto em desenvolvimento**. Escopo: os 68 requisitos funcio
 Pesos usados:
 
 | Componente | Baixa | Média | Alta |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | Consulta Externa (CE) | 3 | 4 | 6 |
 | Entrada Externa (EE) | 3 | 4 | 6 |
 | Saída Externa (SE) | 4 | 5 | 7 |
@@ -863,7 +862,7 @@ Pesos usados:
 | Arquivo Lógico Interno (ALI) | 7 | 10 | 15 |
 
 | Requisito | Complexidade | ALI | AIE | SE | EE | CE | Total |
-|---|---|---:|---:|---:|---:|---:|---:|
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | RF001 | MÉDIA | 10 | 0 | 0 | 4 | 0 | 14 |
 | RF002 | — | 0 | 0 | 0 | 0 | 0 | 0 |
 | RF003 | BAIXA | 0 | 5 | 0 | 3 | 0 | 8 |

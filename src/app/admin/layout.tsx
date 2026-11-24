@@ -84,7 +84,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       <div className="lg:grid lg:grid-cols-[15rem_1fr]">
-        <nav aria-label="Menu administrativo" className="border-b border-line bg-white lg:sticky lg:top-[53px] lg:h-[calc(100dvh-53px)] lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <nav aria-label="Menu administrativo" className="border-b border-line bg-white lg:sticky lg:top-13.25 lg:h-[calc(100dvh-53px)] lg:overflow-y-auto lg:border-b-0 lg:border-r">
           <details className="lg:hidden">
             <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 font-semibold text-brand-800">
               <Icon name="menu" /> Menu

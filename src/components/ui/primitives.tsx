@@ -197,7 +197,7 @@ export function DescriptionList({ items }: { items: { term: string; detail: Reac
 export function Table({ head, rows, caption, empty = "Nenhum registro." }: { head: ReactNode[]; rows: ReactNode[][]; caption?: string; empty?: string }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-line bg-white">
-      <table className="w-full min-w-[36rem] text-left text-sm">
+      <table className="w-full min-w-xl text-left text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead className="bg-brand-50 text-xs uppercase tracking-wide text-brand-800">
           <tr>
@@ -263,7 +263,7 @@ export function Timeline({ items }: { items: { title: ReactNode; date: ReactNode
     <ol className="relative space-y-5 border-l-2 border-brand-100 pl-6">
       {items.map((it, i) => (
         <li key={i} className="relative">
-          <span className={cx("absolute -left-[31px] top-1.5 size-3.5 rounded-full ring-4 ring-white", it.tone === "danger" ? "bg-bad-700" : it.tone === "warning" ? "bg-civic-500" : it.tone === "success" ? "bg-ok-700" : "bg-brand-600")} />
+          <span className={cx("absolute -left-7.75 top-1.5 size-3.5 rounded-full ring-4 ring-white", it.tone === "danger" ? "bg-bad-700" : it.tone === "warning" ? "bg-civic-500" : it.tone === "success" ? "bg-ok-700" : "bg-brand-600")} />
           <p className="text-xs font-medium uppercase tracking-wide text-muted">{it.date}</p>
           <p className="font-semibold text-brand-900">{comReferencias(it.title)}</p>
           {it.body && <div className="mt-1 text-sm text-ink/90">{comReferencias(it.body)}</div>}

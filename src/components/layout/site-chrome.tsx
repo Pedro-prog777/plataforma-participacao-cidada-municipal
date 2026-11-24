@@ -60,9 +60,9 @@ export function TopBar({ municipio, uf }: { municipio: string; uf: string }) {
       </div>
       {/* Faixa nas cores do município (verde, vermelho e azul do brasão). */}
       <div className="flex h-1" aria-hidden="true">
-        <span className="flex-[4] bg-municipal-green" />
+        <span className="flex-4 bg-municipal-green" />
         <span className="flex-1 bg-municipal-red" />
-        <span className="flex-[4] bg-municipal-blue" />
+        <span className="flex-4 bg-municipal-blue" />
       </div>
     </div>
   );
@@ -79,7 +79,7 @@ const NAV = [
 export function SiteHeader({ user, municipio }: { user: { name: string; kind: "cidadao" | "admin"; unread: number } | null; municipio: string }) {
   const cidade = municipio.replace(/^Município de /, "");
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/85">
       <div className="container-page flex items-center justify-between gap-2 py-2 sm:gap-4 sm:py-3">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 no-underline sm:gap-3">
           <Emblem className="size-9 shrink-0 sm:size-10" />

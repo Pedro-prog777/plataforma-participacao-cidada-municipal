@@ -159,7 +159,7 @@ function BlocoSimples({ bloco, resumo, tituloAtual }: { bloco: Bloco; resumo: Re
       );
     case "citacao":
       return (
-        <blockquote className="space-y-1 rounded-r-lg border-l-4 border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+        <blockquote className="space-y-1 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
           {bloco.linhas.map((l, i) => (
             <p key={i}>
               <Trechos c={l} resumo={resumo} />
