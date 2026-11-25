@@ -84,7 +84,7 @@ Com poucos dados a diferença não aparece; ela cresce com o acervo, que é perm
 ## 5. Cenários executados por área
 
 Contagem: **223 testes automatizados** (158 Vitest + 65 E2E) **+ 568 visitas de página na varredura**. Todos aprovados
-na execução final.
+na execução final. Atualização de 25/11/2026 (seção 9): **236 testes automatizados** (171 Vitest + 65 E2E), todos aprovados.
 
 ### 5.1 Funcionais (aprovados)
 Cadastro válido e inválido (todos os erros por campo, dados preservados, máscaras); CPF já usado com mensagem genérica;
@@ -139,3 +139,21 @@ com PostgreSQL 16); integração real com gov.br e SMS (simulados por decisão d
 - Testes novos: `tests/e2e/robustez.spec.ts`, `tests/unit/links.test.ts` e casos acrescentados em `rules.test.ts`,
   `security.test.ts`, `lifecycle.test.ts` e `performance.test.ts`.
 - Relatório HTML do Playwright: `npx playwright show-report` após `npm run test:e2e`.
+
+## 9. Atualização de 25/11/2026 — auditoria e melhorias (DT-30, DT-31, DT-32)
+
+Executado num clone limpo fora do OneDrive (Windows 11, Node 24, PGlite), no commit das melhorias.
+
+| Suíte | Resultado |
+|---|---|
+| Tipos (`tsc --noEmit`) e lint (`eslint .`) | sem erros |
+| Vitest — unitários, integração e segurança | **171 de 171 aprovados** (13 novos) |
+| Build de produção (`next build`) | sem erros |
+| Playwright E2E + axe-core | **65 de 65 aprovados**, nenhum pulado |
+
+Testes novos ou ampliados:
+
+- **18 anos para votar (RF036, DT-30):** limites de 18 anos exatos e 17 anos e 364 dias, nascido em 29/02, data de Brasília, conta sem data de nascimento, critério etário abaixo de 18, ordem das verificações, estimativa de elegíveis; menor recusado mesmo com código inserido diretamente no banco, com a recusa auditada.
+- **Sigilo (RS002, DT-31):** o `JOIN` por `xmin` entre participações e votos passa de mais de zero linhas para zero depois do reembaralhamento, com o mesmo hash da base apurada; o gatilho só admite a troca de `shuffle_key`.
+- **Código de confirmação e comprovante (RF011, RF038, DT-32):** código anterior continua válido ao pedir outro; no máximo 3 válidos e descarte após 3 erros; código na tela só quando o envio é simulado; fila registra "simulado"; id da participação vindo da transação; E2E lê o código na tela, copia o comprovante, recarrega a página, volta e usa o código anterior — tudo numa única guia.
+
