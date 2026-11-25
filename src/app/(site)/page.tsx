@@ -26,13 +26,13 @@ export default async function HomePage() {
     <MainContainer wide>
       {/* Abertura */}
       <section className="relative overflow-hidden bg-brand-900 text-white">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_1px_1px,#fff_1px,transparent_0)] [background-size:22px_22px]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_1px_1px,#fff_1px,transparent_0)] bg-size-[22px_22px]" />
         <div className="container-page relative grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:items-center">
           <div className="space-y-5">
             <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-civic-100">
               <Icon name="mapPin" className="size-4" /> {env.municipio}
             </p>
-            <h1 className="text-3xl font-bold tracking-tight !text-white sm:text-5xl">Sua opinião orienta as decisões da cidade.</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white! sm:text-5xl">Sua opinião orienta as decisões da cidade.</h1>
             <p className="max-w-xl text-lg text-brand-100">
               Conheça as consultas públicas da Prefeitura, vote de forma segura e secreta, envie propostas e acompanhe o que foi feito depois de cada resultado.
             </p>
@@ -40,7 +40,7 @@ export default async function HomePage() {
               <LinkButton href="/consultas?situacao=aberta" variant="civic" iconRight="arrowRight">
                 Ver consultas abertas
               </LinkButton>
-              <LinkButton href="/como-funciona" variant="secondary" className="!bg-transparent !text-white !ring-white/40 hover:!bg-white/10">
+              <LinkButton href="/como-funciona" variant="secondary" className="bg-transparent! text-white! ring-white/40! hover:bg-white/10!">
                 Como funciona
               </LinkButton>
             </div>

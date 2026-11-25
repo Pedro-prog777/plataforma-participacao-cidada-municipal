@@ -76,7 +76,8 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 
 ## 5. Funcionalidades desenvolvidas
 
-**Portal público (sem login)**
+### Portal público (sem login)
+
 - Lista, busca e filtros de consultas; página de cada consulta com período, público-alvo, documentos e histórico.
 - Resultados com gráfico e tabela, encaminhamentos, acervo de consultas encerradas e indicadores.
 - Dados abertos em CSV, JSON e PDF; verificação pública de comprovante; página "Como funciona".
@@ -85,14 +86,16 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 - Textos em linguagem simples para o cidadão (sem termos técnicos).
 - Documento de requisitos navegável (`/requisitos`): todo RF, RNF, RN ou RS citado vira link para o requisito, que é destacado por alguns segundos; identificador que não consta do documento fica marcado "a verificar". O reconhecimento é automático, a partir do próprio documento, e vale também para os textos da interface (DT-24).
 
-**Área do cidadão**
+### Área do cidadão
+
 - Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
 - Verificação de identidade (provedor simulado ou análise de documentos).
 - Votação em 3 passos com código de confirmação e comprovante.
 - Envio e acompanhamento de propostas, central de avisos e preferências de notificação.
 - Direitos do titular de dados: cópia dos dados e desativação da conta com anonimização.
 
-**Administração da Prefeitura**
+### Administração da Prefeitura
+
 - Ciclo completo da consulta: proposta, elaboração, alternativas, público-alvo, responsáveis, revisão, aprovação, prazo excepcional, publicação, alteração, suspensão e cancelamento.
 - Abertura, encerramento e apuração automáticos; homologação e retificação do resultado; encaminhamentos.
 - Monitoramento sem resultados parciais, relatórios agregados, divulgação com QR Code.
@@ -235,7 +238,8 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | **Situação atual** | Sistema completo e navegável em modo demonstração; os 68 requisitos funcionais implementados e testados |
 | **Detalhe por requisito** | [docs/STATUS_DO_DESENVOLVIMENTO.md](docs/STATUS_DO_DESENVOLVIMENTO.md) |
 
-**Funcionalidades concluídas**
+### Funcionalidades concluídas
+
 - Cadastro, autenticação, segundo fator, recuperação de senha e controle de acesso por papel.
 - Ciclo completo da consulta pública, com separação de funções e rotina automática.
 - Votação secreta e única, comprovante, verificação de integridade, apuração e publicação de resultados.
@@ -243,7 +247,8 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 - Portal de transparência, dados abertos, relatórios, auditoria e incidentes.
 - Verificação diária de links externos e proteções contra entradas maliciosas.
 
-**Funcionalidades pendentes ou limitadas**
+### Funcionalidades pendentes ou limitadas
+
 - Integração oficial com o gov.br e provedor de SMS (hoje simulados; dependem de credenciamento).
 - Decisões do cliente sobre os itens marcados com (\*) no documento — lista em [PENDENCIAS_CLIENTE.md](docs/requisitos/PENDENCIAS_CLIENTE.md). Comentários, apoios e eventos ficam desligados até lá.
 - Medição de desempenho e disponibilidade (RNF09, RNF10) e teste em outros navegadores e com leitores de tela (RNF01, RNF11).

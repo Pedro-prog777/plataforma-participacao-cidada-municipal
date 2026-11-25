@@ -37,7 +37,7 @@ export default async function MonitoramentoPage() {
         title="Monitoramento de consultas"
         description={`Atualizado automaticamente a cada 5 minutos (última leitura: ${fmtDateTime(new Date())}). Nenhum perfil vê contagem por alternativa durante a votação (RN16), e nenhuma ação deste painel altera votos (RN39).`}
         actions={
-          <ActionForm action={runTickAction} className="!space-y-2">
+          <ActionForm action={runTickAction} className="space-y-2!">
             <SubmitButton variant="secondary">Executar rotina agora</SubmitButton>
           </ActionForm>
         }

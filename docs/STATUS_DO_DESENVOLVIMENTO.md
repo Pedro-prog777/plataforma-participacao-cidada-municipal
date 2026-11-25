@@ -17,9 +17,11 @@ Atualizado em 25/11/2026. Estados: Não iniciado · Em desenvolvimento · Implem
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
 ## O que funciona (verificado)
+
 Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação de senha, verificação de identidade (provedor simulado e documental), perfil e direitos do titular de dados, ciclo completo da consulta com segregação de funções, abertura/encerramento automáticos, votação em 3 passos com sigilo estrutural e voto único, comprovante e verificação pública, integridade, apuração, homologação, retificação, dados abertos, encaminhamentos, propostas cidadãs, denúncia e moderação, notificações, auditoria encadeada, incidentes, monitoramento, relatórios, usuários, papéis e parâmetros; documento de requisitos navegável com referências cruzadas automáticas (DT-24).
 
 ## Parcial, simulado ou não medido
+
 | Item | Estado | Observação |
 |---|---|---|
 | Integração gov.br (RF004/RF005/RF011) | Bloqueado | Exige credenciamento oficial; adaptador simulado identificado como demonstração |
@@ -129,9 +131,11 @@ Cadastro, confirmação de e-mail, login com bloqueio e 2º fator, recuperação
 | RNF15 Inclusão digital | Implementado | Atendimento registra perguntas por telefone; nunca vota pelo cidadão |
 
 ## Requisitos de segurança
+
 Todos os RS001–RS013 têm controles implementados; evidências e riscos residuais em `docs/seguranca/MATRIZ_DE_RISCOS.md`. RS004 depende do provedor simulado; RS010 tem pendência jurídica.
 
 ## Erros encontrados e corrigidos
+
 - Auditoria de acesso negado por segregação era desfeita junto com a transação → movida para fora.
 - `instrumentation.ts` empacotado para o runtime Edge → import condicional.
 - Banco PGlite corrompido ao encerrar o servidor à força → fechamento gracioso; `npm run db:reset`.
@@ -150,6 +154,7 @@ Todos os RS001–RS013 têm controles implementados; evidências e riscos residu
 - Revisão de qualidade de 24/11/2026 (DT-27, detalhes em `docs/testes/RELATORIO_DE_TESTES.md`): erro 500 no portal com filtros de URL manipulados e em rotas com identificador malformado → validação de formato (404 ou filtro ignorado); aviso "Identidade verificada" e ação "Ver meu perfil" levavam a `/conta/perfil` (404) → `/conta` e teste que confere todos os links fixos; consulta sumia da busca pelo texto da proposta depois de editada → índice calculado em um só lugar; área do cidadão com 930 px a 320 px e telas administrativas largas → regras base de largura; tabelas roláveis sem foco de teclado e lista inválida (axe) → corrigidas; erro antigo no assistente de votação → some ao voltar; listagem pública paginada no banco (19,4 → 4,0 ms com 600 consultas); leitor do PDF incompatível com Node 20 → tabela WinAnsi; `next build` travando com `.next-e2e` antigo no OneDrive → pasta apagada antes do build.
 
 ## Próxima etapa recomendada
+
 0. Figma: nos cartões "Regra · RN02", "Requisito · RF004" e "Regra · RN16" da seção "Referências cruzadas entre requisitos", selecionar a instância "Destaque do requisito" e ativar "Posição absoluta" (Absolute position), com restrições Esquerda e direita / Topo e base e tamanho igual ao do cartão. A última correção não pôde ser aplicada porque o limite de chamadas do Figma MCP do plano Starter foi atingido em 23/11/2026.
 1. Manter o quadro Trello em dia: mover os cartões de "A fazer" conforme forem concluídos.
 2. Levar `docs/requisitos/PENDENCIAS_CLIENTE.md` ao cliente e ajustar parâmetros.

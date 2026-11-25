@@ -22,7 +22,7 @@ export default async function ConfirmarEmailPage({ searchParams }: { searchParam
             <Alert tone="danger">Link inválido.</Alert>
           )}
           <p className="text-sm">
-            Link expirado? <LinkButton href="/reenviar-confirmacao" variant="ghost" className="!min-h-0 !px-1">Reenviar confirmação</LinkButton>
+            Link expirado? <LinkButton href="/reenviar-confirmacao" variant="ghost" className="min-h-0! px-1!">Reenviar confirmação</LinkButton>
           </p>
         </Card>
       </div>

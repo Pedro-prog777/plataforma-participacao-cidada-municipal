@@ -32,7 +32,7 @@ export default async function ComprovanteParticipacaoPage({ params, searchParams
             <Icon name="check" className="size-8" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold !text-ok-700">Participação registrada com sucesso!</h1>
+            <h1 className="text-2xl font-bold text-ok-700!">Participação registrada com sucesso!</h1>
             {/* RF038: "Seu voto foi registrado" — texto do documento mantido no subtítulo. */}
             <p>Seu voto foi registrado e confirmado pelo sistema.</p>
           </div>

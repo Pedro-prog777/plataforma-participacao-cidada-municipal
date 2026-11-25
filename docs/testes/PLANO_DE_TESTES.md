@@ -28,7 +28,6 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 
 **Atenção no Windows:** rode o Vitest a partir de `C:…` (PowerShell). Com a letra da unidade minúscula (`c:…`, comum no Git Bash do VS Code), todos os arquivos falham com "failed to find the runner" sem executar nada.
 
-
 **Integração contínua (GitHub Actions, Ubuntu, Node 22, PostgreSQL 16 real), 12/11/2026:** a 1ª execução falhou no `npm ci` (lock fora de sincronia para o npm 10) e foi corrigida; a 2ª foi **aprovada** — tipos, lint, 114 de 114 testes no PostgreSQL 16, auditoria de dependências e 32 de 32 E2E ([execução](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions/runs/43258424027)).
 
 **Não executado:** integração contra PostgreSQL servidor **no ambiente local** (sem Docker/PostgreSQL; coberta pelo CI); testes de carga (RNF09/RNF10); leitores de tela NVDA/TalkBack (RNF11); Firefox/Safari/Edge.
@@ -96,11 +95,13 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 **Limites desta verificação:** não houve teste de intrusão independente, varredura dinâmica (DAST) nem teste de carga. A proteção CSRF apoia-se na verificação de origem das Server Actions do Next.js e em `SameSite=Lax` (não há teste automatizado específico). Portanto, o sistema **não deve ser declarado “seguro” para produção** sem essas etapas e sem o RIPD (RNF06).
 
 ## Acessibilidade e responsividade
+
 - axe-core (WCAG 2.2 A/AA) sem violações sérias/críticas em: início, consultas, detalhe, resultado, como funciona, transparência, comprovante, cadastro, login, documento de requisitos, A Prefeitura, votação e acesso negado administrativo. Corrigidos nesta rodada: contraste do botão de destaque e do contador de avisos.
 - Sem rolagem horizontal a 320 px em 8 páginas públicas (E2E, incluindo `/requisitos` e `/prefeitura`) e inspeção manual do início.
 - **Pendente:** inspeção manual com NVDA e TalkBack; páginas administrativas não cobertas pelo axe além de uma.
 
 ## Requisitos não funcionais sem medição
+
 RNF10 (disponibilidade) e RNF14 (restauração de backup) têm apenas mecanismos preparados; não foram medidos. RNF09 e RNF04 têm só a medição local abaixo, sem teste de carga.
 
 ## Desempenho — medição local (15/11/2026)

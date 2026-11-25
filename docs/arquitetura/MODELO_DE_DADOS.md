@@ -56,6 +56,7 @@ O diagrama está em [`database/diagrams/modelo-er.md`](../../database/diagrams/m
 | Data da participação | Somente a data (sem hora) |
 
 ## Estratégia de backup (RNF14)
+
 - `pg_dump -Fc` diário, retenção de 30 dias, cópias cifradas e fora do servidor do banco.
 - Teste mensal de restauração em ambiente isolado, seguido de `npm run test` apontando para o banco restaurado e da verificação da trilha de auditoria (`/admin/auditoria?verificar=1`).
 - Acesso a backups e WAL restrito (ver DT-05).

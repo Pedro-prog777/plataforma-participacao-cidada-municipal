@@ -87,6 +87,7 @@ Contagem: **223 testes automatizados** (158 Vitest + 65 E2E) **+ 568 visitas de 
 na execução final. Atualização de 25/11/2026 (seção 9): **238 testes automatizados** (173 Vitest + 65 E2E), todos aprovados.
 
 ### 5.1 Funcionais (aprovados)
+
 Cadastro válido e inválido (todos os erros por campo, dados preservados, máscaras); CPF já usado com mensagem genérica;
 confirmação de e-mail (uso único, 24 h); login correto e incorreto; bloqueio após 5 falhas e CAPTCHA por IP; recuperação
 de senha (30 min, uso único, encerra sessões); segundo fator das contas administrativas; controle de acesso por perfil
@@ -96,6 +97,7 @@ ciclo completo da consulta (revisão, aprovação, publicação, suspensão, pro
 apuração, homologação, retificação, encaminhamentos); notificações e preferências; cópia dos dados e desativação.
 
 ### 5.2 Regras de negócio (aprovadas)
+
 Voto único inclusive com 5 envios simultâneos; consulta encerrada ou suspensa recusa voto pelo horário do servidor;
 publicação só de consulta aprovada; aprovação vedada a quem elaborou, editou ou revisou (inclusive com designação
 forçada no banco); voto sem vínculo com a pessoa (teste “Sigilo do voto” percorre esquema, painel, relatórios,
@@ -104,6 +106,7 @@ encadeada por hash; comprovante prova a participação sem revelar a escolha; ta
 UPDATE/DELETE.
 
 ### 5.3 Negativos e de segurança (aprovados)
+
 Campos obrigatórios vazios; CPF inválido; dados duplicados; páginas administrativas sem autorização (redireciona e
 audita); ações sem autenticação; parâmetros de URL manipulados (**achou B02 e B03**); injeção SQL na busca; HTML e
 `javascript:` em texto livre; redirecionamento aberto; SSRF em links externos; arquivo com extensão falsa e EICAR;
@@ -111,6 +114,7 @@ dados de outro cidadão (proposta, comprovante, cópia dos dados → 404); alter
 descobrir o voto.
 
 ### 5.4 Interface e acessibilidade
+
 axe-core (WCAG 2.2 A/AA) sem violações sérias nas **526 páginas HTML** visitadas pelos 7 perfis (antes: 38 com
 violação); 320 px sem rolagem horizontal em 8 páginas públicas, 7 da área do cidadão e 7 administrativas; botão
 Acessibilidade (espaçamento ampliado e tamanho do texto); navegação por teclado nas tabelas roláveis; nenhum link interno
@@ -157,4 +161,3 @@ Testes novos ou ampliados:
 - **Plataforma só para maiores de 18 anos (DT-33):** cadastro de quem tem 17 anos e 364 dias recusado sem gravar nada, 18 anos completos hoje aceito; correção de data de nascimento para menor recusada; consulta para crianças e adolescentes só informativa ou educativa.
 - **Sigilo (RS002, DT-31):** o `JOIN` por `xmin` entre participações e votos passa de mais de zero linhas para zero depois do reembaralhamento, com o mesmo hash da base apurada; o gatilho só admite a troca de `shuffle_key`.
 - **Código de confirmação e comprovante (RF011, RF038, DT-32):** código anterior continua válido ao pedir outro; no máximo 3 válidos e descarte após 3 erros; código na tela só quando o envio é simulado; fila registra "simulado"; id da participação vindo da transação; E2E lê o código na tela, copia o comprovante, recarrega a página, volta e usa o código anterior — tudo numa única guia.
-

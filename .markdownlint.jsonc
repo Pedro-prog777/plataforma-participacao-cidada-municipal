@@ -1,0 +1,10 @@
+// Estilo dos documentos do PPCM (lido pela extensão markdownlint do VS Code e pelo markdownlint-cli2).
+// As demais regras continuam valendo.
+{
+  "default": true,
+  // Linhas longas são o padrão dos documentos: parágrafos em português e tabelas de rastreabilidade
+  // (uma linha por requisito) não cabem em 80 colunas; quebrar as linhas das tabelas as tornaria inválidas.
+  "MD013": false,
+  // Tabelas no estilo compacto ("|---|---|"), usado em todos os documentos desde o início do projeto.
+  "MD060": false
+}
