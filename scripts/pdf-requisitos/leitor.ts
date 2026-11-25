@@ -134,7 +134,7 @@ export function lerFontes(doc: PDFDocument, page: PDFPage): Map<string, Fonte> {
     const arr = f.lookup(PDFName.of("Widths"));
     const larguras = arr instanceof PDFArray ? arr.asArray().map((x) => (doc.context.lookup(x) as PDFNumber).asNumber()) : [];
     const tu = f.lookup(PDFName.of("ToUnicode"));
-    // Fonte padrão (ex.: Helvetica do apêndice, WinAnsi): sem ToUnicode, o código é o próprio caractere.
+    // Fonte padrão (ex.: Helvetica, WinAnsi): sem ToUnicode, o código é o próprio caractere.
     const unicode = tu instanceof PDFStream ? lerCMap(latin1(conteudoDoStream(tu))) : new Map(Array.from({ length: 256 }, (_, c) => [c, WIN1252.decode(new Uint8Array([c]))] as [number, string]));
     const codigo = new Map<string, number>();
     for (const [c, u] of unicode) if (!codigo.has(u)) codigo.set(u, c);

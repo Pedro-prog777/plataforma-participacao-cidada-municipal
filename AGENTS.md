@@ -7,7 +7,7 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - **Nome:** Plataforma de Participação Cidadã Municipal — **Sigla:** PPCM
 - **Instituição:** CESMAC — **Curso:** Engenharia de Software (trabalho acadêmico)
 - **Equipe:** João Pedro e Flávia Marina
-- **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` — sem as citações jurídicas, com links internos entre requisitos e apêndice das regras de negócio, gerado por `npm run requisitos:pdf` a partir do original preservado em `docs/requisitos/original/` (DT-24). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo, sem as citações jurídicas (DT-24); `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
+- **Documento-base:** `docs/requisitos/Documento_de_Requisitos_v6.pdf` — sem as citações jurídicas, com links internos entre requisitos (RF, RNF, RS), gerado por `npm run requisitos:pdf` a partir do original preservado em `docs/requisitos/original/` (DT-24). A seção “Requisitos” ao final deste arquivo reproduz o conteúdo, sem as citações jurídicas (DT-24); `docs/requisitos/REQUISITOS_COMPLETOS.md` é a mesma transcrição e as duas devem permanecer idênticas.
 
 ## Instruções permanentes
 
@@ -96,12 +96,12 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF001 – Cadastrar cidadão
 
-- **O que faz:** O sistema deve permitir que uma pessoa física crie conta de cidadão com nome completo, CPF, data de nascimento, e-mail, endereço no município, senha e aceite dos Termos de Uso e da Política de Privacidade; o celular é opcional. Cada dado tem finalidade declarada: o CPF garante uma conta por pessoa (RN02) e a verificação de identidade (RF004), nunca é exibido e pode vir do provedor de identidade; a data de nascimento só é usada em consulta com critério etário justificado (RN35, RN40); o endereço apoia consultas territoriais (RF027).
+- **O que faz:** O sistema deve permitir que uma pessoa física crie conta de cidadão com nome completo, CPF, data de nascimento, e-mail, endereço no município, senha e aceite dos Termos de Uso e da Política de Privacidade; o celular é opcional. Cada dado tem finalidade declarada: o CPF garante uma conta por pessoa (RN02) e a verificação de identidade (RF004), nunca é exibido e pode vir do provedor de identidade; a data de nascimento confirma os 18 anos para votar e o critério etário (RN35, RN40); o endereço apoia consultas territoriais (RF027).
 - **Pré-condição:** Visitante não autenticado; CPF sem conta de Cidadão.
 - **Campos do formulário:**
   - **Nome completo** – texto, obrigatório.
-  - **CPF** – texto no formato XXX.XXX.XXX-XX, com validação do dígito verificador (*). Único e nunca exibido em páginas públicas. Serve para garantir uma conta por pessoa (RN02) e pode vir do gov.br em vez de ser digitado.
-  - **Data de nascimento** – data DD/MM/AAAA, obrigatória. Só é usada em consulta com critério de idade justificado; não existe idade mínima geral (RN01, RN40).
+  - **CPF** – texto no formato XXX.XXX.XXX-XX, aceita fictício, sem dígito verificador. Único e nunca exibido em páginas públicas. Serve para garantir uma conta por pessoa (RN02) e pode vir do gov.br em vez de ser digitado.
+  - **Data de nascimento** – data DD/MM/AAAA, obrigatória. Confirma os 18 anos para votar e o critério de idade justificado (RN01, RN40).
   - **E-mail** – texto, obrigatório, formato `texto@texto.texto`. Único entre as contas de cidadão.
   - **Celular** – máscara (XX) XXXXX-XXXX, opcional.
   - **Endereço no município** – CEP (XXXXX-XXX), logradouro, número e bairro, obrigatórios. Usado nas consultas restritas a bairros ou regiões (RF027).
@@ -124,7 +124,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 - **O que faz:** O sistema deve validar no servidor, antes de gravar, os dados de RF001 e RF013 quanto a obrigatoriedade, formato, consistência e unicidade, mesmo que a interface também valide.
 - **Pré-condição:** Formulário submetido.
-- **Fluxo:** 1) verifica campos obrigatórios; 2) valida CPF pelos dígitos verificadores; 3) valida e-mail, celular, data e CEP; 4) verifica política de senha e unicidade de CPF e e-mail; 5) normaliza os dados.
+- **Fluxo:** 1) verifica campos obrigatórios; 2) aceita CPF fictício, sem verificador; 3) valida e-mail, celular, data e CEP; 4) verifica política de senha e unicidade de CPF e e-mail; 5) normaliza os dados.
 - **Campos inválidos:**
   - Todos os erros devolvidos de uma vez, por campo.
 - **Endereço fora do município:** Cadastro aceito; a elegibilidade é verificada por consulta (RF036).
@@ -374,7 +374,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF027 – Definir público-alvo e critérios de participação
 
-- **O que faz:** O sistema deve permitir definir o público-alvo de cada consulta: "aberta ao público em geral" ou com limitações justificadas por território, domicílio, faixa etária ou outro critério, publicadas em linguagem simples. Não há idade mínima geral; critério etário só por consulta, justificado e conforme a RN40. Até a resposta do cliente (*), o padrão herdado da versão anterior é o domicílio no município.
+- **O que faz:** O sistema deve permitir definir o público-alvo de cada consulta: "aberta ao público em geral" ou com limitações justificadas por território, domicílio, faixa etária ou outro critério, publicadas em linguagem simples. Só vota quem tem 18 anos; critério etário só por consulta, justificado e conforme a RN40. Até a resposta do cliente (*), o padrão herdado da versão anterior é o domicílio no município.
 - **Pré-condição:** Consulta em Rascunho ou Rejeitada.
 - **Fluxo:** 1) escolhe "aberta" ou adiciona limitações; 2) justifica cada limitação; 3) o sistema estima elegíveis e grava; 4) o texto passa a constar de RF018.
 - **Consulta voltada a crianças e adolescentes:** Exige a modalidade (informativa, educativa, proposta ou voto) e as salvaguardas da RN40, com revisão (RF028).
@@ -456,7 +456,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF036 – Verificar elegibilidade do cidadão
 
-- **O que faz:** O sistema deve verificar, em ordem: conta ativa e desbloqueada; identidade verificada; perfil Cidadão; enquadramento no público-alvo da consulta (RF027), inclusive domicílio, território e eventual critério etário justificado; consulta Aberta e no período; e ausência de participação anterior. Nenhuma idade mínima geral é aplicada, e a verificação é repetida no servidor no momento do voto.
+- **O que faz:** O sistema deve verificar, em ordem: conta ativa e desbloqueada; identidade verificada; perfil Cidadão; enquadramento no público-alvo da consulta (RF027), inclusive domicílio, território e eventual critério etário justificado; consulta Aberta e no período; e ausência de participação anterior. Só vota quem tem 18 anos completos, e a verificação é repetida no servidor no momento do voto.
 - **Fluxo:** 1) recupera conta e critérios; 2) avalia as condições na ordem; 3) habilita a participação.
 - **Condição não atendida:** Informa, em linguagem simples, o primeiro motivo e a ação possível.
 - **Entrada:** Conta e regras.
@@ -735,7 +735,7 @@ A PPCM é um portal web cujo objetivo é aproximar a população da administraç
 
 ### RF067 – Apoiar proposta cidadã
 
-- **O que faz:** Se adotado, o sistema deve permitir um apoio por cidadão a cada proposta Publicada e exibir o total; atingida a meta no prazo, ambos configuráveis, a proposta recebe análise prioritária com resposta obrigatória (RF021). Os dados de entrada citam 4 meses e 20 mil apoios, valores de um portal legislativo federal (Apêndice B), não adotados por poderem ser desproporcionais ao eleitorado municipal. Apoio não é voto nem subscrição de iniciativa popular.
+- **O que faz:** Se adotado, o sistema deve permitir um apoio por cidadão a cada proposta Publicada e exibir o total; atingida a meta no prazo, ambos configuráveis, a proposta recebe análise prioritária com resposta obrigatória (RF021). Os dados de entrada citam 4 meses e 20 mil apoios, valores de um portal legislativo federal, não adotados por poderem ser desproporcionais ao eleitorado municipal. Apoio não é voto nem subscrição de iniciativa popular.
 - **Fluxo:** 1) aciona "Apoiar"; 2) o sistema verifica apoio anterior e registra; 3) atingida a meta, muda o estado e notifica.
 - **Prazo encerrado sem meta:** Segue a resposta regular.
 - **Apoio repetido:** Recusado.

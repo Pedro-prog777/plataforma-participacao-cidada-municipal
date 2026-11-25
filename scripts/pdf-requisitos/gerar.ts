@@ -2,17 +2,19 @@
  * Gera docs/requisitos/Documento_de_Requisitos_v6.pdf a partir do original preservado em
  * docs/requisitos/original/, mantendo o layout (DT-24):
  *  1. remove do próprio PDF as citações jurídicas (o texto sai do arquivo, não é só coberto);
- *  2. acrescenta um apêndice com o índice das regras de negócio citadas (o documento cita as RN
- *     pelo nome, mas não as descreve) — gerado das próprias citações;
- *  3. transforma cada RF, RNF, RN e RS citado em link interno para o ponto em que é descrito,
+ *  2. transforma cada RF, RNF e RS citado em link interno para o ponto em que é descrito,
  *     com sublinhado e fundo azul-claro; identificador sem descrição fica marcado, sem link.
+ *
+ * As regras de negócio (RN) são citadas pelo nome, mas o documento não as descreve: sem destino,
+ * ficam como texto normal. O apêndice com o índice das RN foi retirado a pedido da equipe
+ * (24/11/2026); o PDF mantém as mesmas páginas do original.
  *
  * Uso: npm run requisitos:pdf   (falha se algum trecho esperado não for encontrado)
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { PDFArray, PDFDict, PDFDocument, PDFFont, PDFHexString, PDFName, PDFNull, PDFNumber, PDFPage, PDFRef, StandardFonts, rgb } from "pdf-lib";
-import { citadoEm, montarCatalogo } from "../../src/lib/requisitos/catalogo";
+import { PDFArray, PDFDocument, PDFHexString, PDFName, PDFNull, PDFNumber, PDFPage, PDFRef } from "pdf-lib";
+import { montarCatalogo } from "../../src/lib/requisitos/catalogo";
 import { lerMarkdown } from "../../src/lib/requisitos/markdown";
 import { PADRAO_REFERENCIA, tipoDoId } from "../../src/lib/requisitos/referencias";
 import { interpretar, lerPaginas, textoCorrido, type Exibicao, type Glifo, type Pagina } from "./leitor";
@@ -51,6 +53,15 @@ const EDICOES: Edicao[] = [
   { nome: "Referência 19 → 7", re: /19\.(?= PRESSMAN)/g, n: 1, por: "7." },
   { nome: "Referência 20 → 8", re: /20\.(?= SOMMERVILLE)/g, n: 1, por: "8." },
   { nome: "Referência 21 → 9", re: /21\.(?= WORLD WIDE WEB)/g, n: 1, por: "9." },
+  // Alterações de conteúdo autorizadas pela equipe em 25/11/2026 (DT-29). Mesmo texto da transcrição
+  // em REQUISITOS_COMPLETOS.md; cada substituição cabe na largura da linha original.
+  { nome: "RF067 — referência a apêndice inexistente", re: / \(Apêndice B\)(?=, não adotados)/g, n: 1 },
+  { nome: "RF001 — CPF fictício (campo)", re: /com validação do dígito verificador \(\*\)/g, n: 1, por: "aceita fictício, sem dígito verificador" },
+  { nome: "RF002 — CPF fictício (fluxo)", re: /valida CPF pelos dígitos verificadores(?=;)/g, n: 1, por: "aceita CPF fictício, sem verificador" },
+  { nome: "RF001 — data de nascimento (finalidade)", re: /só é usada em consulta com critério etário justificado(?= \(RN35, RN40\))/g, n: 1, por: "confirma os 18 anos para votar e o critério etário" },
+  { nome: "RF001 — data de nascimento (campo)", re: /Só é usada em consulta com critério (?:de )?idade justificado; não existe idade mínima geral(?= \(RN01, RN40\))/g, n: 1, por: ["Confirma os 18 anos para votar e", "o critério de idade justificado"] },
+  { nome: "RF027 — idade mínima para votar", re: /Não há idade mínima geral;/g, n: 1, por: "Só vota quem tem 18 anos;" },
+  { nome: "RF036 — idade mínima para votar", re: /Nenhuma idade mínima geral é aplicada(?=, e a)/g, n: 1, por: "Só vota quem tem 18 anos completos" },
 ];
 
 /** Depois da edição, nada disto pode sobrar no PDF. */
@@ -191,118 +202,10 @@ function aplicarMarcas(p: Pagina, m: Marcas): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* 2. Apêndice: índice das regras de negócio                            */
+/* 2. Links                                                             */
 /* ------------------------------------------------------------------ */
 
 type Alvo = { pagina: number; topo: number };
-type Link = { pagina: number; x0: number; y0: number; x1: number; y1: number; id: string };
-
-const MARGEM_E = 71, MARGEM_D = 524.5, TOPO = 770, BASE = 100;
-
-function quebrar(fonte: PDFFont, tam: number, texto: string, largura: number): string[] {
-  const linhas: string[] = [];
-  let atual = "";
-  for (const palavra of texto.split(" ")) {
-    const tentativa = atual ? `${atual} ${palavra}` : palavra;
-    if (fonte.widthOfTextAtSize(tentativa, tam) > largura && atual) { linhas.push(atual); atual = palavra; }
-    else atual = tentativa;
-  }
-  if (atual) linhas.push(atual);
-  return linhas;
-}
-
-async function montarApendice(doc: PDFDocument, primeiraPagina: number, totalFinal: number | null) {
-  const normal = await doc.embedFont(StandardFonts.Helvetica);
-  const negrito = await doc.embedFont(StandardFonts.HelveticaBold);
-  const catalogo = montarCatalogo(lerMarkdown(readFileSync(TRANSCRICAO, "utf8")));
-  const regras = [...catalogo.definicoes.values()].filter((d) => d.tipo === "RN").sort((a, b) => a.id.localeCompare(b.id));
-  const alvos = new Map<string, Alvo>();
-  const links: Link[] = [];
-  const paginas: PDFPage[] = [];
-  let page!: PDFPage;
-  let y = 0;
-  const cor = rgb(0, 0, 0);
-  const novaPagina = () => {
-    page = doc.addPage([595.304, 841.89]);
-    paginas.push(page);
-    y = TOPO;
-  };
-  const garantir = (altura: number) => { if (y - altura < BASE) novaPagina(); };
-  novaPagina();
-  // Título no mesmo estilo das seções do documento: faixa cinza com borda.
-  page.drawRectangle({ x: 66.35, y: y - 20.1, width: 462.5, height: 20.1, color: rgb(0.949, 0.949, 0.949), borderColor: cor, borderWidth: 0.45 });
-  page.drawText("Apêndice – Índice das regras de negócio citadas", { x: MARGEM_E, y: y - 15, size: 14, font: negrito, color: cor });
-  y -= 40;
-  const intro =
-    "O documento cita as regras de negócio (RN) pelo nome dentro dos requisitos — por exemplo, “CPF único (RN02)” no RF001 —, mas não traz uma seção que descreva cada regra. Este apêndice foi gerado automaticamente a partir dessas citações: para cada regra, mostra o nome usado no documento e os requisitos em que ela é citada, onde está o comportamento esperado. Nenhuma regra foi criada ou descrita aqui. Os identificadores são links.";
-  for (const l of quebrar(normal, 10.5, intro, MARGEM_D - MARGEM_E)) { page.drawText(l, { x: MARGEM_E, y, size: 10.5, font: normal, color: cor }); y -= 14; }
-  y -= 10;
-  for (const r of regras) {
-    const locais = citadoEm(catalogo, r.id);
-    const rotulo = "Citada em: ";
-    const itens = locais.map((c, i) => ({ texto: c.rotulo + (i < locais.length - 1 ? "," : "."), id: c.requisito ? c.ancora : null }));
-    // Altura: título + linhas da lista
-    const largDisp = MARGEM_D - MARGEM_E - 14;
-    const linhasLista: { texto: string; id: string | null }[][] = [[]];
-    let larg = normal.widthOfTextAtSize(rotulo, 10);
-    for (const it of itens) {
-      const w = normal.widthOfTextAtSize(it.texto + " ", 10);
-      if (larg + w > largDisp) { linhasLista.push([]); larg = 0; }
-      linhasLista[linhasLista.length - 1].push(it);
-      larg += w;
-    }
-    garantir(16 + linhasLista.length * 13 + 8);
-    alvos.set(r.id, { pagina: primeiraPagina + paginas.length - 1, topo: y + 8 });
-    page.drawText(`${r.id} – ${r.titulo}`, { x: MARGEM_E, y: y - 11, size: 11, font: negrito, color: cor });
-    y -= 26;
-    linhasLista.forEach((linha, li) => {
-      let x = MARGEM_E + 14;
-      if (li === 0) { page.drawText(rotulo, { x, y, size: 10, font: normal, color: rgb(0.27, 0.31, 0.42) }); x += normal.widthOfTextAtSize(rotulo, 10); }
-      for (const it of linha) {
-        if (it.id) {
-          // Mesma aparência dos links nas páginas originais: fundo azul-claro (antes do texto) e sublinhado.
-          const x1 = x + normal.widthOfTextAtSize(it.id, 10);
-          page.drawRectangle({ x: x - 0.6, y: y - 2.4, width: x1 - x + 1.2, height: 10.4, color: rgb(0.886, 0.925, 0.973) });
-          page.drawLine({ start: { x, y: y - 1.3 }, end: { x: x1, y: y - 1.3 }, thickness: 0.6, color: rgb(0.114, 0.333, 0.588) });
-          links.push({ pagina: primeiraPagina + paginas.length - 1, x0: x - 0.6, y0: y - 2.4, x1: x1 + 0.6, y1: y + 8, id: it.id });
-        }
-        page.drawText(it.texto, { x, y, size: 10, font: normal, color: cor });
-        x += normal.widthOfTextAtSize(it.texto + " ", 10);
-      }
-      y -= 13;
-    });
-    y -= 9;
-  }
-  const total = totalFinal ?? primeiraPagina + paginas.length - 1;
-  paginas.forEach((pg, i) => {
-    pg.drawText("Documento de Requisitos", { x: 71, y: 71.9, size: 8, font: normal, color: cor });
-    const rod = `Página ${primeiraPagina + i} de ${total}`;
-    pg.drawText(rod, { x: 524.5 - normal.widthOfTextAtSize(rod, 8), y: 71.9, size: 8, font: normal, color: cor });
-  });
-  return { alvos, links, paginas: paginas.length };
-}
-
-/* ------------------------------------------------------------------ */
-/* 3. Links                                                             */
-/* ------------------------------------------------------------------ */
-
-/** Acrescenta o apêndice ao fim dos marcadores (índice lateral) do PDF, depois de "9. Referências". */
-function marcarApendice(doc: PDFDocument, pagina: number) {
-  const outlines = doc.catalog.lookup(PDFName.of("Outlines"));
-  if (!(outlines instanceof PDFDict)) return;
-  const ultimoRef = outlines.get(PDFName.of("Last")) as PDFRef;
-  const item = doc.context.obj({
-    Title: PDFHexString.fromText("Apêndice – Índice das regras de negócio citadas"),
-    Parent: doc.catalog.get(PDFName.of("Outlines")) as PDFRef,
-    Prev: ultimoRef,
-    Dest: [doc.getPage(pagina - 1).ref, PDFName.of("XYZ"), PDFNull, PDFNumber.of(800), PDFNull],
-  });
-  const ref = doc.context.register(item);
-  doc.context.lookup(ultimoRef, PDFDict).set(PDFName.of("Next"), ref);
-  outlines.set(PDFName.of("Last"), ref);
-  const count = outlines.get(PDFName.of("Count"));
-  if (count instanceof PDFNumber) outlines.set(PDFName.of("Count"), PDFNumber.of(count.asNumber() + (count.asNumber() >= 0 ? 1 : -1)));
-}
 
 function textoDe(ex: Exibicao) {
   return ex.itens.map((i) => (i.k === "g" ? i.g.u : "")).join("");
@@ -363,17 +266,10 @@ async function main() {
   const nOriginais = doc.getPageCount();
   const pags = await lerPaginas(doc);
 
-  // Apêndice primeiro (para saber o total de páginas do rodapé).
-  const teste = await PDFDocument.load(readFileSync(ORIGINAL));
-  const { paginas: nApendice } = await montarApendice(teste, nOriginais + 1, null);
-  const total = nOriginais + nApendice;
-
-  // 1. Edições de texto.
+  // 1. Edições de texto. Sem páginas acrescentadas, o rodapé "Página N de 39" do original continua correto.
   const marcas = pags.map(novasMarcas);
   const relatorio: string[] = [];
-  // A capa não tem rodapé: "Página N de 39" aparece da página 2 em diante.
-  const edicoes = [...EDICOES, { nome: "Rodapé — total de páginas", re: /(?<=Página \d{1,2} de )39(?!\d)/g, n: nOriginais - 1, por: String(total) }];
-  for (const ed of edicoes) {
+  for (const ed of EDICOES) {
     const n = pags.reduce((soma, p, i) => soma + aplicarEdicao(p, marcas[i], ed), 0);
     if (n !== ed.n) throw new Error(`Edição "${ed.nome}": esperado ${ed.n}, encontrado ${n}.`);
     relatorio.push(`  ✓ ${ed.nome} (${n})`);
@@ -384,16 +280,11 @@ async function main() {
     return interpretar(aplicarMarcas(p, m), p.fontes);
   });
 
-  // 2. Apêndice no documento final.
-  const apendice = await montarApendice(doc, nOriginais + 1, total);
-  marcarApendice(doc, nOriginais + 1);
-
-  // 3. Destinos e links.
+  // 2. Destinos e links.
   const defs = localizarDefinicoes(editadas);
   const paginasDoc = doc.getPages();
   const refPagina = (n: number) => paginasDoc[n - 1]?.ref ?? doc.getPage(n - 1).ref;
   const alvos = new Map<string, Alvo>([...defs].map(([id, d]) => [id, { pagina: d.pagina, topo: d.topo }]));
-  for (const [id, a] of apendice.alvos) alvos.set(id, a);
   const catalogo = montarCatalogo(lerMarkdown(readFileSync(TRANSCRICAO, "utf8")));
   const titulo = (id: string) => catalogo.definicoes.get(id)?.titulo;
   let nLinks = 0;
@@ -402,6 +293,8 @@ async function main() {
     const page = paginasDoc[pi];
     let fundo = "", traco = "";
     for (const r of localizarReferencias(p)) {
+      // RN: citada pelo nome, sem descrição no documento — fica como texto normal (sem link nem alerta).
+      if (tipoDoId(r.id) === "RN") continue;
       const def = defs.get(r.id);
       if (def && def.pag === pi && def.bt === r.bt) continue; // a própria definição
       const ret = { x0: r.x0 - 0.6, y0: r.y - r.tam * 0.24, x1: r.x1 + 0.6, y1: r.y + r.tam * 0.8 };
@@ -424,16 +317,8 @@ async function main() {
     const depois = traco ? [doc.context.register(doc.context.flateStream(`/Artifact BMC q 0.114 0.333 0.588 RG 0.6 w\n${traco}Q EMC\n`))] : [];
     if (antes.length || depois.length || p !== pags[pi]) page.node.set(PDFName.of("Contents"), doc.context.obj([...antes, ...meio, ...depois]));
   });
-  for (const l of apendice.links) {
-    const alvo = alvos.get(l.id);
-    const page = doc.getPage(l.pagina - 1);
-    if (!alvo) { aVerificar.push(`${l.id} (apêndice)`); continue; }
-    anotar(doc, page, l, refPagina(alvo.pagina), alvo.topo, `${l.id}${titulo(l.id) ? " — " + titulo(l.id) : ""}`);
-    nLinks++;
-  }
-
   // Verificações finais.
-  const faltando = [...catalogo.definicoes.keys()].filter((id) => !alvos.has(id));
+  const faltando = [...catalogo.definicoes.keys()].filter((id) => tipoDoId(id) !== "RN" && !alvos.has(id));
   if (faltando.length) throw new Error(`Requisitos sem destino no PDF: ${faltando.join(", ")}`);
   const sobras = editadas.flatMap((p, i) => (JURIDICO.test(textoCorrido(p).s) ? [`página ${i + 1}: ${JURIDICO.exec(textoCorrido(p).s)![0]}`] : []));
   if (sobras.length) throw new Error(`Ainda há citações jurídicas: ${sobras.join("; ")}`);
@@ -444,7 +329,7 @@ async function main() {
   writeFileSync(SAIDA, await doc.save());
   console.log(["Edições:", ...relatorio].join("\n"));
   console.log(`Destinos: ${JSON.stringify(porTipo)} · links criados: ${nLinks} · referências a verificar: ${aVerificar.length ? aVerificar.join(", ") : "nenhuma"}`);
-  console.log(`Páginas: ${nOriginais} originais + ${apendice.paginas} do apêndice = ${doc.getPageCount()}`);
+  console.log(`Páginas: ${doc.getPageCount()} (as mesmas ${nOriginais} do original)`);
   console.log("Gerado:", path.relative(RAIZ, SAIDA));
 }
 
