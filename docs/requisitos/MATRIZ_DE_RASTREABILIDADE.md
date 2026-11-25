@@ -79,7 +79,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 
 | RF | Telas / rotas | Módulo | Testes | RS | Situação |
 |---|---|---|---|---|---|
-| RF001 Cadastrar cidadão | /cadastro | `modules/auth/auth.service.ts (registerCitizen)` | integration/auth.test.ts › Cadastro; unit/masks.test.ts; e2e/citizen.spec.ts › cadastro | RS004 | Implementado |
+| RF001 Cadastrar cidadão | /cadastro (só para quem tem 18 anos completos — DT-33) | `modules/auth/auth.service.ts (registerCitizen, adultBirthDateSchema)` | integration/auth.test.ts › Cadastro, só cria conta quem tem 18 anos completos; unit/masks.test.ts; e2e/citizen.spec.ts › cadastro | RS004 | Implementado |
 | RF002 Validar dados cadastrais | /cadastro, /conta/perfil/editar | `auth.service.ts (registrationSchema), profile.service.ts` | integration/auth.test.ts › todos os erros por campo; unit/rules.test.ts › CPF | — | Implementado |
 | RF003 Confirmar e-mail e ativar conta | /confirmar-email, /reenviar-confirmacao | `auth.service.ts (sendEmailConfirmation, confirmEmail, resendConfirmation)` | integration/auth.test.ts › Confirmação de e-mail | — | Implementado |
 | RF004 Verificar identidade e domicílio do cidadão | /conta/verificacao, /demo/provedor-identidade, /admin/verificacoes | `modules/identity/identity.service.ts; lib/identity-provider.ts` | integration/administration.test.ts › Verificação de identidade e domicílio; e2e/citizen.spec.ts › orientação de verificação | RS004 | Implementado com simulação |
@@ -105,7 +105,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 | RF024 Editar proposta e consulta em elaboração | /admin/consultas/[id]/editar | `lifecycle.service.ts (updateConsultation); common.ts (saveVersion)` | integration/lifecycle.test.ts › edição simultânea | — | Implementado |
 | RF025 Cadastrar consulta pública | /admin/consultas/nova | `lifecycle.service.ts (createConsultation)` | integration/lifecycle.test.ts › período mínimo | — | Implementado |
 | RF026 Definir alternativas de resposta | /admin/consultas/[id]/alternativas | `lifecycle.service.ts (setAlternatives)` | integration/lifecycle.test.ts › alternativas | — | Implementado |
-| RF027 Definir público-alvo e critérios de participação | /admin/consultas/[id]/publico-alvo | `lifecycle.service.ts (setAudience, estimateEligible)` | integration/lifecycle.test.ts › limitação sem justificativa; unit › elegibilidade | RS010 | Implementado |
+| RF027 Definir público-alvo e critérios de participação | /admin/consultas/[id]/publico-alvo | `lifecycle.service.ts (setAudience, estimateEligible)` | integration/lifecycle.test.ts › limitação sem justificativa, consulta para crianças e adolescentes só informativa ou educativa (DT-33); unit › elegibilidade | RS010 | Implementado |
 | RF028 Revisar e submeter consulta para aprovação | /admin/consultas/[id] (pendências), /admin/consultas/[id]/revisao | `lifecycle.service.ts (consultationPendencies, submitForReview, reviewConsultation)` | integration/lifecycle.test.ts › Segregação | — | Implementado |
 | RF029 Aprovar consulta e autorizar prazo excepcional | /admin/consultas/[id]/aprovacao | `lifecycle.service.ts (decideApproval, decideExceptionalDeadline)` | integration/lifecycle.test.ts › ninguém aprova o que elaborou; prazo excepcional; antecedência | RS006 | Implementado |
 | RF030 Publicar consulta | /admin/consultas/[id]/conducao | `lifecycle.service.ts (publishConsultation, unscheduleConsultation)` | integration/lifecycle.test.ts › ciclo completo | — | Implementado |

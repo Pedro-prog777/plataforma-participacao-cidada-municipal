@@ -277,8 +277,13 @@ export async function setAudience(
   const youth = criteria.some((c) => c.type === "faixa_etaria" && c.maxAge != null && c.maxAge < 18) || criteria.some((c) => c.type === "faixa_etaria" && c.minAge != null && c.minAge < 18);
   if (youth) {
     if (!input.youthModality) errors.youthModality = ["Consulta voltada a crianças e adolescentes: escolha a modalidade (RN40)."];
-    else if (input.youthModality === "voto") errors.youthModality = ["Só vota quem tem 18 anos completos (RF036): para crianças e adolescentes, escolha informativa, educativa ou envio de propostas."];
-    else if (!(YOUTH_MODALITIES_PERMITIDAS as readonly string[]).includes(input.youthModality)) errors.youthModality = ["Modalidade inválida."];
+    else if (!(YOUTH_MODALITIES_PERMITIDAS as readonly string[]).includes(input.youthModality)) {
+      errors.youthModality = [
+        ["voto", "proposta"].includes(input.youthModality)
+          ? "Conta e voto são só para quem tem 18 anos completos (RF036, DT-33): para crianças e adolescentes, a consulta só pode ser informativa ou educativa."
+          : "Modalidade inválida.",
+      ];
+    }
     if (!sanitizePlainText(input.youthSafeguards ?? "")) errors.youthSafeguards = ["Descreva as salvaguardas (coleta mínima, linguagem adequada, consentimento quando aplicável)."];
   }
   if (Object.keys(errors).length) throw new ValidationError(errors);

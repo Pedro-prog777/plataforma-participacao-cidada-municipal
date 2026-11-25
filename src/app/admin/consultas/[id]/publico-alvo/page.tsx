@@ -24,7 +24,7 @@ export default async function PublicoAlvoPage({ params }: { params: Promise<{ id
     <Card className="space-y-4">
       <div>
         <h2 className="text-lg font-bold">Público-alvo e critérios de participação</h2>
-        <p className="text-sm text-muted"><RefText>“Aberta ao público em geral” ou limitações justificadas, publicadas em linguagem simples. Só vota quem tem 18 anos completos (RF036); um critério etário da consulta só pode restringir mais, com justificativa (RN40).</RefText> Elegíveis estimados atuais: <strong>{data.c.estimatedEligible ?? "—"}</strong>.</p>
+        <p className="text-sm text-muted"><RefText>“Aberta ao público em geral” ou limitações justificadas, publicadas em linguagem simples. Contas e votos são só para quem tem 18 anos completos (RF036); um critério etário da consulta só pode restringir mais, com justificativa (RN40). Consulta voltada a crianças e adolescentes só pode ser informativa ou educativa.</RefText> Elegíveis estimados atuais: <strong>{data.c.estimatedEligible ?? "—"}</strong>.</p>
       </div>
       <Alert tone="warning" title="Pendente de validação com o cliente (*)">
         O público-alvo padrão (domicílio no município) foi herdado da versão anterior do documento. Critérios do tipo “outro” são apenas informativos e não são verificados automaticamente.

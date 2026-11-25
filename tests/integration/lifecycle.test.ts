@@ -25,6 +25,7 @@ import {
   updateConsultation,
 } from "@/server/modules/consultations/lifecycle.service";
 import { runSchedulerTick } from "@/server/modules/scheduler/scheduler.service";
+import { ValidationError } from "@/server/lib/errors";
 import { publishFinalResult, publishRectification } from "@/server/modules/results/results.service";
 import { registerOutcome, updateOutcomeStatus } from "@/server/modules/outcomes/outcomes.service";
 import { listPublicConsultations } from "@/server/modules/consultations/queries.service";
@@ -104,6 +105,16 @@ describe("Cadastro e validação (RF025, RF026, RF027, RN13, RN14)", () => {
   it("limitação de público-alvo sem justificativa é bloqueada", async () => {
     const c = await draft();
     await expect(setAudience(team.elaborador, c.id, { open: false, criteria: [{ type: "domicilio", justification: "", publicText: "Moradores" }] }, db)).rejects.toThrow();
+  });
+
+  it("consulta voltada a crianças e adolescentes só pode ser informativa ou educativa (RN40, DT-30, DT-33)", async () => {
+    const c = await draft();
+    const jovens = { open: false, criteria: [{ type: "faixa_etaria" as const, maxAge: 17, justification: "Tema escolar", publicText: "Estudantes até 17 anos" }], youthSafeguards: "Linguagem adequada e coleta mínima" };
+    for (const m of ["voto", "proposta"]) await expect(setAudience(team.elaborador, c.id, { ...jovens, youthModality: m }, db)).rejects.toThrow(ValidationError);
+    await expect(setAudience(team.elaborador, c.id, { ...jovens, youthModality: "qualquer" }, db)).rejects.toThrow(ValidationError);
+    const r = await setAudience(team.elaborador, c.id, { ...jovens, youthModality: "educativa" }, db);
+    // Ninguém com menos de 18 anos tem conta: a estimativa de quem pode votar é zero.
+    expect(r.estimatedEligible).toBe(0);
   });
 
   it("a busca continua encontrando a consulta pelo texto da proposta depois de editada (RF017)", async () => {

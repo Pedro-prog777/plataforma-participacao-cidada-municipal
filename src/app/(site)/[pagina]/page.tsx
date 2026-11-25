@@ -14,7 +14,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <h2 className="text-lg font-bold">Dados coletados e finalidade</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li><strong>CPF</strong> — garantir uma conta por pessoa e verificar a identidade. É guardado de forma protegida e só aparece parcialmente escondido (ex.: ***.456.789-**) para você; nunca é exibido em páginas públicas.</li>
-          <li><strong>Data de nascimento</strong> — confirma os 18 anos completos exigidos para votar e é usada em consultas com critério de idade justificado. Quem tem menos de 18 anos pode ter conta, mas não vota.</li>
+          <li><strong>Data de nascimento</strong> — confirma os 18 anos completos exigidos para criar a conta e votar, e é usada em consultas com critério de idade justificado. A plataforma não aceita contas de menores de 18 anos.</li>
           <li><strong>Endereço no município</strong> — usado em consultas restritas a bairros ou regiões.</li>
           <li><strong>E-mail e celular</strong> — confirmação de conta, recuperação de senha, comprovantes e avisos.</li>
         </ul>
@@ -33,7 +33,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <p>Versão 1.0 (demonstração acadêmica).</p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>A plataforma destina-se à participação consultiva em consultas públicas municipais e ao envio de propostas.</li>
-          <li>Cada pessoa pode ter apenas uma conta de cidadão. Informações falsas podem levar ao bloqueio da conta.</li>
+          <li>A conta de cidadão é só para quem tem 18 anos completos. Cada pessoa pode ter apenas uma conta. Informações falsas, inclusive sobre a idade, podem levar ao bloqueio da conta.</li>
           <li>O voto é único, secreto e irretratável depois de confirmado.</li>
           <li>Conteúdos enviados (propostas, comentários) devem respeitar a política de uso: são proibidos ofensas, discurso de ódio, exposição de dados pessoais, propaganda e conteúdo ilegal. Conteúdos denunciados podem ser moderados com justificativa, com direito a um pedido de revisão.</li>
           <li>O resultado das consultas tem caráter consultivo e não substitui os ritos legais de participação.</li>

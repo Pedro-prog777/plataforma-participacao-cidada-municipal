@@ -65,6 +65,23 @@ describe("Cadastro (RF001, RF002)", () => {
     expect(await db.select().from(users).where(eq(users.fullName, "Maria das Dores Fictícia"))).toHaveLength(0);
   });
 
+  it("só cria conta quem tem 18 anos completos (DT-33)", async () => {
+    clock.set(new Date("2026-11-25T15:00:00Z")); // 25/11/2026 12h em Brasília
+    const menor = form({ birthDate: "26/11/2008" }); // 17 anos e 364 dias
+    try {
+      await registerCitizen(menor, db);
+      expect.unreachable();
+    } catch (e) {
+      expect(e).toBeInstanceOf(ValidationError);
+      expect((e as ValidationError).fieldErrors.birthDate?.join(" ")).toMatch(/18 anos completos/);
+    }
+    expect(await db.select().from(users).where(eq(users.email, menor.email as string))).toHaveLength(0);
+    await expect(registerCitizen(form({ birthDate: "05/06/2014" }), db)).rejects.toThrow(ValidationError);
+    // Completa 18 anos hoje: pode criar a conta.
+    const { userId } = await registerCitizen(form({ birthDate: "25/11/2008" }), db);
+    expect(userId).toBeTruthy();
+  });
+
   it("aplica a política de senha (RN23): diferente de CPF, nascimento e e-mail", async () => {
     const f = form();
     await expect(registerCitizen({ ...f, password: "15031988", passwordConfirm: "15031988" }, db)).rejects.toThrow(ValidationError);

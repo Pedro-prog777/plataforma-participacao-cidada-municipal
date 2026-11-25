@@ -18,7 +18,7 @@
 |---|---|
 | Tipos | sem erros |
 | Lint | sem erros |
-| Unitários + integração + segurança (13 arquivos) | **171 de 171 aprovados** em 25/11/2026, após DT-30 a DT-32 (13 testes novos; em 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
+| Unitários + integração + segurança (13 arquivos) | **173 de 173 aprovados** em 25/11/2026, após DT-30 a DT-33 (15 testes novos; em 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
 | E2E (4 arquivos, Chromium) | **65 de 65 aprovados** (linha de base do dia: 48 de 48; 17 testes novos em `robustez.spec.ts`) |
 | Varredura exploratória (568 páginas, 7 perfis) | 0 erro 500 (antes 12), 0 violação axe séria (antes 38), sem rolagem a 320 px |
 | `npm audit --omit=dev` | 0 vulnerabilidades (10 moderadas só em ferramentas de desenvolvimento) |

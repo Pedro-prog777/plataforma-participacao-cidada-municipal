@@ -80,6 +80,8 @@ describe("Verificação de identidade e domicílio (RF004, RS004)", () => {
   it("documental: fica em análise, recusa exige motivo e a aprovação aplica correção de nome e domicílio", async () => {
     const c = await createCitizen(db, { verified: false, domicile: false });
     await expect(submitDocuments(c.id, { files: [pdf("grande.pdf", 6 * 1024 * 1024)], includesAddressProof: false }, db)).rejects.toThrow(/limite de 5 MB/);
+    // A correção da data de nascimento não pode tornar a conta de menor de 18 anos (DT-33).
+    await expect(submitDocuments(c.id, { files: [pdf()], includesAddressProof: false, birthDate: "10/10/2015" }, db)).rejects.toThrow(/18 anos completos/);
     await submitDocuments(c.id, { files: [pdf()], includesAddressProof: true, fullName: "Nome Civil Corrigido" }, db);
     expect((await userRow(c.id)).verificationLevel).toBe("em_analise");
     await expect(submitDocuments(c.id, { files: [pdf()], includesAddressProof: false }, db)).rejects.toThrow(/já existe/i);

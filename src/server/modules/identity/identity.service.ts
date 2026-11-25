@@ -20,7 +20,7 @@ import { audit } from "../audit/audit.service";
 import { assertPermission, type Actor } from "../access/access.service";
 import { notifyUser } from "../notifications/notifications.service";
 import { openIncident } from "../integrity/incidents.service";
-import { birthDateSchema } from "../auth/auth.service";
+import { adultBirthDateSchema } from "../auth/auth.service";
 
 const levelSchema = z.enum(["bronze", "prata", "ouro"]);
 
@@ -82,7 +82,8 @@ export async function submitDocuments(userId: string, input: { files: File[]; in
   const requestedChanges: { fullName?: string; birthDate?: string } = {};
   if (input.fullName && sanitizePlainText(input.fullName) !== u.fullName) requestedChanges.fullName = sanitizePlainText(input.fullName).slice(0, 150);
   if (input.birthDate) {
-    const r = birthDateSchema.safeParse(input.birthDate);
+    // A correção não pode transformar a conta em conta de menor de idade (DT-33).
+    const r = adultBirthDateSchema("A plataforma é só para quem tem 18 anos completos; a data informada indica menos de 18 anos.").safeParse(input.birthDate);
     if (!r.success) throw new ValidationError({ birthDate: [r.error.issues[0].message] });
     if (r.data !== u.birthDate) requestedChanges.birthDate = r.data;
   }

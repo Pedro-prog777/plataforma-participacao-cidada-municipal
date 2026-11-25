@@ -13,7 +13,7 @@ automaticamente) · **Não testado**.
 
 | Requisito | Funcionalidade (telas / rotas) | Cenários de teste | Resultado | Situação |
 |---|---|---|---|---|
-| RF001 Cadastrar cidadão | /cadastro | integration/auth.test.ts › Cadastro; unit/masks.test.ts; e2e/citizen.spec.ts › cadastro | Aprovado em 24/11/2026 | Aprovado |
+| RF001 Cadastrar cidadão | /cadastro | integration/auth.test.ts › Cadastro, só cria conta quem tem 18 anos completos (DT-33); unit/masks.test.ts; e2e/citizen.spec.ts › cadastro | Aprovado em 25/11/2026 | Aprovado |
 | RF002 Validar dados cadastrais | /cadastro, /conta/perfil/editar | integration/auth.test.ts › todos os erros por campo; unit/rules.test.ts › CPF | Aprovado em 24/11/2026 | Aprovado |
 | RF003 Confirmar e-mail e ativar conta | /confirmar-email, /reenviar-confirmacao | integration/auth.test.ts › Confirmação de e-mail | Aprovado em 24/11/2026 | Aprovado |
 | RF004 Verificar identidade e domicílio do cidadão | /conta/verificacao, /demo/provedor-identidade, /admin/verificacoes | integration/administration.test.ts › Verificação de identidade e domicílio; e2e/citizen.spec.ts › orientação de verificação; **unit/links.test.ts › aviso “Identidade verificada” leva a página existente (B04)** | Aprovado em 24/11/2026 (integração externa simulada) | Aprovado |
@@ -39,7 +39,7 @@ automaticamente) · **Não testado**.
 | RF024 Editar proposta e consulta em elaboração | /admin/consultas/[id]/editar | integration/lifecycle.test.ts › edição simultânea; **integration/lifecycle.test.ts › busca após edição (B05)** | Aprovado em 24/11/2026 | Aprovado |
 | RF025 Cadastrar consulta pública | /admin/consultas/nova | integration/lifecycle.test.ts › período mínimo | Aprovado em 24/11/2026 | Aprovado |
 | RF026 Definir alternativas de resposta | /admin/consultas/[id]/alternativas | integration/lifecycle.test.ts › alternativas | Aprovado em 24/11/2026 | Aprovado |
-| RF027 Definir público-alvo e critérios de participação | /admin/consultas/[id]/publico-alvo | integration/lifecycle.test.ts › limitação sem justificativa; unit › elegibilidade | Aprovado em 24/11/2026 | Aprovado |
+| RF027 Definir público-alvo e critérios de participação | /admin/consultas/[id]/publico-alvo | integration/lifecycle.test.ts › limitação sem justificativa, consulta para crianças e adolescentes só informativa ou educativa (DT-33); unit › elegibilidade | Aprovado em 25/11/2026 | Aprovado |
 | RF028 Revisar e submeter consulta para aprovação | /admin/consultas/[id] (pendências), /admin/consultas/[id]/revisao | integration/lifecycle.test.ts › Segregação | Aprovado em 24/11/2026 | Aprovado |
 | RF029 Aprovar consulta e autorizar prazo excepcional | /admin/consultas/[id]/aprovacao | integration/lifecycle.test.ts › ninguém aprova o que elaborou; prazo excepcional; antecedência | Aprovado em 24/11/2026 | Aprovado |
 | RF030 Publicar consulta | /admin/consultas/[id]/conducao | integration/lifecycle.test.ts › ciclo completo | Aprovado em 24/11/2026 | Aprovado |

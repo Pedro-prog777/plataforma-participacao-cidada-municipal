@@ -35,12 +35,15 @@ export type EligibilityResult =
   | { eligible: true }
   | { eligible: false; code: string; reason: string; action?: { label: string; href: string } };
 
-/** Idade mínima para votar (RF036). Não é parâmetro: é regra do documento, não decisão pendente (*). */
-export const IDADE_MINIMA_PARA_VOTAR = 18;
+/**
+ * Idade mínima da plataforma: só quem tem 18 anos completos cria conta de cidadão (DT-33) e vota
+ * (RF036, DT-30). Fonte única da regra — o cadastro (`auth.service.ts`) também a usa.
+ */
+export const IDADE_MINIMA = 18;
 
-/** 18 anos completos na data de referência, no fuso de Brasília (pessoa com 17 anos e 364 dias não vota). */
-export function temIdadeParaVotar(birthDate: string | null, now: Date = clock.now()): boolean {
-  return !!birthDate && ageOn(birthDate, now) >= IDADE_MINIMA_PARA_VOTAR;
+/** 18 anos completos na data de referência, no fuso de Brasília (pessoa com 17 anos e 364 dias não tem). */
+export function temIdadeMinima(birthDate: string | null, now: Date = clock.now()): boolean {
+  return !!birthDate && ageOn(birthDate, now) >= IDADE_MINIMA;
 }
 
 export function evaluateEligibility(u: EligibilityUser, c: EligibilityConsultation, alreadyParticipated: boolean, now: Date = clock.now()): EligibilityResult {
@@ -59,7 +62,7 @@ export function evaluateEligibility(u: EligibilityUser, c: EligibilityConsultati
     // RN22: contas administrativas não votam.
     return { eligible: false, code: "conta_administrativa", reason: "Contas administrativas não participam das votações." };
   }
-  if (!temIdadeParaVotar(u.birthDate, now)) {
+  if (!temIdadeMinima(u.birthDate, now)) {
     return u.birthDate
       ? { eligible: false, code: "menor_de_18", reason: "Para votar é preciso ter 18 anos completos." }
       : { eligible: false, code: "menor_de_18", reason: "Não foi possível conferir sua idade. Para votar é preciso ter 18 anos completos.", action: { label: "Ver meu perfil", href: "/conta" } };
@@ -164,7 +167,7 @@ export async function checkEligibility(userId: string, consultationId: string, d
 /** Enquadramento no público-alvo que pode votar (estimativa de elegíveis e avisos), sem período nem participação. */
 export function matchesAudience(u: EligibilityUser, c: Pick<EligibilityConsultation, "audienceOpen" | "criteria">, now: Date = clock.now()): boolean {
   if (u.kind !== "cidadao" || u.status !== "ativa") return false;
-  if (!temIdadeParaVotar(u.birthDate, now)) return false;
+  if (!temIdadeMinima(u.birthDate, now)) return false;
   if (c.audienceOpen) return true;
   return c.criteria.every((crit) => checkCriterion({ ...u, domicileVerifiedAt: u.domicileVerifiedAt ?? now }, crit, now) === null);
 }

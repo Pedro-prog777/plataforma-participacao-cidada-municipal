@@ -5,7 +5,7 @@ import { isUuid, normalizeSearch, parseIsoDay, sanitizePlainText, slugify } from
 import { passwordPolicyErrors } from "@/server/lib/password";
 import { base32Decode, base32Encode, totp, verifyTotp } from "@/server/lib/totp";
 import { largestRemainderPercentages, tally } from "@/server/modules/results/tally";
-import { evaluateEligibility, matchesAudience, temIdadeParaVotar, type EligibilityConsultation, type EligibilityUser } from "@/server/modules/voting/eligibility";
+import { evaluateEligibility, matchesAudience, temIdadeMinima, type EligibilityConsultation, type EligibilityUser } from "@/server/modules/voting/eligibility";
 import { toCsv } from "@/server/lib/export-formats";
 import { detectFileType, scanForViruses } from "@/server/lib/files";
 import { canonicalJson, decrypt, encrypt, formatReceiptCode, normalizeReceiptCode, receiptCode, signPayload, verifyPayload } from "@/server/lib/crypto";
@@ -137,13 +137,13 @@ describe("Elegibilidade na ordem do documento (RF036)", () => {
       expect(ev({ birthDate: null })).toMatchObject({ code: "menor_de_18", action: { href: "/conta" } });
     });
     it("nascido em 29/02: em ano não bissexto completa a idade em 01/03", () => {
-      expect(temIdadeParaVotar("2008-02-29", new Date("2026-02-28T15:00:00Z"))).toBe(false);
-      expect(temIdadeParaVotar("2008-02-29", new Date("2026-03-01T15:00:00Z"))).toBe(true);
+      expect(temIdadeMinima("2008-02-29", new Date("2026-02-28T15:00:00Z"))).toBe(false);
+      expect(temIdadeMinima("2008-02-29", new Date("2026-03-01T15:00:00Z"))).toBe(true);
     });
     it("a data é a de Brasília (horário do servidor), não a de Greenwich", () => {
       // 07/11 02h30 em Greenwich ainda é 06/11 23h30 em Brasília.
-      expect(temIdadeParaVotar("2008-11-07", new Date("2026-11-07T02:30:00Z"))).toBe(false);
-      expect(temIdadeParaVotar("2008-11-07", new Date("2026-11-07T03:00:00Z"))).toBe(true);
+      expect(temIdadeMinima("2008-11-07", new Date("2026-11-07T02:30:00Z"))).toBe(false);
+      expect(temIdadeMinima("2008-11-07", new Date("2026-11-07T03:00:00Z"))).toBe(true);
     });
     it("critério etário da consulta só restringe mais: idade mínima 16 não libera quem tem 17", () => {
       expect(ev({ birthDate: "2009-06-01" }, { audienceOpen: false, criteria: [{ type: "faixa_etaria", params: { minAge: 16 } }] })).toMatchObject({ code: "menor_de_18" });

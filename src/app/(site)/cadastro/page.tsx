@@ -16,7 +16,7 @@ export default async function CadastroPage() {
   const regionName = (id: string) => ref.regions.find((r) => r.id === id)?.name ?? "";
   return (
     <MainContainer>
-      <PageHeader title="Criar conta de cidadão" description="Com a conta você poderá votar nas consultas (após verificar a identidade), enviar propostas e acompanhar resultados." breadcrumbs={[{ href: "/", label: "Início" }, { label: "Criar conta" }]} />
+      <PageHeader title="Criar conta de cidadão" description="Para quem tem 18 anos completos. Com a conta você poderá votar nas consultas (após verificar a identidade), enviar propostas e acompanhar resultados." breadcrumbs={[{ href: "/", label: "Início" }, { label: "Criar conta" }]} />
       <div className="grid gap-8 lg:grid-cols-[1fr_18rem]">
         <Card>
           <ActionForm action={registerAction}>
@@ -28,7 +28,7 @@ export default async function CadastroPage() {
               <Field label="Nome completo" name="fullName" required autoComplete="name" maxLength={150} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="CPF" name="cpf" required mask="cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" hint="Usado só para garantir uma conta por pessoa e verificar sua identidade. Nunca é exibido." />
-                <Field label="Data de nascimento" name="birthDate" required mask="data" placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" hint="Usada para confirmar os 18 anos completos exigidos para votar e em consultas com critério de idade." />
+                <Field label="Data de nascimento" name="birthDate" required mask="data" placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" hint="A plataforma é para quem tem 18 anos completos. A data também é usada em consultas com critério de idade." />
               </div>
             </fieldset>
             <fieldset className="space-y-4">

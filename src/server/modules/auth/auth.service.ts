@@ -17,6 +17,7 @@ import { generateTotpSecret, verifyTotp } from "../../lib/totp";
 import { audit } from "../audit/audit.service";
 import { notifyUser, queueEmail } from "../notifications/notifications.service";
 import { createSession, getPendingMfaSession, markMfaVerified, revokeAllSessions } from "./session.service";
+import { IDADE_MINIMA, temIdadeMinima } from "../voting/eligibility";
 import { env } from "../../lib/env";
 
 /* ------------------------------------------------------------------ */
@@ -48,6 +49,14 @@ export const birthDateSchema = z
     return iso;
   });
 
+/**
+ * Data de nascimento de quem tem 18 anos completos: a plataforma é só para maiores de idade (DT-33).
+ * A regra de idade vem de `voting/eligibility.ts` (fonte única, também usada no voto).
+ */
+export function adultBirthDateSchema(message = `É preciso ter ${IDADE_MINIMA} anos completos para criar uma conta.`) {
+  return birthDateSchema.refine((iso) => typeof iso !== "string" || temIdadeMinima(iso), message);
+}
+
 const phoneSchema = z
   .string()
   .optional()
@@ -78,7 +87,7 @@ const registrationSchema = z
   .object({
     fullName: trimmed(3, 150, "Nome completo"),
     cpf: z.string({ error: "Informe o CPF." }).refine(isValidCpf, "CPF inválido (confira os dígitos)."),
-    birthDate: birthDateSchema,
+    birthDate: adultBirthDateSchema(),
     email: emailSchema,
     phone: phoneSchema,
     password: z.string({ error: "Informe a senha." }),
