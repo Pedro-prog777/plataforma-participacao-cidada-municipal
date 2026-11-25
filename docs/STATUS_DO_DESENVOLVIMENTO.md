@@ -1,6 +1,6 @@
 # Status do desenvolvimento — PPCM
 
-Atualizado em 24/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
+Atualizado em 25/11/2026. Estados: Não iniciado · Em desenvolvimento · Implementado (código e tela prontos, verificação manual) · Testado (coberto por teste automatizado aprovado) · Pendente · Bloqueado.
 
 ## Resumo
 
@@ -13,6 +13,7 @@ Atualizado em 24/11/2026. Estados: Não iniciado · Em desenvolvimento · Implem
 - **A Prefeitura (DT-25):** o atalho "Dados abertos" da faixa superior virou "A Prefeitura" (`/prefeitura`: papel da Prefeitura, órgãos municipais com consultas e encaminhamentos, atendimento); os dados abertos (RF045) continuam em Transparência, Resultados e no rodapé.
 - **Figma:** protótipo atualizado em 23/11/2026 com a seção "Referências cruzadas entre requisitos" — <https://www.figma.com/design/wskUxNo797ipkbNxqqI3BY/Plataforma-de-Participa%C3%A7%C3%A3o-Cidad%C3%A3-Municipal-%E2%80%94-Prot%C3%B3tipo?node-id=35-51>. Pendência: as molduras de destaque dos cartões RN02, RF004 e RN16 precisam voltar a "posição absoluta" (ver Próxima etapa).
 - **Pronto para o cidadão (DT-26):** telas públicas, área “Minha conta”, avisos e e-mails em linguagem simples (sem apuração, homologação, hash, quórum, elegibilidade, provedor de identidade etc.); códigos de verificação exigidos pelo RF044 num bloco recolhível. Página Acessibilidade com espaçamento ampliado para leitura e tamanho do texto; o alto contraste e o botão do topo foram retirados a pedido da equipe (DT-22). `.env.local` com `DEMO_MODE=true` para `npm run preview` funcionar na demonstração.
+- **Auditoria e melhorias de 25/11/2026 (DT-30 a DT-32):** só vota quem tem 18 anos completos (RF036), conferido no servidor ao pedir o código e dentro da transação do voto; sigilo também contra quem acessa o banco diretamente (o voto deixou de ficar ligado à participação pela coluna de sistema `xmin`); o código de confirmação aparece na própria tela da votação na demonstração, e o código de participação aparece na tela de confirmação com botão Copiar, tudo na mesma guia; a caixa de e-mail de teste não lista mais as mensagens de todas as pessoas; página da consulta com metade das consultas SQL. **CPF não alterado** (o cadastro continua validando os dígitos), aguardando os professores — ver `PENDENCIAS_CLIENTE.md`.
 - **GitHub:** repositório público, autorizado pela equipe em 12/11/2026: <https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal>.
 
 ## O que funciona (verificado)

@@ -79,7 +79,7 @@ test.describe("acessibilidade das telas autenticadas (RNF01)", () => {
   });
 });
 
-test("votação: depois de errar o código, voltar para mudar a escolha não mostra o erro antigo", async ({ page }) => {
+test("votação: depois de errar o código, voltar para mudar a escolha não mostra o erro antigo, e o código anterior continua valendo (DT-32)", async ({ page }) => {
   await loginCitizen(page, "maria@exemplo.com", "/consultas?posso_participar=1");
   const card = page.getByRole("article").filter({ hasText: "Você pode participar" }).first();
   test.skip((await card.count()) === 0, "a cidadã de demonstração já participou de todas as consultas abertas");
@@ -87,12 +87,21 @@ test("votação: depois de errar o código, voltar para mudar a escolha não mos
   await page.goto(`${href}/participar`);
   await page.getByRole("radio").first().check();
   await page.getByRole("button", { name: "Revisar minha escolha" }).click();
+  const first = (await page.locator("[data-codigo-demonstracao]").textContent())!.trim();
   await page.getByLabel("Código de confirmação").fill("000000");
   await page.getByRole("button", { name: "Confirmar meu voto" }).click();
   await expect(page.getByText(/Código incorreto/)).toBeVisible();
   await page.getByRole("button", { name: "Voltar e mudar a escolha" }).click();
   await expect(page.getByRole("button", { name: "Revisar minha escolha" })).toBeVisible();
   await expect(page.getByText(/Código incorreto/)).toHaveCount(0);
+  // Gerar outro código não invalida o anterior: a votação termina com ele, na mesma guia.
+  await page.getByRole("radio").last().check();
+  await page.getByRole("button", { name: "Revisar minha escolha" }).click();
+  await expect(page.locator("[data-codigo-demonstracao]")).not.toHaveText(first);
+  await page.getByLabel("Código de confirmação").fill(first);
+  await page.getByRole("button", { name: "Confirmar meu voto" }).click();
+  await expect(page.getByRole("heading", { name: "Participação registrada com sucesso!" })).toBeVisible();
+  expect(page.context().pages()).toHaveLength(1);
 });
 
 test("portal público sem links internos quebrados", async ({ page, request }) => {
