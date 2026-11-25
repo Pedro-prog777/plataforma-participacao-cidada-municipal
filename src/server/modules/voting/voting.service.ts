@@ -10,15 +10,16 @@
  *    bloqueada (FOR SHARE), para que o encerramento aguarde votos em andamento (RF035).
  *  - Nunca registra a alternativa em logs, auditoria, notificações ou e-mails.
  */
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
 import { alternatives, consultations, oneTimeCodes, participations, users, votes } from "../../db/schema";
 import { brDate, clock, MINUTE } from "../../lib/clock";
 import { decrypt, encrypt, formatReceiptCode, normalizeReceiptCode, numericCode, receiptCode, sha256 } from "../../lib/crypto";
+import { demoMode } from "../../lib/env";
 import { DomainError, isUniqueViolation } from "../../lib/errors";
 import { hit } from "../../lib/rate-limit";
 import { audit } from "../audit/audit.service";
-import { notifyUser, queueEmail } from "../notifications/notifications.service";
+import { emailIsSimulated, notifyUser, queueEmail } from "../notifications/notifications.service";
 import { openIncident } from "../integrity/incidents.service";
 import { evaluateEligibility, hasParticipated, loadEligibilityConsultation, loadEligibilityUser } from "./eligibility";
 import { fmtDate } from "@/lib/labels";
@@ -64,6 +65,13 @@ function maskPhone(phone: string) {
   return phone.replace(/\d(?=\d{2})/g, "*");
 }
 
+/** Códigos de confirmação válidos ao mesmo tempo para a mesma consulta (pedir de novo não invalida o anterior). */
+const MAX_ACTIVE_VOTE_CODES = 3;
+
+function activeCodesWhere(userId: string, consultationId: string) {
+  return and(eq(oneTimeCodes.userId, userId), eq(oneTimeCodes.purpose, "voto"), eq(oneTimeCodes.scope, consultationId), isNull(oneTimeCodes.consumedAt));
+}
+
 export async function requestVoteCode(userId: string, consultationId: string, channel: "email" | "celular", db: DbOrTx = getDb()) {
   await guardAttempts(db, userId, consultationId);
   const [u, c, p] = await Promise.all([loadEligibilityUser(userId, db), loadEligibilityConsultation(consultationId, db), hasParticipated(userId, consultationId, db)]);
@@ -72,36 +80,46 @@ export async function requestVoteCode(userId: string, consultationId: string, ch
   if (!el.eligible) await rejectAndAudit(db, userId, consultationId, el.code, el.reason);
   const [acc] = await db.select({ email: users.email, phone: users.phone }).from(users).where(eq(users.id, userId));
   if (channel === "celular" && !acc.phone) throw new DomainError("Não há celular cadastrado. Use o e-mail.", "sem_celular");
+  const now = clock.now();
+  // Pedir o código de novo NÃO invalida o que a pessoa já recebeu e ainda vale (DT-32): quem saiu da tela
+  // para buscar o código e voltou consegue usá-lo. Só os mais antigos além do limite são descartados.
+  const active = await db.select({ id: oneTimeCodes.id }).from(oneTimeCodes).where(and(activeCodesWhere(userId, consultationId), gt(oneTimeCodes.expiresAt, now))).orderBy(desc(oneTimeCodes.createdAt));
+  const surplus = active.slice(MAX_ACTIVE_VOTE_CODES - 1).map((r) => r.id);
+  if (surplus.length) await db.update(oneTimeCodes).set({ consumedAt: now }).where(inArray(oneTimeCodes.id, surplus));
   const code = numericCode(6);
-  await db
-    .update(oneTimeCodes)
-    .set({ consumedAt: clock.now() })
-    .where(and(eq(oneTimeCodes.userId, userId), eq(oneTimeCodes.purpose, "voto"), eq(oneTimeCodes.scope, consultationId), isNull(oneTimeCodes.consumedAt)));
-  await db.insert(oneTimeCodes).values({ userId, purpose: "voto", scope: consultationId, codeHash: sha256(`${userId}:${code}`), channel, expiresAt: new Date(clock.now().getTime() + 5 * MINUTE) });
+  await db.insert(oneTimeCodes).values({ userId, purpose: "voto", scope: consultationId, codeHash: sha256(`${userId}:${code}`), channel, expiresAt: new Date(now.getTime() + 5 * MINUTE) });
   const msg = `Seu código para confirmar a participação é ${code}. Ele vale por 5 minutos. Não compartilhe este código.`;
   if (channel === "email") await queueEmail(db, acc.email, "Código de confirmação de participação", msg);
   else await queueEmail(db, `sms:${acc.phone}`, "SMS (simulado) — código de confirmação", msg);
-  return { maskedDestination: channel === "email" ? maskEmail(acc.email) : maskPhone(acc.phone!) };
+  // Demonstração sem envio real (RF011 simulado, AGENTS §14): o código aparece na própria tela da votação,
+  // identificado como simulação, em vez de obrigar a pessoa a sair da página para lê-lo na caixa de teste.
+  const simulated = demoMode() && (channel === "celular" || emailIsSimulated());
+  return { maskedDestination: channel === "email" ? maskEmail(acc.email) : maskPhone(acc.phone!), simulated, demoCode: simulated ? code : undefined };
 }
 
 async function verifyVoteCode(db: DbOrTx, userId: string, consultationId: string, code: string) {
   const now = clock.now();
-  const [row] = await db
+  const rows = await db
     .select()
     .from(oneTimeCodes)
-    .where(and(eq(oneTimeCodes.userId, userId), eq(oneTimeCodes.purpose, "voto"), eq(oneTimeCodes.scope, consultationId), isNull(oneTimeCodes.consumedAt)))
-    .orderBy(oneTimeCodes.createdAt);
-  if (!row || row.expiresAt <= now) throw new VoteRejected("Código expirado ou inexistente. Solicite um novo código.", "codigo_expirado");
-  if (row.codeHash !== sha256(`${userId}:${String(code).replace(/\D/g, "")}`)) {
-    const attempts = row.attempts + 1;
-    await db.update(oneTimeCodes).set({ attempts, consumedAt: attempts >= 3 ? now : null }).where(eq(oneTimeCodes.id, row.id));
+    .where(and(activeCodesWhere(userId, consultationId), gt(oneTimeCodes.expiresAt, now)))
+    .orderBy(desc(oneTimeCodes.createdAt));
+  if (!rows.length) throw new VoteRejected("Código expirado ou inexistente. Solicite um novo código.", "codigo_expirado");
+  const typed = sha256(`${userId}:${String(code).replace(/\D/g, "")}`);
+  const match = rows.find((r) => r.codeHash === typed);
+  if (!match) {
+    // Erros contados no código mais recente; 3 erros interrompem a votação e descartam todos os códigos ativos.
+    const latest = rows[0];
+    const attempts = latest.attempts + 1;
+    await db.update(oneTimeCodes).set({ attempts }).where(eq(oneTimeCodes.id, latest.id));
     if (attempts >= 3) {
+      await db.update(oneTimeCodes).set({ consumedAt: now }).where(activeCodesWhere(userId, consultationId));
       await audit(db, { actorId: userId, actorRole: "cidadao", action: "voto_interrompido_codigo", result: "negado", objectType: "consulta", objectId: consultationId });
       throw new VoteRejected("Código incorreto 3 vezes. Por segurança, a votação foi interrompida. Recomece a participação.", "codigo_bloqueado");
     }
     throw new VoteRejected(`Código incorreto. Restam ${3 - attempts} tentativa(s).`, "codigo_incorreto");
   }
-  return row.id;
+  return match.id;
 }
 
 /* ------------------------------------------------------------------ */
@@ -132,10 +150,14 @@ export async function castVote(userId: string, input: CastInput, db: DbOrTx = ge
         if (!alt) throw new VoteRejected("Alternativa inexistente.", "alternativa_invalida");
       }
       const participatedOn = brDate(clock.now());
-      await tx.insert(participations).values({ consultationId: c.id, citizenId: userId, participatedOn, receiptHash: sha256(receipt), receiptEnc: encrypt(receipt) });
+      const [part] = await tx
+        .insert(participations)
+        .values({ consultationId: c.id, citizenId: userId, participatedOn, receiptHash: sha256(receipt), receiptEnc: encrypt(receipt) })
+        .returning({ id: participations.id });
       await tx.insert(votes).values({ consultationId: c.id, alternativeId: input.abstention ? null : input.alternativeId, abstention: input.abstention });
-      await tx.update(oneTimeCodes).set({ consumedAt: clock.now() }).where(eq(oneTimeCodes.id, codeId));
-      return { consultation: c, participatedOn };
+      // O código usado e os demais ainda ativos desta consulta deixam de valer.
+      await tx.update(oneTimeCodes).set({ consumedAt: clock.now() }).where(or(eq(oneTimeCodes.id, codeId), activeCodesWhere(userId, input.consultationId)));
+      return { consultation: c, participatedOn, participationId: part.id };
     });
     // Comprovante (RF038): e-mail e central de avisos — sem a alternativa.
     await notifyUser(db, userId, {
@@ -146,7 +168,8 @@ export async function castVote(userId: string, input: CastInput, db: DbOrTx = ge
     }).catch(() => {
       /* Falha no e-mail: o comprovante permanece no histórico (RF038). */
     });
-    return { receipt: formatReceiptCode(receipt), consultationId: result.consultation.id, participatedOn: result.participatedOn };
+    // O código só é devolvido depois do COMMIT: nunca aparece como confirmação antes de o voto estar gravado.
+    return { receipt: formatReceiptCode(receipt), consultationId: result.consultation.id, participatedOn: result.participatedOn, participationId: result.participationId };
   } catch (e) {
     if (isUniqueViolation(e)) {
       // Requisições simultâneas: o banco recusa o segundo voto (RF039, RS001).
@@ -186,6 +209,18 @@ export async function myParticipations(userId: string, db: DbOrTx = getDb()) {
     .innerJoin(consultations, eq(consultations.id, participations.consultationId))
     .where(eq(participations.citizenId, userId));
   return rows.map(({ receiptEnc, ...r }) => ({ ...r, receipt: formatReceiptCode(decrypt(receiptEnc)) }));
+}
+
+/** Um comprovante do titular (tela de confirmação e PDF): a busca é restrita às participações dele (RF009). */
+export async function myParticipation(userId: string, participationId: string, db: DbOrTx = getDb()) {
+  const [r] = await db
+    .select({ id: participations.id, date: participations.participatedOn, receiptEnc: participations.receiptEnc, consultationId: consultations.id, title: consultations.title, slug: consultations.slug, status: consultations.status })
+    .from(participations)
+    .innerJoin(consultations, eq(consultations.id, participations.consultationId))
+    .where(and(eq(participations.id, participationId), eq(participations.citizenId, userId)));
+  if (!r) return null;
+  const { receiptEnc, ...rest } = r;
+  return { ...rest, receipt: formatReceiptCode(decrypt(receiptEnc)) };
 }
 
 export async function participationCount(consultationId: string, db: DbOrTx = getDb()) {

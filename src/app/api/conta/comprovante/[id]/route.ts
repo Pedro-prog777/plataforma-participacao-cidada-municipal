@@ -1,7 +1,9 @@
 /** Comprovante em PDF (RF038): título, data e código — sem a alternativa. Apenas o titular. */
 import { NextResponse } from "next/server";
 import { getCurrentActor } from "@/server/auth/current";
-import { myParticipations } from "@/server/modules/voting/voting.service";
+import { myParticipation } from "@/server/modules/voting/voting.service";
+import { clock } from "@/server/lib/clock";
+import { isUuid } from "@/lib/text";
 import { buildPdf } from "@/server/lib/export-formats";
 import { env } from "@/server/lib/env";
 import { fmtDate, fmtDateTime } from "@/lib/labels";
@@ -11,7 +13,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   if (!actor || actor.kind !== "cidadao") return NextResponse.json({ erro: "Não autenticado." }, { status: 401 });
   const id = (await params).id;
   // Busca restrita às participações do próprio titular (RF009).
-  const part = (await myParticipations(actor.id)).find((x) => x.id === id);
+  const part = isUuid(id) ? await myParticipation(actor.id, id) : null;
   if (!part) return NextResponse.json({ erro: "Não encontrado." }, { status: 404 });
   const pdf = await buildPdf(
     [
@@ -23,7 +25,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
       { type: "text", text: "Este comprovante prova a participação, mas não informa a alternativa escolhida. O voto é secreto e irretratável." },
       { type: "text", text: `Verifique a autenticidade em ${env.appUrl}/comprovante informando o código acima.` },
     ],
-    `Emitido em ${fmtDateTime(new Date())}`,
+    `Emitido em ${fmtDateTime(clock.now())}`,
   );
   return new NextResponse(new Uint8Array(pdf), { headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="comprovante-${part.receipt}.pdf"`, "Cache-Control": "no-store" } });
 }

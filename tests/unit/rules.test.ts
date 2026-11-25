@@ -5,7 +5,7 @@ import { isUuid, normalizeSearch, parseIsoDay, sanitizePlainText, slugify } from
 import { passwordPolicyErrors } from "@/server/lib/password";
 import { base32Decode, base32Encode, totp, verifyTotp } from "@/server/lib/totp";
 import { largestRemainderPercentages, tally } from "@/server/modules/results/tally";
-import { evaluateEligibility, type EligibilityConsultation, type EligibilityUser } from "@/server/modules/voting/eligibility";
+import { evaluateEligibility, matchesAudience, temIdadeParaVotar, type EligibilityConsultation, type EligibilityUser } from "@/server/modules/voting/eligibility";
 import { toCsv } from "@/server/lib/export-formats";
 import { detectFileType, scanForViruses } from "@/server/lib/files";
 import { canonicalJson, decrypt, encrypt, formatReceiptCode, normalizeReceiptCode, receiptCode, signPayload, verifyPayload } from "@/server/lib/crypto";
@@ -119,9 +119,45 @@ describe("Elegibilidade na ordem do documento (RF036)", () => {
     expect(ev({ domicileVerifiedAt: null }, { audienceOpen: false, criteria: [{ type: "domicilio", params: {} }] })).toMatchObject({ code: "domicilio_nao_comprovado" });
     expect(ev({}, { audienceOpen: false, criteria: [{ type: "territorio", params: { regionIds: ["r2"] } }] })).toMatchObject({ code: "fora_do_publico" });
     expect(ev({}, { audienceOpen: false, criteria: [{ type: "territorio", params: { districtIds: ["d1"] } }] })).toEqual({ eligible: true });
-    expect(ev({ birthDate: "2012-01-01" }, { audienceOpen: false, criteria: [{ type: "faixa_etaria", params: { minAge: 16 } }] })).toMatchObject({ code: "fora_do_publico" });
+    expect(ev({ birthDate: "2000-01-01" }, { audienceOpen: false, criteria: [{ type: "faixa_etaria", params: { minAge: 30 } }] })).toMatchObject({ code: "fora_do_publico" });
+    expect(ev({ birthDate: "1950-01-01" }, { audienceOpen: false, criteria: [{ type: "faixa_etaria", params: { maxAge: 60 } }] })).toMatchObject({ code: "fora_do_publico" });
   });
-  it("não existe idade mínima geral (RN40)", () => expect(ev({ birthDate: "2014-05-05" })).toEqual({ eligible: true }));
+
+  describe("só vota quem tem 18 anos completos (RF036, DT-30)", () => {
+    // now = 07/11/2026 12h em Brasília.
+    it("menor de 18 anos não vota, nem em consulta aberta ao público em geral", () => {
+      expect(ev({ birthDate: "2014-05-05" })).toMatchObject({ eligible: false, code: "menor_de_18" });
+    });
+    it("completa 18 anos hoje: vota; faltando um dia (17 anos e 364 dias): não vota", () => {
+      expect(ev({ birthDate: "2008-11-07" })).toEqual({ eligible: true });
+      expect(ev({ birthDate: "2008-11-08" })).toMatchObject({ code: "menor_de_18" });
+      expect(ev({ birthDate: "1960-02-10" })).toEqual({ eligible: true });
+    });
+    it("sem data de nascimento não é possível conferir a idade", () => {
+      expect(ev({ birthDate: null })).toMatchObject({ code: "menor_de_18", action: { href: "/conta" } });
+    });
+    it("nascido em 29/02: em ano não bissexto completa a idade em 01/03", () => {
+      expect(temIdadeParaVotar("2008-02-29", new Date("2026-02-28T15:00:00Z"))).toBe(false);
+      expect(temIdadeParaVotar("2008-02-29", new Date("2026-03-01T15:00:00Z"))).toBe(true);
+    });
+    it("a data é a de Brasília (horário do servidor), não a de Greenwich", () => {
+      // 07/11 02h30 em Greenwich ainda é 06/11 23h30 em Brasília.
+      expect(temIdadeParaVotar("2008-11-07", new Date("2026-11-07T02:30:00Z"))).toBe(false);
+      expect(temIdadeParaVotar("2008-11-07", new Date("2026-11-07T03:00:00Z"))).toBe(true);
+    });
+    it("critério etário da consulta só restringe mais: idade mínima 16 não libera quem tem 17", () => {
+      expect(ev({ birthDate: "2009-06-01" }, { audienceOpen: false, criteria: [{ type: "faixa_etaria", params: { minAge: 16 } }] })).toMatchObject({ code: "menor_de_18" });
+    });
+    it("a idade é conferida depois de conta, identidade e perfil, antes do público-alvo", () => {
+      expect(ev({ birthDate: "2014-05-05", verificationLevel: "nao_verificado" })).toMatchObject({ code: "identidade_nao_verificada" });
+      expect(ev({ birthDate: "2014-05-05", kind: "admin" })).toMatchObject({ code: "conta_administrativa" });
+      expect(ev({ birthDate: "2014-05-05" }, { audienceOpen: false, criteria: [{ type: "territorio", params: { regionIds: ["r2"] } }] })).toMatchObject({ code: "menor_de_18" });
+    });
+    it("menores não entram na estimativa de quem pode votar nem nos avisos de abertura", () => {
+      expect(matchesAudience({ ...user, birthDate: "2014-05-05" }, { audienceOpen: true, criteria: [] }, now)).toBe(false);
+      expect(matchesAudience(user, { audienceOpen: true, criteria: [] }, now)).toBe(true);
+    });
+  });
   it("período pelo horário do servidor e situação (RN08, RN09)", () => {
     expect(ev({}, { closesAt: new Date(now.getTime() - 1) })).toMatchObject({ code: "fora_do_periodo" });
     expect(ev({}, { opensAt: new Date(now.getTime() + 1) })).toMatchObject({ code: "fora_do_periodo" });

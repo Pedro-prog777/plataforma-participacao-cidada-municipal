@@ -1,6 +1,6 @@
 # Modelo de dados — PPCM
 
-Fonte da verdade: `src/server/db/schema.ts`. Migrations: `database/migrations/0000_inicial.sql` (tabelas, índices, restrições) e `database/migrations/0001_gatilhos_somente_acrescimo.sql` (imutabilidade).
+Fonte da verdade: `src/server/db/schema.ts`. Migrations: `database/migrations/0000_inicial.sql` (tabelas, índices, restrições), `0001_gatilhos_somente_acrescimo.sql` (imutabilidade), `0002_indices_de_desempenho.sql`, `0003_indice_codigos_de_confirmacao.sql` e `0004_votos_sigilo_reembaralhamento.sql` (gatilho de `votes` que só admite a troca de `shuffle_key` — DT-31).
 
 ## Diagrama entidade-relacionamento (principais)
 
@@ -15,7 +15,7 @@ O diagrama está em [`database/diagrams/modelo-er.md`](../../database/diagrams/m
 | `users` | Cidadãos e servidores | `cpf_hmac` único; (`kind`, `email`) único; matrícula única; CHECK: administrador sem CPF |
 | `sessions` | Sessões (id = SHA-256 do token) | índice por usuário |
 | `tokens` | Confirmação de e-mail, recuperação, convite, troca de e-mail (uso único) | `token_hash` único |
-| `one_time_codes` | Código de 6 dígitos antes do voto (sem alternativa) | — |
+| `one_time_codes` | Código de 6 dígitos antes do voto (sem alternativa); até 3 válidos por consulta (DT-32) | Índice (user_id, purpose, scope) |
 | `auth_failures` | Falhas por conta e IP (hash) | índice (ip_hash, created_at) |
 | `roles`, `user_roles` | Papéis como conjuntos de permissões | chave composta |
 | `identity_verifications` | Verificação gov.br/documental | — |
@@ -28,7 +28,7 @@ O diagrama está em [`database/diagrams/modelo-er.md`](../../database/diagrams/m
 | `entity_versions` | Versões de propostas e consultas | **somente acréscimo** |
 | `consultation_events` | Linha do tempo pública (RF051) | **somente acréscimo** |
 | `participations` | Quem participou: cidadão, consulta, **data**, hash e cifra do comprovante | **único (consulta, cidadão)**; único `receipt_hash`; **somente acréscimo**; sem TRUNCATE |
-| `votes` | O que foi escolhido: consulta, alternativa ou abstenção, `shuffle_key` | CHECK coerência abstenção/alternativa; **somente acréscimo**; sem TRUNCATE; sem colunas de tempo ou de pessoa |
+| `votes` | O que foi escolhido: consulta, alternativa ou abstenção, `shuffle_key` | CHECK coerência abstenção/alternativa; **somente acréscimo** (o único UPDATE aceito troca `shuffle_key`, para que nenhum voto fique ligado à participação pela coluna de sistema `xmin` — DT-31); sem TRUNCATE; sem colunas de tempo ou de pessoa |
 | `results` | Preliminar, final e retificações com hash | **somente acréscimo** |
 | `integrity_checks` | Relatórios de integridade (RF059) | **somente acréscimo** |
 | `incidents` | Incidentes (RF060) | — |

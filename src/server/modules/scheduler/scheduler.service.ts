@@ -6,7 +6,7 @@
  */
 import { and, asc, eq, inArray, lt, lte, sql } from "drizzle-orm";
 import { getDb, getDbKind, type DbOrTx } from "../../db/client";
-import { alternatives, audienceCriteria, auditLog, citizenProposalEvents, citizenProposals, consultations, dataExports } from "../../db/schema";
+import { alternatives, audienceCriteria, auditLog, citizenProposalEvents, citizenProposals, consultations, dataExports, votes } from "../../db/schema";
 import { clock, HOUR, MINUTE } from "../../lib/clock";
 import { getSetting } from "../../lib/settings";
 import { audit } from "../audit/audit.service";
@@ -56,7 +56,8 @@ export async function closeDueConsultations(db: DbOrTx = getDb()) {
       await audit(tx, { action: "consulta_encerrada", objectType: "consulta", objectId: c.id });
       await notifyVoters(tx, c.id, "resultado", `Consulta encerrada: ${c.title}`, "A votação foi encerrada. Os votos são contados automaticamente e o resultado será publicado depois da conferência.", `/consultas/${c.slug}`);
     });
-    await shuffleVotes(db);
+    // Encerramento: reembaralhamento forçado, para que nenhum voto da consulta fique ligável ao eleitor.
+    await shuffleVotes(db, true);
     const integrity = await verifyIntegrity(c.id, "encerramento", db);
     // Totais divergentes: apuração bloqueada e incidente aberto (RF035, RF060).
     if (integrity.passed) await tallyConsultation(c.id, db);
@@ -113,17 +114,34 @@ export async function expireProposalAdjustments(db: DbOrTx = getDb()) {
 
 let lastShuffle = 0;
 /**
- * Reordena fisicamente a tabela de votos por uma chave aleatória (CLUSTER), eliminando a
- * correlação entre a ordem de gravação de participações e de votos (mitigação de RS002
- * contra quem tem acesso ao armazenamento do banco). Ver DECISOES_TECNICAS DT-05.
+ * Sigilo contra quem acessa o banco diretamente (RS002; DECISOES_TECNICAS DT-05 e DT-31).
+ *  1) Participação e voto nascem na mesma transação e, por isso, com o mesmo `xmin` (coluna de
+ *     sistema do PostgreSQL). As consultas que ainda têm algum voto nessa situação recebem nova
+ *     chave aleatória para TODOS os seus votos, numa única instrução: todos passam a ter o mesmo
+ *     `xmin`, e nenhum JOIN por `xmin` liga mais voto a eleitor.
+ *  2) CLUSTER reordena fisicamente a tabela pela chave aleatória e descarta as versões antigas.
+ * O gatilho de `votes` só admite a troca de `shuffle_key` (migração 0004); o hash da base apurada
+ * não muda, porque não inclui essa chave. Resíduo: WAL e cópias anteriores (restringir acesso).
  */
 export async function shuffleVotes(db: DbOrTx = getDb(), force = false) {
   if (!force && Date.now() - lastShuffle < 15 * MINUTE) return false;
   try {
+    const pending = (await db.execute(sql`select distinct v.consultation_id as id from votes v join participations p on p.xmin = v.xmin`)).rows as { id: string }[];
+    if (!pending.length && !force) {
+      lastShuffle = Date.now();
+      return false;
+    }
+    if (pending.length) {
+      await db
+        .update(votes)
+        .set({ shuffleKey: sql`gen_random_uuid()` })
+        .where(inArray(votes.consultationId, pending.map((r) => r.id)));
+    }
     await db.execute(sql`CLUSTER votes USING votes_shuffle_idx`);
     lastShuffle = Date.now();
     return true;
-  } catch {
+  } catch (e) {
+    console.error("[ppcm] falha ao reembaralhar os votos:", (e as Error).message);
     return false;
   }
 }
@@ -145,8 +163,8 @@ export async function runSchedulerTick(db: DbOrTx = getDb()) {
     summary.reminders = await sendReminders(db);
     summary.proposalsExpired = await expireProposalAdjustments(db);
     await purgeExpiredExports(db);
-    const [{ n }] = (await db.execute(sql`select count(*)::int as n from consultations where status = 'aberta'`)).rows as { n: number }[];
-    if (n > 0) summary.shuffled = await shuffleVotes(db);
+    // Qualquer consulta com voto ainda ligável à participação (aberta, encerrada ou cancelada), no máximo a cada 15 min.
+    summary.shuffled = await shuffleVotes(db);
     // Links externos: uma vez por dia (RF023).
     if (Date.now() - lastLinkCheck > 24 * HOUR) {
       lastLinkCheck = Date.now();

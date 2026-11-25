@@ -28,7 +28,7 @@ export default async function CadastroPage() {
               <Field label="Nome completo" name="fullName" required autoComplete="name" maxLength={150} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="CPF" name="cpf" required mask="cpf" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00" hint="Usado só para garantir uma conta por pessoa e verificar sua identidade. Nunca é exibido." />
-                <Field label="Data de nascimento" name="birthDate" required mask="data" placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" hint="Usada apenas em consultas com critério de idade justificado." />
+                <Field label="Data de nascimento" name="birthDate" required mask="data" placeholder="DD/MM/AAAA" inputMode="numeric" autoComplete="bday" hint="Usada para confirmar os 18 anos completos exigidos para votar e em consultas com critério de idade." />
               </div>
             </fieldset>
             <fieldset className="space-y-4">

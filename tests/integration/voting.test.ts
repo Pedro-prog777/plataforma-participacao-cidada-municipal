@@ -2,7 +2,7 @@
  * Votação, voto único, sigilo e apuração — RF011, RF036–RF042, RF059; RN05–RN09; RS001–RS003, RS009; RNF07, RNF14.
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { createTestDb, destroyTestDb } from "../helpers/db";
 import { createAdmin, createCitizen, createOpenConsultation, assign } from "../helpers/fixtures";
 import type { Db } from "@/server/db/client";
@@ -13,6 +13,7 @@ import { publishFinalResult, verifyIntegrity } from "@/server/modules/results/re
 import { monitoringPanel, generateReport } from "@/server/modules/admin/monitoring.service";
 import { exportDataset } from "@/server/modules/results/open-data.service";
 import { searchAudit } from "@/server/modules/audit/audit.service";
+import { processOutbox } from "@/server/modules/notifications/notifications.service";
 import { clock, DAY } from "@/server/lib/clock";
 import { resetRateLimits } from "@/server/lib/rate-limit";
 import { sha256 } from "@/server/lib/crypto";
@@ -68,6 +69,49 @@ describe("Registro de voto (RF037, RF038)", () => {
     expect(vs).toHaveLength(0);
   });
 
+  it("pedir o código de novo não invalida o anterior: quem saiu da tela e voltou consegue votar (DT-32)", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
+    const citizen = await createCitizen(db);
+    const first = await codeFor(citizen.id, consultation.id);
+    await codeFor(citizen.id, consultation.id);
+    const r = await castVote(citizen.id, { consultationId: consultation.id, alternativeId: alternatives[0].id, abstention: false, code: first }, db);
+    // O id vem da própria transação do voto (a tela de confirmação só abre depois do COMMIT).
+    const [p] = await db.select().from(participations).where(eq(participations.citizenId, citizen.id));
+    expect(r.participationId).toBe(p.id);
+    // Depois do voto, nenhum código desta consulta continua valendo.
+    const active = await db.select().from(oneTimeCodes).where(and(eq(oneTimeCodes.userId, citizen.id), isNull(oneTimeCodes.consumedAt)));
+    expect(active).toHaveLength(0);
+  });
+
+  it("no máximo 3 códigos valem ao mesmo tempo; 3 erros descartam todos", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
+    const citizen = await createCitizen(db);
+    const oldest = await codeFor(citizen.id, consultation.id);
+    for (let i = 0; i < 3; i++) await codeFor(citizen.id, consultation.id);
+    const valid = await db.select().from(oneTimeCodes).where(and(eq(oneTimeCodes.userId, citizen.id), isNull(oneTimeCodes.consumedAt)));
+    expect(valid).toHaveLength(3);
+    resetRateLimits(); // o limite de 5 tentativas por minuto é testado à parte
+    await expect(castVote(citizen.id, { consultationId: consultation.id, alternativeId: alternatives[0].id, abstention: false, code: oldest }, db)).rejects.toThrow(/incorreto/);
+    for (let i = 0; i < 2; i++) await castVote(citizen.id, { consultationId: consultation.id, alternativeId: alternatives[0].id, abstention: false, code: "000000" }, db).catch(() => undefined);
+    expect(await db.select().from(oneTimeCodes).where(and(eq(oneTimeCodes.userId, citizen.id), isNull(oneTimeCodes.consumedAt)))).toHaveLength(0);
+  });
+
+  it("na demonstração sem envio real, o código volta para a própria tela, identificado como simulado", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation } = await createOpenConsultation(db, { createdBy: admin.id });
+    const citizen = await createCitizen(db);
+    const r = await requestVoteCode(citizen.id, consultation.id, "email", db);
+    const [m] = await db.select().from(emailOutbox).orderBy(sql`created_at desc`).limit(1);
+    expect(r.simulated).toBe(true);
+    expect(r.demoCode).toBe(m.body.match(/é (\d{6})/)![1]);
+    // Sem SMTP, a fila não registra a mensagem como "enviado".
+    await processOutbox(db);
+    const [after] = await db.select().from(emailOutbox).where(eq(emailOutbox.id, m.id));
+    expect(after.status).toBe("simulado");
+  });
+
   it("código expira em 5 minutos", async () => {
     const admin = await createAdmin(db, ["elaborador"]);
     const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
@@ -75,6 +119,31 @@ describe("Registro de voto (RF037, RF038)", () => {
     const code = await codeFor(citizen.id, consultation.id);
     clock.set(new Date(Date.now() + 6 * 60_000));
     await expect(castVote(citizen.id, { consultationId: consultation.id, alternativeId: alternatives[0].id, abstention: false, code }, db)).rejects.toThrow(/expirado/);
+  });
+});
+
+describe("Idade mínima para votar (RF036, DT-30)", () => {
+  it("menor de 18 anos não recebe código e é recusado no servidor mesmo chamando o voto diretamente", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
+    const minor = await createCitizen(db, { birthDate: "2012-03-10" });
+    await expect(requestVoteCode(minor.id, consultation.id, "email", db)).rejects.toThrow(/18 anos completos/);
+    // Contorno da interface: um código válido inserido à mão não dispensa a regra, conferida dentro da transação.
+    await db.insert(oneTimeCodes).values({ userId: minor.id, purpose: "voto", scope: consultation.id, codeHash: sha256(`${minor.id}:123456`), channel: "email", expiresAt: new Date(Date.now() + 5 * 60_000) });
+    await expect(castVote(minor.id, { consultationId: consultation.id, alternativeId: alternatives[0].id, abstention: false, code: "123456" }, db)).rejects.toThrow(/18 anos completos/);
+    expect(await db.select().from(participations).where(eq(participations.citizenId, minor.id))).toHaveLength(0);
+    expect(await db.select().from(votes).where(eq(votes.consultationId, consultation.id))).toHaveLength(0);
+    const audits = await searchAudit({ action: "voto_recusado", objectId: consultation.id }, 50, db);
+    expect(JSON.stringify(audits)).toContain("menor_de_18");
+  });
+
+  it("quem completa 18 anos hoje vota", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
+    const [y, m, d] = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()).split("-");
+    const adult = await createCitizen(db, { birthDate: `${Number(y) - 18}-${m}-${d === "29" && m === "02" ? "28" : d}` });
+    const r = await vote(adult.id, consultation.id, alternatives[0].id);
+    expect(r.receipt).toBeTruthy();
   });
 });
 
@@ -234,12 +303,35 @@ describe("Sigilo do voto (RN07, RS002, RNF07)", () => {
     expect(csv).not.toContain(target.id);
   });
 
+  it("nem com acesso direto ao banco o voto se liga ao eleitor pela coluna de sistema xmin, depois do reembaralhamento (DT-31)", async () => {
+    const admin = await createAdmin(db, ["elaborador"]);
+    const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id, alternatives: 3 });
+    const voters = await Promise.all([createCitizen(db), createCitizen(db), createCitizen(db)]);
+    for (const [i, v] of voters.entries()) await vote(v.id, consultation.id, alternatives[i].id);
+    const linked = async () =>
+      ((await db.execute(sql`select count(*)::int as n from participations p join votes v on v.xmin = p.xmin where p.consultation_id = ${consultation.id}`)).rows[0] as { n: number }).n;
+    // Participação e voto nascem na mesma transação (atomicidade): o risco existe até o reembaralhamento.
+    expect(await linked()).toBeGreaterThan(0);
+    const before = await verifyIntegrity(consultation.id, "sob_demanda", db);
+    expect(await shuffleVotes(db, true)).toBe(true);
+    expect(await linked()).toBe(0);
+    // O conteúdo dos votos e o hash da base apurada não mudam.
+    const after = await verifyIntegrity(consultation.id, "sob_demanda", db);
+    expect(after.passed).toBe(true);
+    expect(after.baseHash).toBe(before.baseHash);
+    const vs = await db.select({ a: votes.alternativeId }).from(votes).where(eq(votes.consultationId, consultation.id));
+    expect(vs.map((v) => v.a).sort()).toEqual(alternatives.map((a) => a.id).sort());
+  });
+
   it("votos não podem ser alterados nem excluídos por nenhuma ferramenta (RN39, RS003)", async () => {
     const admin = await createAdmin(db, ["elaborador"]);
     const { consultation, alternatives } = await createOpenConsultation(db, { createdBy: admin.id });
     const citizen = await createCitizen(db);
     await vote(citizen.id, consultation.id, alternatives[0].id);
     await expect(db.update(votes).set({ alternativeId: alternatives[1].id }).where(eq(votes.consultationId, consultation.id))).rejects.toThrow();
+    await expect(db.update(votes).set({ abstention: true, alternativeId: null }).where(eq(votes.consultationId, consultation.id))).rejects.toThrow();
+    // Única alteração admitida pelo gatilho: a chave aleatória do reembaralhamento (DT-31).
+    await expect(db.update(votes).set({ shuffleKey: sql`gen_random_uuid()` }).where(eq(votes.consultationId, consultation.id))).resolves.toBeDefined();
     await expect(db.delete(votes).where(eq(votes.consultationId, consultation.id))).rejects.toThrow();
     await expect(db.delete(participations).where(eq(participations.consultationId, consultation.id))).rejects.toThrow();
   });

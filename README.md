@@ -175,7 +175,7 @@ Abra <http://localhost:3000>. Na primeira execução o sistema cria o banco loca
 | `gestor@prefeitura.exemplo` | Gestor de acessos |
 | `elaboradora@`, `revisor@`, `aprovadora@`, `responsavel@`, `analista@prefeitura.exemplo` | Demais papéis administrativos |
 
-Os e-mails enviados pelo sistema (confirmação, código de voto, comprovante) aparecem em `/demo/caixa-de-email`.
+Nesta demonstração nenhum e-mail é enviado de verdade. O código de confirmação do voto aparece na própria tela da votação, e o código de participação (comprovante) aparece na tela de confirmação, com botão para copiar. As demais mensagens (confirmação de cadastro, redefinição de senha) ficam em `/demo/caixa-de-email`, que mostra as mensagens da conta que entrou ou de um e-mail informado por completo — nunca as de todas as pessoas (DT-32).
 
 **Configuração.** Sem arquivo `.env` o sistema roda em modo demonstração, com chaves de teste. Para outro ambiente, copie `.env.example` para `.env` e defina `DATABASE_URL`, `CPF_HMAC_KEY`, `DATA_ENCRYPTION_KEY`, `APP_SIGNING_KEY`, `APP_URL`, `DEMO_MODE=false` e `SMTP_URL`. O `.env` nunca vai para o repositório.
 

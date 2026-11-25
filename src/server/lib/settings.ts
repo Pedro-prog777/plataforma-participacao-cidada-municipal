@@ -43,18 +43,36 @@ type ValueOf<K extends SettingKey> = (typeof SETTINGS)[K]["default"] extends num
     : string;
 
 let cache: { at: number; values: Map<string, unknown> } | null = null;
+let inflight: Promise<Map<string, unknown>> | null = null;
+let generation = 0;
 const TTL = 5_000;
 
 export function invalidateSettingsCache() {
   cache = null;
+  inflight = null;
+  generation++;
 }
 
 async function load(db: DbOrTx): Promise<Map<string, unknown>> {
   if (cache && Date.now() - cache.at < TTL) return cache.values;
-  const rows = await db.select().from(settings);
-  const values = new Map(rows.map((r) => [r.key, r.value]));
-  cache = { at: Date.now(), values };
-  return values;
+  // Leituras simultâneas (ex.: Promise.all de uma página) compartilham a mesma consulta ao banco;
+  // uma leitura iniciada antes de uma alteração (invalidação) não grava valores antigos no cache.
+  if (!inflight) {
+    const gen = generation;
+    const p = db
+      .select()
+      .from(settings)
+      .then((rows) => {
+        const values = new Map(rows.map((r) => [r.key, r.value]));
+        if (gen === generation) cache = { at: Date.now(), values };
+        return values;
+      })
+      .finally(() => {
+        if (inflight === p) inflight = null;
+      });
+    inflight = p;
+  }
+  return inflight;
 }
 
 export async function getSetting<K extends SettingKey>(key: K, db: DbOrTx = getDb()): Promise<ValueOf<K>> {

@@ -5,6 +5,7 @@
  * Documentos têm acesso restrito (servidos apenas a quem analisa e ao titular).
  */
 import { and, desc, eq, inArray } from "drizzle-orm";
+import { z } from "zod";
 import { getDb, type DbOrTx } from "../../db/client";
 import { attachments, districts, identityVerifications, users } from "../../db/schema";
 import { cpfHmac, signPayload, verifyPayload } from "../../lib/crypto";
@@ -20,6 +21,8 @@ import { assertPermission, type Actor } from "../access/access.service";
 import { notifyUser } from "../notifications/notifications.service";
 import { openIncident } from "../integrity/incidents.service";
 import { birthDateSchema } from "../auth/auth.service";
+
+const levelSchema = z.enum(["bronze", "prata", "ouro"]);
 
 async function assertCanVerify(db: DbOrTx, userId: string) {
   const [u] = await db.select().from(users).where(eq(users.id, userId));
@@ -38,6 +41,8 @@ export async function completeProviderFlow(userId: string, state: string, assert
   if (!st || st.u !== userId || st.e < Date.now() || st.p !== "verificacao") throw new DomainError("Sessão de verificação expirada ou inválida. Recomece.", "estado_invalido");
   const u = await assertCanVerify(db, userId);
   if (u.verificationLevel === "verificado" && u.domicileVerifiedAt) throw new DomainError("Sua identidade já está verificada.");
+  // Nível validado no servidor: um valor desconhecido não pode passar pela comparação de níveis (RF004).
+  if (!levelSchema.safeParse(assertion.level).success) throw new ValidationError({ level: ["Nível de conta inválido."] });
   const cpf = onlyDigits(assertion.cpf);
   return db.transaction(async (tx) => {
     if (!isValidCpf(cpf) || cpfHmac(cpf) !== u.cpfHmac) {

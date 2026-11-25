@@ -1,0 +1,1 @@
+CREATE INDEX "one_time_codes_user_scope_idx" ON "one_time_codes" USING btree ("user_id","purpose","scope");

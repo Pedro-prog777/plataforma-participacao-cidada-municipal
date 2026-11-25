@@ -99,6 +99,11 @@ export async function unsubscribe(userId: string, type: string, db: DbOrTx = get
 
 /* ------------------------- Envio da fila ------------------------- */
 
+/** Sem SMTP configurado nenhum e-mail sai de verdade: a interface não pode dizer que enviou. */
+export function emailIsSimulated(): boolean {
+  return !process.env.SMTP_URL?.trim();
+}
+
 type Transport = { send: (to: string, subject: string, body: string) => Promise<void>; simulated: boolean };
 
 let transport: Transport | null = null;
@@ -128,7 +133,8 @@ export async function processOutbox(db: DbOrTx = getDb(), batch = 50) {
   for (const m of pending) {
     try {
       await t.send(m.toAddress, m.subject, m.body);
-      await db.update(emailOutbox).set({ status: "enviado", sentAt: clock.now(), attempts: m.attempts + 1 }).where(eq(emailOutbox.id, m.id));
+      // Transporte simulado (sem SMTP): a mensagem não saiu de verdade e não é registrada como "enviado".
+      await db.update(emailOutbox).set({ status: t.simulated ? "simulado" : "enviado", sentAt: clock.now(), attempts: m.attempts + 1 }).where(eq(emailOutbox.id, m.id));
       sent++;
     } catch (e) {
       const attempts = m.attempts + 1;

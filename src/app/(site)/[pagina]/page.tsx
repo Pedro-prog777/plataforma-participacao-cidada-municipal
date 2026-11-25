@@ -14,7 +14,7 @@ const PAGES: Record<string, { title: string; body: (m: string) => React.ReactNod
         <h2 className="text-lg font-bold">Dados coletados e finalidade</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li><strong>CPF</strong> — garantir uma conta por pessoa e verificar a identidade. É guardado de forma protegida e só aparece parcialmente escondido (ex.: ***.456.789-**) para você; nunca é exibido em páginas públicas.</li>
-          <li><strong>Data de nascimento</strong> — usada somente em consultas com critério de idade justificado. Não há idade mínima geral.</li>
+          <li><strong>Data de nascimento</strong> — confirma os 18 anos completos exigidos para votar e é usada em consultas com critério de idade justificado. Quem tem menos de 18 anos pode ter conta, mas não vota.</li>
           <li><strong>Endereço no município</strong> — usado em consultas restritas a bairros ou regiões.</li>
           <li><strong>E-mail e celular</strong> — confirmação de conta, recuperação de senha, comprovantes e avisos.</li>
         </ul>

@@ -55,6 +55,8 @@ export function VotingWizard({
     if (castState.data?.step === "escolher") setStep("escolher");
   }, [castState]);
   const castError = castErrorVisible ? castState.message : undefined;
+  const destination = String(prepState.data?.destination ?? "o seu e-mail");
+  const demoCode = typeof prepState.data?.demoCode === "string" ? prepState.data.demoCode : null;
 
   const chosen = choice === "abstencao" ? { label: "Abstenção", explanation: "Registra a participação sem escolher alternativa." } : alternatives.find((a) => a.id === choice);
   const steps = ["Escolher", "Revisar e confirmar", "Comprovante"];
@@ -125,12 +127,22 @@ export function VotingWizard({
           <form action={castAction} className="space-y-4" noValidate>
             <input type="hidden" name="choice" value={choice} />
             {castError && <Alert tone="danger">{castError}</Alert>}
+            {demoCode && (
+              <Alert tone="info" title="Demonstração: mensagem simulada">
+                <p>
+                  Em uso real, este código chegaria por mensagem para {destination}. Nesta demonstração nenhuma mensagem é enviada de verdade, então ele aparece aqui:{" "}
+                  <strong className="font-mono text-lg tracking-widest" data-codigo-demonstracao>
+                    {demoCode}
+                  </strong>
+                </p>
+              </Alert>
+            )}
             <div className="space-y-1.5">
               <label htmlFor="code" className="block text-sm font-semibold">
                 Código de confirmação
               </label>
               <p id="code-dica" className="text-xs text-muted">
-                Enviamos um código de 6 dígitos para {String(prepState.data?.destination ?? "o seu e-mail")}. Ele vale por 5 minutos.
+                {demoCode ? "Digite o código de 6 dígitos mostrado acima." : `Enviamos um código de 6 dígitos para ${destination}.`} Ele vale por 5 minutos.
               </p>
               <input
                 id="code"
@@ -156,7 +168,7 @@ export function VotingWizard({
           <form action={prepAction}>
             <input type="hidden" name="choice" value={choice} />
             <input type="hidden" name="channel" value={String(prepState.data?.channel ?? "email")} />
-            <button className="text-sm font-semibold text-brand-700 underline">Não recebi: reenviar código</button>
+            <button className="text-sm font-semibold text-brand-700 underline">{demoCode ? "Gerar outro código" : "Não recebi: reenviar código"}</button>
           </form>
         </div>
       )}

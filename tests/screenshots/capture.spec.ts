@@ -69,7 +69,7 @@ test("área do cidadão", async ({ page }) => {
   await shot(page, "29-votacao-revisar");
   await page.getByLabel("Código de confirmação").fill(await lastCode(page, "carla@exemplo.com"));
   await page.getByRole("button", { name: "Confirmar meu voto" }).click();
-  await page.getByRole("heading", { name: "Seu voto foi registrado" }).waitFor();
+  await page.getByRole("heading", { name: "Participação registrada com sucesso!" }).waitFor();
   await shot(page, "30-voto-registrado");
   const code = (await page.locator("p.font-mono").textContent())!.trim();
   await page.goto("/comprovante");

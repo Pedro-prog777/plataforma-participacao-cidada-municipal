@@ -18,8 +18,7 @@ import { castVote, requestVoteCode, verifyReceipt } from "../modules/voting/voti
 import { resubmitAfterAdjustment, submitCitizenProposal, supportProposal } from "../modules/proposals/citizen-proposals.service";
 import { postComment, reportContent, requestModerationReview, markHelpful } from "../modules/moderation/moderation.service";
 import { askQuestion } from "../modules/events/events.service";
-import { participations } from "../db/schema";
-import { and, eq } from "drizzle-orm";
+import { hasParticipated } from "../modules/voting/eligibility";
 import { attempt, files, obj, str, withValues, type FormState } from "./helpers";
 import { MINUTE } from "../lib/clock";
 
@@ -110,21 +109,39 @@ export async function prepareVoteAction(consultationId: string, _: FormState, fd
   const channel = str(fd, "channel") === "celular" ? "celular" : "email";
   const r = await attempt(() => requestVoteCode(a.id, consultationId, channel));
   if (!r.ok) return { ...r.state, values: { choice } };
-  return { ok: true, data: { step: "confirmar", choice, destination: r.value.maskedDestination, channel }, values: { choice } };
+  return {
+    ok: true,
+    data: { step: "confirmar", choice, destination: r.value.maskedDestination, channel, simulated: r.value.simulated, demoCode: r.value.demoCode },
+    values: { choice },
+  };
 }
+
+/** Erros que exigem recomeçar a participação do passo 1 (código bloqueado ou consulta fora do período). */
+const RESTART_CODES = new Set(["codigo_bloqueado", "fora_do_periodo"]);
 
 /** Passo 3: confirmação com o código e gravação atômica. */
 export async function castVoteAction(consultationId: string, prev: FormState, fd: FormData): Promise<FormState> {
   const a = await requireCitizen();
   const choice = str(fd, "choice");
-  const r = await attempt(() => castVote(a.id, { consultationId, alternativeId: choice === "abstencao" ? null : choice, abstention: choice === "abstencao", code: str(fd, "code") }));
+  let errorCode: string | undefined;
+  const r = await attempt(async () => {
+    try {
+      return await castVote(a.id, { consultationId, alternativeId: choice === "abstencao" ? null : choice, abstention: choice === "abstencao", code: str(fd, "code") });
+    } catch (e) {
+      errorCode = (e as { code?: string }).code;
+      throw e;
+    }
+  });
   if (!r.ok) {
-    // Código bloqueado, participação anterior ou consulta fora do período: recomeça do passo 1.
-    const restart = /interrompida|já participou|não está aberta|suspensa/i.test(r.state.message ?? "");
-    return { ...r.state, data: { ...prev.data, step: restart ? "escolher" : "confirmar" }, values: { choice } };
+    // Envio repetido (duplo clique, nova aba, resposta perdida): o voto já está gravado — mostra o comprovante existente.
+    if (errorCode === "ja_participou" || errorCode === "voto_duplicado") {
+      const done = await hasParticipated(a.id, consultationId);
+      if (done) redirect(`/conta/participacoes/${done.id}?novo=1`);
+    }
+    return { ...r.state, data: { ...prev.data, step: errorCode && RESTART_CODES.has(errorCode) ? "escolher" : "confirmar" }, values: { choice } };
   }
-  const [p] = await getDb().select({ id: participations.id }).from(participations).where(and(eq(participations.citizenId, a.id), eq(participations.consultationId, consultationId)));
-  redirect(`/conta/participacoes/${p.id}?novo=1`);
+  // O id vem da própria transação que gravou o voto: a tela de confirmação só abre depois do COMMIT.
+  redirect(`/conta/participacoes/${r.value.participationId}?novo=1`);
 }
 
 /* ------------------------ Comprovante (RF041) ------------------------ */

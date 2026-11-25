@@ -7,7 +7,7 @@ import { requireAdmin } from "@/server/auth/current";
 import { getAdminConsultation } from "@/server/modules/consultations/admin-view";
 import { referenceData } from "@/server/modules/consultations/queries.service";
 import { audienceAction } from "@/server/actions/admin";
-import { YOUTH_MODALITIES } from "@/lib/labels";
+import { YOUTH_MODALITIES, YOUTH_MODALITIES_PERMITIDAS } from "@/lib/labels";
 
 export const metadata = { title: "Público-alvo" };
 
@@ -24,7 +24,7 @@ export default async function PublicoAlvoPage({ params }: { params: Promise<{ id
     <Card className="space-y-4">
       <div>
         <h2 className="text-lg font-bold">Público-alvo e critérios de participação</h2>
-        <p className="text-sm text-muted"><RefText>“Aberta ao público em geral” ou limitações justificadas, publicadas em linguagem simples. Não há idade mínima geral; critério etário só por consulta, justificado (RN40).</RefText> Elegíveis estimados atuais: <strong>{data.c.estimatedEligible ?? "—"}</strong>.</p>
+        <p className="text-sm text-muted"><RefText>“Aberta ao público em geral” ou limitações justificadas, publicadas em linguagem simples. Só vota quem tem 18 anos completos (RF036); um critério etário da consulta só pode restringir mais, com justificativa (RN40).</RefText> Elegíveis estimados atuais: <strong>{data.c.estimatedEligible ?? "—"}</strong>.</p>
       </div>
       <Alert tone="warning" title="Pendente de validação com o cliente (*)">
         O público-alvo padrão (domicílio no município) foi herdado da versão anterior do documento. Critérios do tipo “outro” são apenas informativos e não são verificados automaticamente.
@@ -36,7 +36,7 @@ export default async function PublicoAlvoPage({ params }: { params: Promise<{ id
             name="mode"
             defaultValue={data.c.audienceOpen ? "aberta" : "limitada"}
             options={[
-              { value: "aberta", label: "Aberta ao público em geral", description: "Qualquer cidadão com conta ativa e identidade verificada." },
+              { value: "aberta", label: "Aberta ao público em geral", description: "Qualquer cidadão com 18 anos completos, conta ativa e identidade verificada." },
               { value: "limitada", label: "Com limitações justificadas", description: "Marque e justifique cada limitação abaixo." },
             ]}
           />
@@ -78,7 +78,7 @@ export default async function PublicoAlvoPage({ params }: { params: Promise<{ id
             </div>
             <TextArea label="Justificativa" name="faixa_etaria.justification" rows={2} defaultValue={age?.justification} />
             <Field label="Texto público" name="faixa_etaria.publicText" defaultValue={age?.publicText} />
-            <SelectField label="Modalidade para crianças e adolescentes (RN40)" name="youthModality" placeholder="Não se aplica" options={Object.entries(YOUTH_MODALITIES).map(([value, label]) => ({ value, label }))} defaultValue={data.c.youthModality ?? undefined} />
+            <SelectField label="Modalidade para crianças e adolescentes (RN40)" name="youthModality" placeholder="Não se aplica" options={YOUTH_MODALITIES_PERMITIDAS.map((value) => ({ value, label: YOUTH_MODALITIES[value] }))} defaultValue={data.c.youthModality ?? undefined} />
             <TextArea label="Salvaguardas (coleta mínima, linguagem adequada, consentimento de um dos pais quando for a base legal)" name="youthSafeguards" rows={2} defaultValue={data.c.youthSafeguards ?? undefined} />
           </div>
           <div className="space-y-3 rounded-xl border border-line p-4">

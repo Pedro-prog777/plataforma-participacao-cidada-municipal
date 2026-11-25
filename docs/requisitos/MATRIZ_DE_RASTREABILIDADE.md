@@ -89,7 +89,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 | RF008 Alterar senha | /conta/senha, /admin/senha | `auth.service.ts (changePassword)` | integration/auth.test.ts › senha atual incorreta conta como falha | — | Implementado |
 | RF009 Controlar acesso por perfil, papel e permissão | todas as rotas protegidas | `server/auth/current.ts (requireCitizen/requireAdmin); modules/access/access.service.ts` | integration/auth.test.ts › Controle de acesso; e2e/public.spec.ts › áreas protegidas; e2e/admin.spec.ts | RS006 | Implementado |
 | RF010 Controlar tentativas de autenticação | /entrar (CAPTCHA) | `auth.service.ts (recordAuthFailure, requiresCaptcha); lib/captcha.ts` | integration/auth.test.ts › bloqueio 15 min; CAPTCHA por IP | — | Implementado |
-| RF011 Confirmar identidade antes do voto | /consultas/[slug]/participar (passo 2) | `modules/voting/voting.service.ts (requestVoteCode)` | integration/voting.test.ts › código; e2e/citizen.spec.ts | — | Implementado com simulação |
+| RF011 Confirmar identidade antes do voto | /consultas/[slug]/participar (passo 2; na demonstração o código aparece na tela — DT-32) | `modules/voting/voting.service.ts (requestVoteCode)` | integration/voting.test.ts › código, código anterior válido, código na tela; e2e/citizen.spec.ts | — | Implementado com simulação |
 | RF012 Visualizar perfil | /conta | `modules/profile/profile.service.ts (getProfile, eligibilitySummary)` | integration/administration.test.ts › Visualização do perfil | RS005 | Implementado |
 | RF013 Atualizar dados do perfil | /conta/perfil/editar | `profile.service.ts (updateProfile); identity.service.ts (correção documental)` | integration/administration.test.ts › Atualização do perfil | — | Implementado |
 | RF014 Acompanhar participações e propostas | /conta/participacoes, /conta/participacoes/[id] | `voting.service.ts (myParticipations)` | integration/voting.test.ts › histórico sem a opção votada; e2e/citizen.spec.ts | — | Implementado |
@@ -114,9 +114,9 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 | RF033 Suspender e retomar consulta | /admin/consultas/[id]/conducao | `lifecycle.service.ts (suspend/resume/closeSuspendedForTally)` | integration/lifecycle.test.ts; integration/voting.test.ts › voto em consulta suspensa | — | Implementado |
 | RF034 Cancelar consulta | /admin/consultas/[id]/conducao | `lifecycle.service.ts (cancelConsultation)` | integration/lifecycle.test.ts › cancelamento | — | Implementado |
 | RF035 Encerrar votação | rotina automática | `scheduler.service.ts (closeDueConsultations)` | integration/voting.test.ts › encerra no horário; totais divergentes | — | Implementado |
-| RF036 Verificar elegibilidade do cidadão | /consultas/[slug], /consultas/[slug]/participar | `modules/voting/eligibility.ts` | unit/rules.test.ts › Elegibilidade na ordem; integration/voting.test.ts | — | Implementado |
+| RF036 Verificar elegibilidade do cidadão | /consultas/[slug], /consultas/[slug]/participar | `modules/voting/eligibility.ts` (18 anos completos — DT-30) | unit/rules.test.ts › Elegibilidade na ordem, só vota quem tem 18 anos; integration/voting.test.ts › Idade mínima para votar | — | Implementado |
 | RF037 Registrar voto | /consultas/[slug]/participar | `voting.service.ts (castVote)` | integration/voting.test.ts › Registro, atomicidade, concorrência; e2e/citizen.spec.ts | RS001, RS002 | Implementado |
-| RF038 Confirmar voto e emitir comprovante | /conta/participacoes/[id], /api/conta/comprovante/[id] | `voting.service.ts (castVote → comprovante)` | integration/voting.test.ts; e2e/citizen.spec.ts | — | Implementado |
+| RF038 Confirmar voto e emitir comprovante | /conta/participacoes/[id] (código na tela, botão Copiar — DT-32), /api/conta/comprovante/[id] | `voting.service.ts (castVote → comprovante)`, `components/copy-button.tsx` | integration/voting.test.ts; e2e/citizen.spec.ts | — | Implementado |
 | RF039 Impedir voto duplicado | — | `voting.service.ts + índice único participations_citizen_consultation_uq` | integration/voting.test.ts › Voto único (3 camadas) | RS001 | Implementado |
 | RF040 Rejeitar votos fora do período | — | `voting.service.ts (FOR SHARE + horário do servidor)` | integration/voting.test.ts › horário do servidor | RS009 | Implementado |
 | RF041 Verificar comprovante de voto | /comprovante | `voting.service.ts (verifyReceipt); actions/citizen.ts (CAPTCHA por IP)` | integration/voting.test.ts › Comprovante público; e2e/citizen.spec.ts | RS002 | Implementado |
@@ -153,7 +153,7 @@ Transcrita do Documento de Requisitos v6, seção 7 — ver também `docs/requis
 | RS | Controles no código | Testes |
 |---|---|---|
 | RS001 | Índice único `participations(consultation_id, citizen_id)`; verificação na regra e na tela; HMAC do CPF mantido após desativação | voting.test.ts › Voto único, simultâneos; auth.test.ts › desativação |
-| RS002 | `votes` sem cidadão/horário/comprovante; sem FK para participações; participação só com data; CLUSTER aleatório; relatórios com supressão <10 | voting.test.ts › Sigilo do voto |
+| RS002 | `votes` sem cidadão/horário/comprovante; sem FK para participações; participação só com data; reembaralhamento da chave (sem ligação por `xmin`) + CLUSTER aleatório (DT-31); relatórios com supressão <10 | voting.test.ts › Sigilo do voto (inclui `xmin`) |
 | RS003 | Gatilhos impedem UPDATE/DELETE/TRUNCATE em votos e resultados; resultado só por retificação; hash da base | voting.test.ts › votos não podem ser alterados; database.test.ts |
 | RS004 | Verificação de identidade; código antes do voto; incidente de cadastro suspeito | voting.test.ts › código; identity (CPF divergente) |
 | RS005 | CPF mascarado; exportações agregadas; auditoria sem campos pessoais | voting.test.ts › exportação; participation.test.ts › exportação |

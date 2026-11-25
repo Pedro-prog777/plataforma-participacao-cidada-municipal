@@ -23,7 +23,7 @@ automaticamente) · **Não testado**.
 | RF008 Alterar senha | /conta/senha, /admin/senha | integration/auth.test.ts › senha atual incorreta conta como falha | Aprovado em 24/11/2026 | Aprovado |
 | RF009 Controlar acesso por perfil, papel e permissão | todas as rotas protegidas | integration/auth.test.ts › Controle de acesso; e2e/public.spec.ts › áreas protegidas; e2e/admin.spec.ts; **e2e/robustez.spec.ts › identificador fora do formato responde 404 para cidadão, API e administração (B03)** | Aprovado em 24/11/2026 | Aprovado |
 | RF010 Controlar tentativas de autenticação | /entrar (CAPTCHA) | integration/auth.test.ts › bloqueio 15 min; CAPTCHA por IP | Aprovado em 24/11/2026 | Aprovado |
-| RF011 Confirmar identidade antes do voto | /consultas/[slug]/participar (passo 2) | integration/voting.test.ts › código; e2e/citizen.spec.ts; **e2e/robustez.spec.ts › erro do código não reaparece ao voltar (B10)** | Aprovado em 24/11/2026 (integração externa simulada) | Aprovado |
+| RF011 Confirmar identidade antes do voto | /consultas/[slug]/participar (passo 2) | integration/voting.test.ts › código, código anterior válido, limite de 3, código na tela só quando simulado; e2e/citizen.spec.ts › código lido na tela, voltar e usar o código anterior (DT-32); **e2e/robustez.spec.ts › erro do código não reaparece ao voltar (B10)** | Aprovado em 25/11/2026 (integração externa simulada) | Aprovado |
 | RF012 Visualizar perfil | /conta | integration/administration.test.ts › Visualização do perfil; **unit/links.test.ts (B04)** | Aprovado em 24/11/2026 | Aprovado |
 | RF013 Atualizar dados do perfil | /conta/perfil/editar | integration/administration.test.ts › Atualização do perfil | Aprovado em 24/11/2026 | Aprovado |
 | RF014 Acompanhar participações e propostas | /conta/participacoes, /conta/participacoes/[id] | integration/voting.test.ts › histórico sem a opção votada; e2e/citizen.spec.ts; **e2e/robustez.spec.ts › 404 em /conta/propostas/abc; axe sem lista inválida (B03, B09)** | Aprovado em 24/11/2026 | Aprovado |
@@ -48,9 +48,9 @@ automaticamente) · **Não testado**.
 | RF033 Suspender e retomar consulta | /admin/consultas/[id]/conducao | integration/lifecycle.test.ts; integration/voting.test.ts › voto em consulta suspensa | Aprovado em 24/11/2026 | Aprovado |
 | RF034 Cancelar consulta | /admin/consultas/[id]/conducao | integration/lifecycle.test.ts › cancelamento | Aprovado em 24/11/2026 | Aprovado |
 | RF035 Encerrar votação | rotina automática | integration/voting.test.ts › encerra no horário; totais divergentes | Aprovado em 24/11/2026 | Aprovado |
-| RF036 Verificar elegibilidade do cidadão | /consultas/[slug], /consultas/[slug]/participar | unit/rules.test.ts › Elegibilidade na ordem; integration/voting.test.ts; **unit/links.test.ts › ação “Ver meu perfil” (B04)** | Aprovado em 24/11/2026 | Aprovado |
+| RF036 Verificar elegibilidade do cidadão | /consultas/[slug], /consultas/[slug]/participar | unit/rules.test.ts › Elegibilidade na ordem, só vota quem tem 18 anos completos (DT-30); integration/voting.test.ts › Idade mínima para votar; **unit/links.test.ts › ação “Ver meu perfil” (B04)** | Aprovado em 25/11/2026 | Aprovado |
 | RF037 Registrar voto | /consultas/[slug]/participar | integration/voting.test.ts › Registro, atomicidade, concorrência; e2e/citizen.spec.ts | Aprovado em 24/11/2026 | Aprovado |
-| RF038 Confirmar voto e emitir comprovante | /conta/participacoes/[id], /api/conta/comprovante/[id] | integration/voting.test.ts; e2e/citizen.spec.ts | Aprovado em 24/11/2026 | Aprovado |
+| RF038 Confirmar voto e emitir comprovante | /conta/participacoes/[id], /api/conta/comprovante/[id] | integration/voting.test.ts › id da transação; e2e/citizen.spec.ts › código na tela, botão Copiar, recarregar, uma única guia (DT-32) | Aprovado em 25/11/2026 | Aprovado |
 | RF039 Impedir voto duplicado | — | integration/voting.test.ts › Voto único (3 camadas) | Aprovado em 24/11/2026 | Aprovado |
 | RF040 Rejeitar votos fora do período | — | integration/voting.test.ts › horário do servidor | Aprovado em 24/11/2026 | Aprovado |
 | RF041 Verificar comprovante de voto | /comprovante | integration/voting.test.ts › Comprovante público; e2e/citizen.spec.ts | Aprovado em 24/11/2026 | Aprovado |
@@ -107,7 +107,7 @@ automaticamente) · **Não testado**.
 | Requisito | Controles | Cenários de teste | Resultado | Situação |
 |---|---|---|---|---|
 | RS001 | Índice único `participations(consultation_id, citizen_id)`; verificação na regra e na tela; HMAC do CPF mantido após desativação | voting.test.ts › Voto único, simultâneos; auth.test.ts › desativação | Aprovado em 24/11/2026 | Aprovado |
-| RS002 | `votes` sem cidadão/horário/comprovante; sem FK para participações; participação só com data; CLUSTER aleatório; relatórios com supressão <10 | voting.test.ts › Sigilo do voto | Aprovado em 24/11/2026 | Aprovado |
+| RS002 | `votes` sem cidadão/horário/comprovante; sem FK para participações; participação só com data; reembaralhamento da chave (sem ligação por `xmin`) + CLUSTER aleatório (DT-31); relatórios com supressão <10 | voting.test.ts › Sigilo do voto (inclui `xmin`) | Aprovado em 25/11/2026 | Aprovado |
 | RS003 | Gatilhos impedem UPDATE/DELETE/TRUNCATE em votos e resultados; resultado só por retificação; hash da base | voting.test.ts › votos não podem ser alterados; database.test.ts | Aprovado em 24/11/2026 | Aprovado |
 | RS004 | Verificação de identidade; código antes do voto; incidente de cadastro suspeito | voting.test.ts › código; identity (CPF divergente) | Aprovado em 24/11/2026 | Aprovado |
 | RS005 | CPF mascarado; exportações agregadas; auditoria sem campos pessoais | voting.test.ts › exportação; participation.test.ts › exportação | Aprovado em 24/11/2026 | Aprovado |

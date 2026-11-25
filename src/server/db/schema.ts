@@ -196,20 +196,25 @@ export const tokens = pgTable(
 );
 
 /** Códigos curtos (6 dígitos) — confirmação de identidade antes do voto (RF011). */
-export const oneTimeCodes = pgTable("one_time_codes", {
-  id: uuid().primaryKey().defaultRandom(),
-  userId: uuid()
-    .notNull()
-    .references(() => users.id),
-  purpose: text().notNull(),
-  scope: text(),
-  codeHash: text().notNull(),
-  channel: text().notNull(),
-  attempts: integer().notNull().default(0),
-  expiresAt: tsRequired(),
-  consumedAt: ts(),
-  createdAt: createdAt(),
-});
+export const oneTimeCodes = pgTable(
+  "one_time_codes",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid()
+      .notNull()
+      .references(() => users.id),
+    purpose: text().notNull(),
+    scope: text(),
+    codeHash: text().notNull(),
+    channel: text().notNull(),
+    attempts: integer().notNull().default(0),
+    expiresAt: tsRequired(),
+    consumedAt: ts(),
+    createdAt: createdAt(),
+  },
+  // Consultado a cada pedido e confirmação de voto (DT-23: índice para todo filtro).
+  (t) => [index("one_time_codes_user_scope_idx").on(t.userId, t.purpose, t.scope)],
+);
 
 /** Falhas de autenticação por conta e por IP (RF010, RN24). IP guardado como hash. */
 export const authFailures = pgTable(
@@ -750,7 +755,7 @@ export const emailOutbox = pgTable(
     toAddress: text().notNull(),
     subject: text().notNull(),
     body: text().notNull(),
-    status: text().notNull().default("pendente"), // pendente | enviado | falhou
+    status: text().notNull().default("pendente"), // pendente | enviado | simulado (sem SMTP, DT-32) | falhou
     attempts: integer().notNull().default(0),
     lastError: text(),
     createdAt: createdAt(),

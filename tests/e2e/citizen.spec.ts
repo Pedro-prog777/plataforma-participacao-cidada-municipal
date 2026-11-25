@@ -65,13 +65,27 @@ test("cidadã vota em 3 passos, recebe comprovante e não consegue votar de novo
   await page.getByLabel("Código de confirmação").fill("000000");
   await page.getByRole("button", { name: "Confirmar meu voto" }).click();
   await expect(page.getByText(/Código incorreto/)).toBeVisible();
-  await page.getByLabel("Código de confirmação").fill(await lastCode(page, "carla@exemplo.com"));
+  // Demonstração: o código de confirmação aparece na própria tela (sem abrir e-mail nem outra página — DT-32).
+  const shown = (await page.locator("[data-codigo-demonstracao]").textContent())!.trim();
+  expect(shown).toBe(await lastCode(page, "carla@exemplo.com"));
+  await page.getByLabel("Código de confirmação").fill(shown);
   await page.getByRole("button", { name: "Confirmar meu voto" }).click();
-  // Passo 3: comprovante
-  await expect(page.getByRole("heading", { name: "Seu voto foi registrado" })).toBeVisible();
+  // Passo 3: confirmação com o código de participação, na mesma guia.
+  await expect(page.getByRole("heading", { name: "Participação registrada com sucesso!" })).toBeVisible();
+  await expect(page.getByText("Seu voto foi registrado e confirmado pelo sistema.")).toBeVisible();
   const code = (await page.locator("p.font-mono").textContent())!.trim();
   expect(code).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
   await expect(page.getByText("não informa a alternativa escolhida")).toBeVisible();
+  await expect(page.getByText(/Enviamos o comprovante/)).toHaveCount(0);
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Copiar código" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "O código foi copiado." })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(code);
+  expect(page.context().pages()).toHaveLength(1);
+  await expectAccessible(page);
+  // Recarregar não perde o código.
+  await page.reload();
+  await expect(page.locator("p.font-mono")).toHaveText(code);
 
   // Voto único: voltar à consulta mostra "Você já participou" e a URL de votação redireciona ao comprovante.
   await page.getByRole("link", { name: "Voltar à consulta" }).click();
@@ -87,6 +101,25 @@ test("cidadã vota em 3 passos, recebe comprovante e não consegue votar de novo
   // Histórico do titular sem a opção votada.
   await page.goto("/conta/participacoes");
   await expect(page.getByText(code)).toBeVisible();
+});
+
+test("voltar e gerar outro código não invalida o anterior: a votação termina na mesma guia (DT-32)", async ({ page }) => {
+  await loginCitizen(page, "maria@exemplo.com", "/consultas?posso_participar=1");
+  const card = page.getByRole("article").filter({ hasText: "Você pode participar" }).first();
+  test.skip((await card.count()) === 0, "a cidadã de demonstração já participou de todas as consultas abertas");
+  const href = (await card.getByRole("link").first().getAttribute("href"))!;
+  await page.goto(`${href}/participar`);
+  await page.getByRole("radio").first().check();
+  await page.getByRole("button", { name: "Revisar minha escolha" }).click();
+  const first = (await page.locator("[data-codigo-demonstracao]").textContent())!.trim();
+  await page.getByRole("button", { name: "Voltar e mudar a escolha" }).click();
+  await page.getByRole("radio").last().check();
+  await page.getByRole("button", { name: "Revisar minha escolha" }).click();
+  await expect(page.locator("[data-codigo-demonstracao]")).not.toHaveText(first);
+  await page.getByLabel("Código de confirmação").fill(first);
+  await page.getByRole("button", { name: "Confirmar meu voto" }).click();
+  await expect(page.getByRole("heading", { name: "Participação registrada com sucesso!" })).toBeVisible();
+  expect(page.context().pages()).toHaveLength(1);
 });
 
 test("cidadão sem identidade verificada é orientado a verificar (RN04)", async ({ page }) => {

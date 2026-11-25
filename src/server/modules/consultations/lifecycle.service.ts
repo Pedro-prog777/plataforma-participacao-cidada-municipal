@@ -25,7 +25,7 @@ import { clock, DAY, HOUR } from "../../lib/clock";
 import { ConflictError, DomainError, ForbiddenError, parseOrThrow, ValidationError, type FieldErrors } from "../../lib/errors";
 import { getSetting } from "../../lib/settings";
 import { CONFLICTS_WITH_APPROVER, CONSULTATION_ROLES, CONSULTATION_ROLE_KEYS, type ConsultationRole, type Permission } from "@/lib/permissions";
-import { daysBetween, fmtDateTime, parseLocalDateTime } from "@/lib/labels";
+import { daysBetween, fmtDateTime, parseLocalDateTime, YOUTH_MODALITIES_PERMITIDAS } from "@/lib/labels";
 import { normalizeSearch, sanitizePlainText, slugify } from "@/lib/text";
 import { audit } from "../audit/audit.service";
 import { assertConsultationRole, assertPermission, consultationRolesOf, loadActor, type Actor } from "../access/access.service";
@@ -277,6 +277,8 @@ export async function setAudience(
   const youth = criteria.some((c) => c.type === "faixa_etaria" && c.maxAge != null && c.maxAge < 18) || criteria.some((c) => c.type === "faixa_etaria" && c.minAge != null && c.minAge < 18);
   if (youth) {
     if (!input.youthModality) errors.youthModality = ["Consulta voltada a crianças e adolescentes: escolha a modalidade (RN40)."];
+    else if (input.youthModality === "voto") errors.youthModality = ["Só vota quem tem 18 anos completos (RF036): para crianças e adolescentes, escolha informativa, educativa ou envio de propostas."];
+    else if (!(YOUTH_MODALITIES_PERMITIDAS as readonly string[]).includes(input.youthModality)) errors.youthModality = ["Modalidade inválida."];
     if (!sanitizePlainText(input.youthSafeguards ?? "")) errors.youthSafeguards = ["Descreva as salvaguardas (coleta mínima, linguagem adequada, consentimento quando aplicável)."];
   }
   if (Object.keys(errors).length) throw new ValidationError(errors);

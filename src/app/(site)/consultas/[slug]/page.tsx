@@ -8,7 +8,7 @@ import { Countdown } from "@/components/layout/client-bits";
 import { Icon } from "@/components/ui/icons";
 import { Alert, Badge, Card, LinkButton, PageHeader, Section, Timeline } from "@/components/ui/primitives";
 import { getCurrentActor } from "@/server/auth/current";
-import { getPublicConsultation, listPublicOutcomes } from "@/server/modules/consultations/queries.service";
+import { getPublicConsultationCached, listPublicOutcomes } from "@/server/modules/consultations/queries.service";
 import { checkEligibility, hasParticipated } from "@/server/modules/voting/eligibility";
 import { publicResults } from "@/server/modules/results/results.service";
 import { listEvents } from "@/server/modules/events/events.service";
@@ -16,13 +16,13 @@ import { getSetting } from "@/server/lib/settings";
 import { fmtDate, fmtDateTime, OUTCOME_STATUS, YOUTH_MODALITIES } from "@/lib/labels";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const c = await getPublicConsultation((await params).slug);
+  const c = await getPublicConsultationCached((await params).slug);
   return { title: c?.c.title ?? "Consulta" };
 }
 
 export default async function ConsultaPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const data = await getPublicConsultation(slug);
+  const data = await getPublicConsultationCached(slug);
   if (!data) notFound();
   const c = data.c;
   const actor = await getCurrentActor();
@@ -134,7 +134,7 @@ export default async function ConsultaPage({ params }: { params: Promise<{ slug:
 
           <Section title="Quem pode participar" id="publico">
             {c.audienceOpen ? (
-              <p>Aberta ao público em geral — qualquer cidadão com conta ativa e identidade verificada.</p>
+              <p>Aberta ao público em geral — qualquer cidadão com 18 anos completos, conta ativa e identidade verificada.</p>
             ) : (
               <ul className="space-y-2">
                 {data.criteria.map((cr) => (
@@ -253,7 +253,7 @@ export default async function ConsultaPage({ params }: { params: Promise<{ slug:
             )}
             {!actor ? (
               <>
-                <p className="text-sm text-muted">{c.status === "aberta" ? "Para votar é preciso ter conta ativa e identidade verificada." : "A participação não está aberta neste momento."}</p>
+                <p className="text-sm text-muted">{c.status === "aberta" ? "Para votar é preciso ter 18 anos completos, conta ativa e identidade verificada." : "A participação não está aberta neste momento."}</p>
                 {c.status === "aberta" && (
                   <LinkButton href={`/entrar?proximo=/consultas/${slug}`} className="w-full">
                     Entre para participar

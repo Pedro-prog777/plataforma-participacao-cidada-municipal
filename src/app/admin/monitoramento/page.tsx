@@ -24,6 +24,7 @@ const REASON: Record<string, string> = {
   limite_tentativas: "Excesso de tentativas",
   conta_administrativa: "Conta administrativa",
   conta_inativa: "Conta inativa",
+  menor_de_18: "Menos de 18 anos",
 };
 
 export default async function MonitoramentoPage() {

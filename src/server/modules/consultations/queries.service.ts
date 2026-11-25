@@ -1,4 +1,5 @@
 /** Consultas de leitura para o portal público e a administração (RF016–RF018, RF048, RF050, RF051, RF056). */
+import { cache } from "react";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
 import {
@@ -161,6 +162,12 @@ export async function getPublicConsultation(slug: string, db: DbOrTx = getDb()) 
   ]);
   return { ...row, alternatives: alts, criteria, attachments: files, participations: n, events };
 }
+
+/**
+ * Mesma consulta pública lida por `generateMetadata` e pela página: uma única ida ao banco por
+ * requisição (antes eram 12 consultas SQL em vez de 6 — DT-23).
+ */
+export const getPublicConsultationCached = cache((slug: string) => getPublicConsultation(slug));
 
 export async function getConsultationIdBySlug(slug: string, db: DbOrTx = getDb()) {
   const [r] = await db.select({ id: consultations.id }).from(consultations).where(eq(consultations.slug, slug));

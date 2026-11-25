@@ -75,8 +75,12 @@ export const YOUTH_MODALITIES = {
   informativa: "Informativa",
   educativa: "Educativa",
   proposta: "Envio de propostas",
-  voto: "Voto",
+  // Mantido só para exibir registros antigos: só vota quem tem 18 anos completos (RF036, DT-30).
+  voto: "Voto (somente para quem tem 18 anos completos)",
 } as const;
+
+/** Modalidades que podem ser escolhidas para crianças e adolescentes (RN40); "voto" não, pelo RF036 (DT-30). */
+export const YOUTH_MODALITIES_PERMITIDAS = ["informativa", "educativa", "proposta"] as const;
 
 export const AUDIENCE_TYPES = {
   domicilio: "Domicílio no município",

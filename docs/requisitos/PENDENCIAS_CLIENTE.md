@@ -6,10 +6,10 @@ Itens marcados com (\*) no Documento de Requisitos v6 e lacunas encontradas na a
 |---|---|---|---|---|
 | 1 | Caráter sempre consultivo da votação | §2.1, RF018 | Sempre consultivo; avisos em todas as telas; opção “vinculante” inexistente | — (decisão de produto) |
 | 2 | Divisão do Administrador em papéis | §2.1, RF028, RF061 | 13 papéis do documento como conjuntos de permissões editáveis | `/admin/papeis` |
-| 3 | Dados exigidos no cadastro e obrigatoriedade do CPF | RF001 | CPF obrigatório (validação de dígitos) | `auth.service.ts` |
+| 3 | Dados exigidos no cadastro e obrigatoriedade do CPF | RF001, RF002 | CPF obrigatório **com validação dos dígitos verificadores** — o Documento v6 (DT-29) passou a aceitar CPF fictício sem verificador, mas o sistema não foi alterado, aguardando a avaliação dos professores. Atenção: com CPF sem verificador, a verificação pelo gov.br (RF004, RS004) sempre recusaria a conta | `auth.service.ts`, `identity.service.ts` |
 | 4 | Prazo padrão de 20 dias; redução para 10; o que é emergência; quem autoriza | RF025, RF029 | 20 / 10 dias; redução exige justificativa + papel “Autorizador de prazo excepcional” | `/admin/configuracoes` |
 | 5 | Público-alvo padrão das consultas | RF027, RF036 | Padrão herdado: **domicílio no município** | `consulta.publico_padrao` |
-| 6 | Participação de crianças e adolescentes | RF027, RS010 | Critério etário só por consulta, com modalidade e salvaguardas; consentimento parental **não implementado** | Análise jurídica |
+| 6 | Participação de crianças e adolescentes | RF027, RF036, RS010 | **Só vota quem tem 18 anos completos** (DT-30). O RF027 ainda cita a modalidade "voto" para crianças e adolescentes, o que contradiz o RF036: no sistema, a modalidade "voto" não é mais selecionável (ficam informativa, educativa e envio de propostas). Cadastro, propostas e denúncias continuam permitidos a menores — decidir se também passam a exigir 18 anos. Consentimento parental **não implementado** | `voting/eligibility.ts`; análise jurídica |
 | 7 | Regra de apuração, quórum e publicação do preliminar | RF042–RF044 | Maioria simples dos válidos; quórum opcional por consulta; preliminar **não** publicado | `resultado.publicar_preliminar` |
 | 8 | Exibição de resultados parciais | RF048, RS008 | Não adotada (somente participações) | — |
 | 9 | Limite, apoios e metas das propostas cidadãs | RF020, RF021, RF067 | Limite 3 em análise; apoios desligados; meta e prazo **sem valor** | `proposta.limite_em_analise`, `recursos.apoios`, `apoios.meta`, `apoios.prazo_dias` |
@@ -18,7 +18,7 @@ Itens marcados com (\*) no Documento de Requisitos v6 e lacunas encontradas na a
 | 12 | Política de uso e moderação | RF064–RF066 | Termos sinalizados para revisão humana; ocultação após 3 denúncias; moderação prévia desligada | `denuncia.limite_ocultacao`, `comentarios.moderacao_previa` |
 | 13 | Nível de acessibilidade exigido | RF018 | Meta WCAG 2.2 AA + eMAG 3.1 (RNF01) | — |
 | 14 | Canais de divulgação | RF062 | Portal, redes oficiais, impressos, rádio, outro | `DISSEMINATION_CHANNELS` |
-| 15 | Forma de identificação e voto único/irretratável | RF036 | Identidade verificada + código por e-mail; voto único e irretratável | — |
+| 15 | Forma de identificação e voto único/irretratável | RF036, RF011 | Identidade verificada + código por e-mail (na demonstração, o código aparece na própria tela, como mensagem simulada — DT-32); voto único e irretratável | — |
 | 16 | Metas de desempenho, disponibilidade, internet fraca, backup | RNF04, RNF09, RNF10, RNF14 | Metas sugeridas registradas; não medidas sob carga real | `docs/testes/PLANO_DE_TESTES.md` |
 | 17 | Registro de valores anterior/novo em todo ato administrativo | RNF08 | Auditoria registra ação, autor, data, justificativa e **nomes** dos campos; valores pessoais não são gravados (conflito com RNF06 a decidir) | `audit.service.ts` |
 

@@ -22,6 +22,20 @@
       "when": 1794679649083,
       "tag": "0002_indices_de_desempenho",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795640778412,
+      "tag": "0003_indice_codigos_de_confirmacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795640780034,
+      "tag": "0004_votos_sigilo_reembaralhamento",
+      "breakpoints": true
     }
   ]
 }

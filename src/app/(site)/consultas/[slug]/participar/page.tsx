@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { MainContainer } from "@/components/layout/site-chrome";
@@ -65,7 +64,7 @@ export default async function ParticiparPage({ params }: { params: Promise<{ slu
           </Card>
           {demoMode() && (
             <Alert tone="info" title="Demonstração">
-              Nesta demonstração os e-mails não são enviados de verdade: o código aparece na <Link href="/demo/caixa-de-email">caixa de e-mail de teste</Link>.
+              Nesta demonstração nenhuma mensagem é enviada de verdade: o código de confirmação aparece na própria tela da votação, sem precisar sair desta página.
             </Alert>
           )}
         </aside>

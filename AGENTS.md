@@ -33,7 +33,9 @@ Referência central para qualquer agente ou pessoa que trabalhe neste repositór
 - Participação e voto são gravados na mesma transação; nunca registrar a alternativa em auditoria, logs, e-mails, notificações, URLs ou no código de confirmação.
 - Votos aceitos não são auditados individualmente; só recusas (sem alternativa).
 - Durante a votação nenhuma tela, rota ou relatório mostra contagem por alternativa, para nenhum perfil (RN16).
-- Tabelas somente de acréscimo (gatilhos em `database/migrations/0001_*.sql`): `votes`, `participations`, `audit_log`, `results`, `consultation_events`, `entity_versions`, `outcome_entries`, `citizen_proposal_events`, `integrity_checks`, `moderation_decisions`. Não remover os gatilhos.
+- Sigilo também contra quem acessa o banco: participação e voto nascem com o mesmo `xmin`; a rotina `shuffleVotes` troca a `shuffle_key` de todos os votos da consulta numa única instrução e faz o CLUSTER (DT-31). Não remover essa rotina.
+- Só vota quem tem 18 anos completos (RF036): a regra fica só em `voting/eligibility.ts` (DT-30).
+- Tabelas somente de acréscimo (gatilhos em `database/migrations/0001_*.sql`; em `votes`, o gatilho admite apenas a troca de `shuffle_key` — migração 0004, DT-31): `votes`, `participations`, `audit_log`, `results`, `consultation_events`, `entity_versions`, `outcome_entries`, `citizen_proposal_events`, `integrity_checks`, `moderation_decisions`. Não remover os gatilhos.
 - Ninguém aprova a consulta que elaborou, editou ou revisou; contas administrativas não votam.
 - O teste `tests/integration/voting.test.ts › Sigilo do voto` deve continuar passando; ao criar nova saída de dados (relatório, exportação, log), acrescente-a a esse teste.
 
