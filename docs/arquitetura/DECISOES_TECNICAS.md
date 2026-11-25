@@ -183,3 +183,17 @@ Registro das escolhas de arquitetura e das interpretações do Documento de Requ
 - **Consequência:** o documento cita as RN pelo nome sem descrevê-las (DT-15); sem o apêndice não há destino para elas, e as citações de RN no PDF ficam como texto normal — sem link e sem a marcação de "referência a verificar".
 - **Não alterado:** a página `/requisitos` do sistema e os links de RN na interface (DT-24) — o pedido foi só sobre o PDF.
 - **Teste:** `tests/unit/requisitos-pdf.test.ts` confere o número de páginas igual ao original, a ausência do apêndice e que nenhuma RN virou link.
+
+## DT-29 — Alterações autorizadas no Documento de Requisitos v6 (25/11/2026)
+- **Pedido da equipe (somente documentação):** (1) retirar do RF067 a citação a um apêndice que não existe no documento; (2) permitir CPF fictício, sem cálculo nem validação dos dígitos verificadores; (3) estabelecer que só pessoas com 18 anos completos ou mais podem votar.
+- **Texto alterado** — igual no PDF (`npm run requisitos:pdf`, lista `EDICOES` de `scripts/pdf-requisitos/gerar.ts`), em `docs/requisitos/REQUISITOS_COMPLETOS.md` e na cópia do `AGENTS.md`:
+  - RF067: "valores de um portal legislativo federal (Apêndice B), não adotados" → "valores de um portal legislativo federal, não adotados".
+  - RF001, campo CPF: "com validação do dígito verificador (*)" → "aceita fictício, sem dígito verificador". Formato, obrigatoriedade, unicidade (RN02) e "nunca exibido em páginas públicas" foram mantidos.
+  - RF002, fluxo: "2) valida CPF pelos dígitos verificadores" → "2) aceita CPF fictício, sem verificador".
+  - RF001, finalidade da data de nascimento: "só é usada em consulta com critério etário justificado" → "confirma os 18 anos para votar e o critério etário".
+  - RF001, campo Data de nascimento: "Só é usada em consulta com critério de idade justificado; não existe idade mínima geral" → "Confirma os 18 anos para votar e o critério de idade justificado".
+  - RF027: "Não há idade mínima geral;" → "Só vota quem tem 18 anos;".
+  - RF036 (verificação de elegibilidade, onde a regra se aplica): "Nenhuma idade mínima geral é aplicada" → "Só vota quem tem 18 anos completos".
+- **Limite do PDF:** cada substituição cabe na largura da linha original para preservar o layout; por isso os textos são curtos e iguais nas três cópias.
+- **Sistema não alterado (por instrução):** o cadastro continua validando os dígitos do CPF (`src/lib/cpf.ts`) e a elegibilidade continua sem idade mínima geral (`voting/eligibility.ts`, teste `rules.test.ts` › "não existe idade mínima geral"); a página `/privacidade` ainda diz "Não há idade mínima geral". O documento passa a descrever regras ainda não implementadas — implementá-las depende de nova autorização.
+- **Pontos de conflito deixados para decisão da equipe:** RF027 ainda admite a modalidade "voto" em consulta voltada a crianças e adolescentes (RN40); RF004/RS004 pressupõem conferir o CPF no gov.br, o que não funciona com CPF fictício; `docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md` mantém o texto anterior do RF067.

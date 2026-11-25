@@ -53,6 +53,15 @@ const EDICOES: Edicao[] = [
   { nome: "Referência 19 → 7", re: /19\.(?= PRESSMAN)/g, n: 1, por: "7." },
   { nome: "Referência 20 → 8", re: /20\.(?= SOMMERVILLE)/g, n: 1, por: "8." },
   { nome: "Referência 21 → 9", re: /21\.(?= WORLD WIDE WEB)/g, n: 1, por: "9." },
+  // Alterações de conteúdo autorizadas pela equipe em 25/11/2026 (DT-29). Mesmo texto da transcrição
+  // em REQUISITOS_COMPLETOS.md; cada substituição cabe na largura da linha original.
+  { nome: "RF067 — referência a apêndice inexistente", re: / \(Apêndice B\)(?=, não adotados)/g, n: 1 },
+  { nome: "RF001 — CPF fictício (campo)", re: /com validação do dígito verificador \(\*\)/g, n: 1, por: "aceita fictício, sem dígito verificador" },
+  { nome: "RF002 — CPF fictício (fluxo)", re: /valida CPF pelos dígitos verificadores(?=;)/g, n: 1, por: "aceita CPF fictício, sem verificador" },
+  { nome: "RF001 — data de nascimento (finalidade)", re: /só é usada em consulta com critério etário justificado(?= \(RN35, RN40\))/g, n: 1, por: "confirma os 18 anos para votar e o critério etário" },
+  { nome: "RF001 — data de nascimento (campo)", re: /Só é usada em consulta com critério (?:de )?idade justificado; não existe idade mínima geral(?= \(RN01, RN40\))/g, n: 1, por: ["Confirma os 18 anos para votar e", "o critério de idade justificado"] },
+  { nome: "RF027 — idade mínima para votar", re: /Não há idade mínima geral;/g, n: 1, por: "Só vota quem tem 18 anos;" },
+  { nome: "RF036 — idade mínima para votar", re: /Nenhuma idade mínima geral é aplicada(?=, e a)/g, n: 1, por: "Só vota quem tem 18 anos completos" },
 ];
 
 /** Depois da edição, nada disto pode sobrar no PDF. */
