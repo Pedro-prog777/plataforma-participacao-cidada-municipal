@@ -61,3 +61,8 @@ O diagrama está em [`database/diagrams/modelo-er.md`](../../database/diagrams/m
 - Teste mensal de restauração em ambiente isolado, seguido de `npm run test` apontando para o banco restaurado e da verificação da trilha de auditoria (`/admin/auditoria?verificar=1`).
 - Acesso a backups e WAL restrito (ver DT-05).
 - Em desenvolvimento (PGlite), o banco é descartável: `npm run db:reset`.
+
+## View, contas e permissões (DT-34)
+- **View `vw_consultas_publicas`** (`database/migrations/0005_*.sql`): consultas em situação pública com tema, região, órgão e número de participações — sem dados pessoais nem votos.
+- **Contas do banco** (`database/migrations/0007_*.sql`): `ppcm_app` (aplicação, sem alterar/apagar registros imutáveis), `ppcm_relatorios` (só a view e tabelas de referência) e `ppcm_auditoria` (só a trilha de auditoria e os controles de integridade). Detalhes e exemplo de uso em `database/README.md`.
+- **Restrição e gatilho** (`database/migrations/0006_*.sql`): `consultations_periodo_valido` (encerramento após a abertura) e `ppcm_preenche_updated_at()` nas tabelas com `updated_at`.

@@ -36,6 +36,27 @@
       "when": 1795640780034,
       "tag": "0004_votos_sigilo_reembaralhamento",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795713935563,
+      "tag": "0005_view_consultas_publicas",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795713937291,
+      "tag": "0006_reforco_integridade",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795713938926,
+      "tag": "0007_papeis_e_permissoes",
+      "breakpoints": true
     }
   ]
 }
