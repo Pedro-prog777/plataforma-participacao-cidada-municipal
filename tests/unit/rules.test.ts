@@ -1,6 +1,6 @@
 /** Testes unitários das regras puras (RNF12: RN05–RN08, RN14, RN18 e correlatas). */
 import { describe, expect, it } from "vitest";
-import { formatCpf, generateCpf, isValidCpf, maskCpf } from "@/lib/cpf";
+import { formatCpf, generateCpf, isCpfFormat, maskCpf } from "@/lib/cpf";
 import { isUuid, normalizeSearch, parseIsoDay, sanitizePlainText, slugify } from "@/lib/text";
 import { passwordPolicyErrors } from "@/server/lib/password";
 import { base32Decode, base32Encode, totp, verifyTotp } from "@/server/lib/totp";
@@ -14,14 +14,21 @@ import { parseLocalDateTime, toLocalInput } from "@/lib/labels";
 import { shouldFlag } from "@/server/modules/moderation/moderation.service";
 
 describe("CPF (RF001, RF002)", () => {
-  it("valida dígitos verificadores", () => {
-    expect(isValidCpf("529.982.247-25")).toBe(true);
-    expect(isValidCpf("529.982.247-24")).toBe(false);
-    expect(isValidCpf("111.111.111-11")).toBe(false);
-    expect(isValidCpf("123")).toBe(false);
+  it("aceita CPF fictício no formato XXX.XXX.XXX-XX, sem calcular os dígitos verificadores (DT-36)", () => {
+    expect(isCpfFormat("529.982.247-25")).toBe(true);
+    expect(isCpfFormat("529.982.247-24")).toBe(true); // verificador errado: fictício, aceito
+    expect(isCpfFormat("111.111.111-11")).toBe(true);
+    expect(isCpfFormat("52998224724")).toBe(true); // sem pontuação
+    expect(isCpfFormat(" 529.982.247-24 ")).toBe(true);
+    expect(isCpfFormat("123")).toBe(false);
+    expect(isCpfFormat("529.982.247-2")).toBe(false);
+    expect(isCpfFormat("529.982.247-255")).toBe(false);
+    expect(isCpfFormat("529.982.247-2a")).toBe(false);
+    expect(isCpfFormat("529/982/247-25")).toBe(false);
+    expect(isCpfFormat("")).toBe(false);
   });
-  it("gera CPFs válidos, formata e mascara sem expor os extremos", () => {
-    for (let i = 0; i < 50; i++) expect(isValidCpf(generateCpf())).toBe(true);
+  it("gera CPFs no formato aceito, formata e mascara sem expor os extremos", () => {
+    for (let i = 0; i < 50; i++) expect(isCpfFormat(generateCpf())).toBe(true);
     expect(formatCpf("52998224725")).toBe("529.982.247-25");
     expect(maskCpf("52998224725")).toBe("***.982.247-**");
   });

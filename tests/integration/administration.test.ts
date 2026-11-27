@@ -6,7 +6,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { and, desc, eq } from "drizzle-orm";
 import { createTestDb, destroyTestDb } from "../helpers/db";
-import { assign, createAdmin, createCitizen, createOpenConsultation, PASSWORD } from "../helpers/fixtures";
+import { assign, createAdmin, createCitizen, createOpenConsultation, fictitiousCpf, PASSWORD } from "../helpers/fixtures";
 import type { Db } from "@/server/db/client";
 import { attachments, auditLog, consultationEvents, districts, emailOutbox, incidents, notifications, organs, participations, roles, themes, users } from "@/server/db/schema";
 import { completeProviderFlow, decideVerification, listPendingVerifications, startProviderFlow, submitDocuments } from "@/server/modules/identity/identity.service";
@@ -67,6 +67,13 @@ describe("Verificação de identidade e domicílio (RF004, RS004)", () => {
     expect(u.verificationLevel).toBe("verificado");
     expect(u.verificationMethod).toBe("provedor_simulado");
     expect(u.domicileVerifiedAt).not.toBeNull();
+  });
+
+  it("provedor: CPF fictício, sem dígito verificador, igual ao do cadastro verifica a conta (DT-36)", async () => {
+    const c = await createCitizen(db, { verified: false, domicile: false, cpf: fictitiousCpf() });
+    const r = await completeProviderFlow(c.id, startProviderFlow(c.id), assertion(c.cpf, "prata"), db);
+    expect(r).toMatchObject({ ok: true });
+    expect((await userRow(c.id)).verificationLevel).toBe("verificado");
   });
 
   it("o estado do fluxo é assinado, expira e não serve para outra conta", async () => {

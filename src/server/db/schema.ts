@@ -8,6 +8,7 @@
  *  - `votes.id` é UUID aleatório e `shuffle_key` permite reordenar fisicamente a tabela (CLUSTER).
  */
 import { sql } from "drizzle-orm";
+import type { ResultadoDaApuracao } from "../domain/services/apuracao";
 import {
   bigserial,
   boolean,
@@ -541,20 +542,8 @@ export const results = pgTable(
   (t) => [index("results_consultation_idx").on(t.consultationId, t.createdAt)],
 );
 
-export type ResultData = {
-  countingRule: string;
-  alternatives: { id: string; label: string; votes: number; percentage: string }[];
-  validVotes: number;
-  abstentions: number;
-  totalVotes: number;
-  participations: number;
-  estimatedEligible: number | null;
-  participationRate: string | null;
-  quorum: { type: string; value: string | null; required: number | null; met: boolean | null };
-  winnerId: string | null;
-  condition: "vencedora" | "empate" | "sem_votos" | "abaixo_quorum";
-  computedAt: string;
-};
+/** Resultado da apuração gravado em `results.data` — o formato é definido pelo domínio (`Apuracao`). */
+export type ResultData = ResultadoDaApuracao;
 
 export const integrityChecks = pgTable("integrity_checks", {
   id: uuid().primaryKey().defaultRandom(),

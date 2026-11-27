@@ -34,8 +34,7 @@ import { notifyChange, notifyPublished } from "../notifications/dispatch";
 import { matchesAudience, type EligibilityUser } from "../voting/eligibility";
 import { consultationSnapshot, getConsultationOrThrow, recordPublicEvent, saveVersion, type ConsultationRow } from "./common";
 import { municipalProposalPendencies } from "../proposals/municipal-proposals.service";
-
-const EDITABLE: ConsultationRow["status"][] = ["rascunho", "rejeitada"];
+import { ConsultaRepository } from "../../repositories/consulta.repository";
 
 /**
  * Texto de busca (RF017: título, resumo e proposta). Calculado em um só lugar: antes, a edição e a
@@ -169,12 +168,8 @@ export async function createConsultation(actor: Actor, input: Record<string, unk
 /* RF024 — Editar consulta em elaboração                               */
 /* ------------------------------------------------------------------ */
 async function assertEditable(actor: Actor, c: ConsultationRow, db: DbOrTx) {
-  if (!EDITABLE.includes(c.status)) {
-    throw new DomainError(
-      c.status === "em_analise" || c.status === "em_revisao" ? "A consulta está em revisão/análise e não pode ser editada." : "Consulta publicada: use \"Alterar consulta publicada\" (RF032).",
-      "edicao_bloqueada",
-    );
-  }
+  // Regra da situação (só Rascunho ou Rejeitada) na entidade; o papel de elaborador, aqui.
+  new ConsultaRepository(db).deRegistro(c).garantirEdicao();
   await assertConsultationRole(actor, c.id, "elaborador", db);
 }
 
@@ -360,8 +355,9 @@ export async function setAssignments(actor: Actor, id: string, input: Partial<Re
 
   return db.transaction(async (tx) => {
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    const published = !["rascunho", "rejeitada", "em_revisao", "em_analise", "aprovada"].includes(c.status);
-    if (c.status !== "rascunho" && c.status !== "rejeitada" && !sanitizePlainText(justification ?? "")) {
+    const consulta = new ConsultaRepository(tx).deRegistro(c);
+    const published = consulta.estaPublica;
+    if (!consulta.estaEm("rascunho", "rejeitada") && !sanitizePlainText(justification ?? "")) {
       throw new ValidationError({ justification: ["Substituição durante a consulta exige justificativa (registrada no histórico)."] });
     }
     const current = await tx.select().from(consultationAssignments).where(and(eq(consultationAssignments.consultationId, id), eq(consultationAssignments.active, true)));
@@ -460,7 +456,10 @@ export async function submitForReview(actor: Actor, id: string, db: DbOrTx = get
     throw e;
   }
   await db.transaction(async (tx) => {
-    await tx.update(consultations).set({ status: "em_revisao", reviewObservations: null, updatedAt: clock.now() }).where(eq(consultations.id, id));
+    const repositorio = new ConsultaRepository(tx);
+    const consulta = await repositorio.obter(id, { paraAtualizar: true });
+    consulta.enviarParaRevisao(clock.now());
+    await repositorio.salvar(consulta);
     await tx.update(municipalProposals).set({ status: "em_analise" }).where(eq(municipalProposals.id, c.municipalProposalId));
     for (const r of (await getAssignments(id, tx)).filter((a) => a.role === "revisor")) {
       await notifyUser(tx, r.userId, { type: "conta", title: "Consulta aguardando sua revisão", body: `"${c.title}" foi enviada para revisão.`, link: `/admin/consultas/${id}/revisao` });
@@ -483,11 +482,12 @@ export const REVIEW_ITEMS = {
 export async function reviewConsultation(actor: Actor, id: string, input: { items: Record<string, boolean>; observations: string }, db: DbOrTx = getDb()) {
   await assertConsultationRole(actor, id, "revisor", db);
   return db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "em_revisao") throw new DomainError("A consulta não está aguardando revisão.");
-    // Revisor diferente do elaborador e do último editor (RN36).
-    const roles = await consultationRolesOf(actor.id, id, tx);
-    if (roles.includes("elaborador") || c.createdBy === actor.id || c.lastEditedBy === actor.id) throw new ForbiddenError("O revisor deve ser diferente de quem elaborou ou editou a consulta.");
+    const consulta = repositorio.deRegistro(c);
+    consulta.garantirAguardandoRevisao();
+    // Revisor diferente do elaborador e do último editor (RN36) — regra da entidade.
+    consulta.garantirRevisorIndependente(actor.id, await consultationRolesOf(actor.id, id, tx));
     const items = Object.fromEntries(Object.keys(REVIEW_ITEMS).map((k) => [k, !!input.items[k]]));
     const allOk = Object.values(items).every(Boolean);
     const observations = sanitizePlainText(input.observations ?? "");
@@ -497,13 +497,15 @@ export async function reviewConsultation(actor: Actor, id: string, input: { item
       const alts = await tx.select().from(alternatives).where(eq(alternatives.consultationId, id));
       const crit = await tx.select().from(audienceCriteria).where(eq(audienceCriteria.consultationId, id));
       await saveVersion(tx, "consulta", id, c.version, { ...consultationSnapshot(c), alternatives: alts, audience: crit }, actor.id, "versão congelada para aprovação");
-      await tx.update(consultations).set({ status: "em_analise", frozenVersion: c.version, updatedAt: clock.now() }).where(eq(consultations.id, id));
+      consulta.concluirRevisao(true, null, clock.now());
+      await repositorio.salvar(consulta);
       const assigned = await getAssignments(id, tx);
       for (const a of assigned.filter((x) => x.role === "aprovador" || (c.exceptionalDeadline && x.role === "autorizador_prazo"))) {
         await notifyUser(tx, a.userId, { type: "conta", title: "Consulta aguardando decisão", body: `"${c.title}" foi revisada e aguarda ${a.role === "aprovador" ? "aprovação" : "decisão sobre prazo excepcional"}.`, link: `/admin/consultas/${id}/aprovacao` });
       }
     } else {
-      await tx.update(consultations).set({ status: "rascunho", reviewObservations: observations, updatedAt: clock.now() }).where(eq(consultations.id, id));
+      consulta.concluirRevisao(false, observations, clock.now());
+      await repositorio.salvar(consulta);
       await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, c.municipalProposalId));
       for (const e of (await getAssignments(id, tx)).filter((x) => x.role === "elaborador")) {
         await notifyUser(tx, e.userId, { type: "conta", title: "Revisão apontou problemas", body: `"${c.title}" voltou para Rascunho: ${observations}`, link: `/admin/consultas/${id}` });
@@ -521,30 +523,14 @@ export async function decideExceptionalDeadline(actor: Actor, id: string, input:
   const justification = sanitizePlainText(input.justification ?? "");
   if (!justification) throw new ValidationError({ justification: ["A decisão sobre o prazo excepcional exige justificativa (RN11)."] });
   return db.transaction(async (tx) => {
-    const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "em_analise" || !c.exceptionalDeadline || c.deadlineAuthorization !== "pendente") throw new DomainError("Não há pedido de prazo excepcional pendente.");
-    if (c.createdBy === actor.id || c.lastEditedBy === actor.id) throw new ForbiddenError("Quem elaborou a consulta não decide sobre o próprio pedido de prazo.");
-    if (input.authorize) {
-      await tx.update(consultations).set({ deadlineAuthorization: "autorizada", deadlineDecisionJustification: justification, deadlineAuthorizedBy: actor.id }).where(eq(consultations.id, id));
-    } else {
-      // Redução negada: volta a Rascunho com 20 dias sugeridos.
-      const prazo = await getSetting("consulta.prazo_padrao_dias", tx);
-      const closesAt = c.opensAt ? new Date(c.opensAt.getTime() + prazo * DAY) : c.closesAt;
-      await tx
-        .update(consultations)
-        .set({ deadlineAuthorization: "negada", deadlineDecisionJustification: justification, deadlineAuthorizedBy: actor.id, status: "rascunho", exceptionalDeadline: false, closesAt, reviewObservations: `Prazo excepcional negado: ${justification}. Encerramento sugerido para ${prazo} dias após a abertura.` })
-        .where(eq(consultations.id, id));
-      await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, c.municipalProposalId));
-    }
+    const repositorio = new ConsultaRepository(tx);
+    const consulta = await repositorio.obter(id, { paraAtualizar: true });
+    // Pedido pendente, decisor independente e, se negado, volta a Rascunho com o prazo padrão — regras da entidade.
+    consulta.decidirPrazoExcepcional(actor.id, input.authorize, justification, await getSetting("consulta.prazo_padrao_dias", tx));
+    await repositorio.salvar(consulta);
+    if (!input.authorize) await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, consulta.propostaMunicipalId));
     await audit(tx, { actorId: actor.id, actorRole: "autorizador_prazo", action: input.authorize ? "prazo_excepcional_autorizado" : "prazo_excepcional_negado", objectType: "consulta", objectId: id, justification });
   });
-}
-
-async function assertAntecedence(c: ConsultationRow, db: DbOrTx) {
-  const hours = await getSetting("consulta.antecedencia_minima_horas", db);
-  if (!c.opensAt || c.opensAt.getTime() - clock.now().getTime() < hours * HOUR) {
-    throw new DomainError(`Antecedência insuficiente: a abertura precisa ocorrer pelo menos ${hours} horas após a ${c.status === "em_analise" ? "aprovação" : "publicação"} (RN15). Ajuste as datas.`, "antecedencia");
-  }
 }
 
 export async function decideApproval(actor: Actor, id: string, input: { approve: boolean; justification: string }, db: DbOrTx = getDb()) {
@@ -553,26 +539,27 @@ export async function decideApproval(actor: Actor, id: string, input: { approve:
   if (!input.approve && !justification) throw new ValidationError({ justification: ["A rejeição exige justificativa (RN11)."] });
   // Segregação de funções (RN20, RN36): aprovador ≠ elaborador, último editor e revisor.
   // Verificada antes da transação para que a tentativa negada fique registrada na auditoria (RF009).
-  const pre = await getConsultationOrThrow(db, id);
+  const pre = await new ConsultaRepository(db).obter(id);
   const reviewers = (await db.select({ id: reviewChecklists.reviewerId }).from(reviewChecklists).where(eq(reviewChecklists.consultationId, id))).map((r) => r.id);
   const myRoles = await consultationRolesOf(actor.id, id, db);
-  if (pre.createdBy === actor.id || pre.lastEditedBy === actor.id || reviewers.includes(actor.id) || myRoles.includes("elaborador") || myRoles.includes("revisor")) {
+  if (pre.temConflitoDeAprovacao(actor.id, { revisores: reviewers, papeisDoAtor: myRoles })) {
     await audit(db, { actorId: actor.id, action: "acesso_negado", result: "negado", objectType: "consulta", objectId: id, details: { motivo: "segregacao_de_funcoes" } });
     throw new ForbiddenError("Segregação de funções: ninguém aprova a consulta que elaborou, editou ou revisou (RN20).");
   }
   return db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "em_analise") throw new DomainError("A consulta não está Em análise.");
-    if (c.lastEditedBy === actor.id || c.createdBy === actor.id) throw new ForbiddenError("Segregação de funções (RN20).");
+    const consulta = repositorio.deRegistro(c);
     if (input.approve) {
-      if (c.exceptionalDeadline && c.deadlineAuthorization !== "autorizada") throw new DomainError("O pedido de prazo excepcional ainda não foi autorizado.", "prazo_pendente");
-      await assertAntecedence(c, tx);
-      await tx.update(consultations).set({ status: "aprovada", approvedBy: actor.id, approvedAt: clock.now() }).where(eq(consultations.id, id));
+      // Situação, segregação de funções, prazo autorizado e antecedência (RN15, RN20) — regras da entidade.
+      consulta.aprovar(actor.id, clock.now(), await getSetting("consulta.antecedencia_minima_horas", tx));
+      await repositorio.salvar(consulta);
       for (const r of (await getAssignments(id, tx)).filter((x) => x.role === "responsavel")) {
         await notifyUser(tx, r.userId, { type: "conta", title: "Consulta aprovada — pronta para publicação", body: `"${c.title}" foi aprovada (versão ${c.frozenVersion}).`, link: `/admin/consultas/${id}` });
       }
     } else {
-      await tx.update(consultations).set({ status: "rejeitada", reviewObservations: `Rejeitada pelo aprovador: ${justification}` }).where(eq(consultations.id, id));
+      consulta.rejeitar(actor.id, justification);
+      await repositorio.salvar(consulta);
       await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, c.municipalProposalId));
     }
     await audit(tx, { actorId: actor.id, actorRole: "aprovador", action: input.approve ? "consulta_aprovada" : "consulta_rejeitada", objectType: "consulta", objectId: id, justification: justification || null, details: { versao: c.frozenVersion } });
@@ -585,10 +572,11 @@ export async function decideApproval(actor: Actor, id: string, input: { approve:
 export async function publishConsultation(actor: Actor, id: string, db: DbOrTx = getDb()) {
   await assertConsultationRole(actor, id, "responsavel", db);
   await db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "aprovada") throw new DomainError("Somente consultas aprovadas podem ser publicadas.");
-    await assertAntecedence(c, tx);
-    await tx.update(consultations).set({ status: "agendada", publishedAt: clock.now() }).where(eq(consultations.id, id));
+    const consulta = repositorio.deRegistro(c);
+    consulta.publicar(clock.now(), await getSetting("consulta.antecedencia_minima_horas", tx));
+    await repositorio.salvar(consulta);
     await tx.update(municipalProposals).set({ status: "em_consulta" }).where(eq(municipalProposals.id, c.municipalProposalId));
     await recordPublicEvent(tx, id, "publicacao", `Consulta publicada. Abertura em ${fmtDateTime(c.opensAt)} e encerramento em ${fmtDateTime(c.closesAt)}.`, c.exceptionalDeadline ? `Prazo excepcional autorizado: ${c.deadlineDecisionJustification}` : null);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_publicada", objectType: "consulta", objectId: id });
@@ -601,9 +589,10 @@ export async function unscheduleConsultation(actor: Actor, id: string, justifica
   const j = sanitizePlainText(justification ?? "");
   if (!j) throw new ValidationError({ justification: ["Justifique o cancelamento do agendamento."] });
   await db.transaction(async (tx) => {
-    const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "agendada" || (c.opensAt && c.opensAt <= clock.now())) throw new DomainError("Só é possível desfazer o agendamento antes da data de abertura.");
-    await tx.update(consultations).set({ status: "em_analise", publishedAt: null, approvedAt: null, approvedBy: null }).where(eq(consultations.id, id));
+    const repositorio = new ConsultaRepository(tx);
+    const consulta = await repositorio.obter(id, { paraAtualizar: true });
+    consulta.desfazerAgendamento(clock.now());
+    await repositorio.salvar(consulta);
     await recordPublicEvent(tx, id, "agendamento_desfeito", "Agendamento desfeito; a consulta voltou para análise.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "agendamento_desfeito", objectType: "consulta", objectId: id, justification: j });
   });
@@ -625,7 +614,8 @@ export async function alterPublished(actor: Actor, id: string, change: Published
   await assertConsultationRole(actor, id, roleNeeded, db);
   await db.transaction(async (tx) => {
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (!["agendada", "aberta", "suspensa"].includes(c.status)) throw new DomainError("Alteração proibida nesta situação (RN12/RN32). Para mudanças de fundo, cancele e crie nova consulta.", "alteracao_proibida");
+    const consulta = new ConsultaRepository(tx).deRegistro(c);
+    consulta.garantirAlteracaoPublicada();
     let before: unknown;
     let after: unknown;
     const set: Partial<ConsultationRow> = {};
@@ -644,7 +634,7 @@ export async function alterPublished(actor: Actor, id: string, change: Published
       after = d;
       set.closesAt = d;
     } else {
-      if (c.status !== "agendada") throw new DomainError("A abertura só pode ser ajustada enquanto a consulta está Agendada.", "alteracao_proibida");
+      consulta.garantirAberturaAjustavel();
       const d = parseLocalDateTime(change.opensAt);
       const [prazoPadrao, prazoExcepcional, antecedencia] = await Promise.all([getSetting("consulta.prazo_padrao_dias", tx), getSetting("consulta.prazo_excepcional_dias", tx), getSetting("consulta.antecedencia_minima_horas", tx)]);
       if (!d || d.getTime() - clock.now().getTime() < antecedencia * HOUR) throw new ValidationError({ opensAt: [`A nova abertura deve respeitar a antecedência mínima de ${antecedencia} horas.`] });
@@ -676,9 +666,11 @@ export async function suspendConsultation(actor: Actor, id: string, justificatio
   const j = sanitizePlainText(justification ?? "");
   if (!j) throw new ValidationError({ justification: ["A suspensão exige justificativa pública (RN11)."] });
   await db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (!["agendada", "aberta"].includes(c.status)) throw new DomainError("Só é possível suspender consultas Agendadas ou Abertas.");
-    await tx.update(consultations).set({ status: "suspensa", statusBeforeSuspension: c.status, statusReason: j }).where(eq(consultations.id, id));
+    const consulta = repositorio.deRegistro(c);
+    consulta.suspender(j);
+    await repositorio.salvar(consulta);
     await recordPublicEvent(tx, id, "suspensao", "Consulta suspensa. Nenhum voto é aceito durante a suspensão; os votos registrados são preservados.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_suspensa", objectType: "consulta", objectId: id, justification: j });
     await notifyChange(tx, id, `Consulta suspensa: ${c.title}`, `Justificativa: ${j}\nEfeito sobre os votos: os votos já registrados estão preservados; novos votos não são aceitos enquanto durar a suspensão.`);
@@ -690,16 +682,13 @@ export async function resumeConsultation(actor: Actor, id: string, input: { just
   const j = sanitizePlainText(input.justification ?? "");
   if (!j) throw new ValidationError({ justification: ["A retomada exige justificativa (RN11)."] });
   await db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "suspensa") throw new DomainError("A consulta não está suspensa.");
+    const consulta = repositorio.deRegistro(c);
     const newClose = input.newClosesAt ? parseLocalDateTime(input.newClosesAt) : null;
-    if (newClose && c.closesAt && newClose <= c.closesAt) throw new ValidationError({ newClosesAt: ["A prorrogação deve ser posterior ao encerramento atual."] });
-    const closesAt = newClose ?? c.closesAt;
-    if (closesAt && closesAt <= clock.now()) {
-      throw new DomainError("O prazo terminou durante a suspensão. Decida, com justificativa, entre apurar ou cancelar a consulta.", "encerrada_durante_suspensao");
-    }
-    const target = c.statusBeforeSuspension === "agendada" && c.opensAt && c.opensAt > clock.now() ? "agendada" : "aberta";
-    await tx.update(consultations).set({ status: target, statusBeforeSuspension: null, statusReason: null, closesAt, openedAt: target === "aberta" ? (c.openedAt ?? clock.now()) : c.openedAt }).where(eq(consultations.id, id));
+    // Volta a Agendada ou Aberta, com prorrogação opcional — regra da entidade.
+    consulta.retomar(clock.now(), newClose);
+    await repositorio.salvar(consulta);
     await recordPublicEvent(tx, id, "retomada", newClose ? `Consulta retomada com prorrogação até ${fmtDateTime(newClose)}.` : "Consulta retomada.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_retomada", objectType: "consulta", objectId: id, justification: j });
     await notifyChange(tx, id, `Consulta retomada: ${c.title}`, `Justificativa: ${j}${newClose ? `\nNovo encerramento: ${fmtDateTime(newClose)}` : ""}`);
@@ -712,9 +701,10 @@ export async function closeSuspendedForTally(actor: Actor, id: string, justifica
   const j = sanitizePlainText(justification ?? "");
   if (!j) throw new ValidationError({ justification: ["Justifique a decisão de apurar."] });
   await db.transaction(async (tx) => {
-    const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (c.status !== "suspensa" || !c.closesAt || c.closesAt > clock.now()) throw new DomainError("Disponível apenas para consulta suspensa cujo prazo já terminou.");
-    await tx.update(consultations).set({ status: "encerrada", closedAt: clock.now(), statusBeforeSuspension: null }).where(eq(consultations.id, id));
+    const repositorio = new ConsultaRepository(tx);
+    const consulta = await repositorio.obter(id, { paraAtualizar: true });
+    consulta.encerrarAposSuspensao(clock.now());
+    await repositorio.salvar(consulta);
     await recordPublicEvent(tx, id, "encerramento", "Consulta encerrada após suspensão; decidiu-se contar os votos registrados.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_encerrada_apos_suspensao", objectType: "consulta", objectId: id, justification: j });
   });
@@ -728,11 +718,12 @@ export async function cancelConsultation(actor: Actor, id: string, input: { just
   const j = sanitizePlainText(input.justification ?? "");
   if (!j) throw new ValidationError({ justification: ["O cancelamento exige justificativa (RN11)."] });
   await db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, id, { forUpdate: true });
-    if (["apurada", "finalizada"].includes(c.status)) throw new DomainError("Consulta já apurada não pode ser cancelada; cabe retificação do resultado (RF043).", "ja_apurada");
-    if (!["aprovada", "agendada", "aberta", "suspensa", "encerrada"].includes(c.status)) throw new DomainError("Esta consulta não pode ser cancelada nesta situação.");
-    if ((input.confirmTitle ?? "").trim() !== c.title.trim()) throw new ValidationError({ confirmTitle: ["Digite o título exatamente como aparece para confirmar."] });
-    await tx.update(consultations).set({ status: "cancelada", statusReason: j, closedAt: c.closedAt ?? clock.now() }).where(eq(consultations.id, id));
+    const consulta = repositorio.deRegistro(c);
+    // Já apurada, situação que não permite cancelar e confirmação pelo título — regras da entidade (RF034).
+    consulta.cancelar(j, input.confirmTitle, clock.now());
+    await repositorio.salvar(consulta);
     await tx.update(municipalProposals).set({ status: "rascunho" }).where(eq(municipalProposals.id, c.municipalProposalId));
     await recordPublicEvent(tx, id, "cancelamento", "Consulta cancelada de forma definitiva. Os votos registrados foram guardados sem contagem e não entram em nenhum resultado.", j);
     await audit(tx, { actorId: actor.id, actorRole: "responsavel", action: "consulta_cancelada", objectType: "consulta", objectId: id, justification: j });

@@ -12,17 +12,18 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (24/11/2026, ambiente local Windows 11, Node 20.20.2) — revisão de qualidade
+## Última execução registrada (27/11/2026, ambiente local Windows 11, Node 20.20.2) — correção AV03 (DT-35) e CPF fictício (DT-36)
 
 | Suíte | Resultado |
 |---|---|
-| Tipos | sem erros |
-| Lint | sem erros |
-| Unitários + integração + segurança (13 arquivos) | **173 de 173 aprovados** em 25/11/2026, após DT-30 a DT-33 (15 testes novos; em 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
-| E2E (4 arquivos, Chromium) | **65 de 65 aprovados** (linha de base do dia: 48 de 48; 17 testes novos em `robustez.spec.ts`) |
-| Varredura exploratória (568 páginas, 7 perfis) | 0 erro 500 (antes 12), 0 violação axe séria (antes 38), sem rolagem a 320 px |
-| `npm audit --omit=dev` | 0 vulnerabilidades (10 moderadas só em ferramentas de desenvolvimento) |
-| Capturas (`npm run screenshots`) | não refeitas em 24/11 |
+| Tipos (`tsc --noEmit`) | sem erros |
+| Lint (`eslint . --max-warnings 0`) | sem erros nem avisos |
+| Unitários + integração + segurança (16 arquivos) | **214 de 214 aprovados** em 27/11/2026, após as DT-35 e DT-36 (35 testes novos: 33 em 3 arquivos novos e 2 do CPF fictício; 26/11, DT-34: 179 de 179; 25/11: 173 de 173; 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
+| Build de produção (`next build`, dentro de `npm run test:e2e`) | sem erros |
+| E2E (4 arquivos, Chromium) | **65 de 65 aprovados**, nenhum pulado (linha de base de 24/11: 48 de 48; 17 testes novos em `robustez.spec.ts`) |
+| Varredura exploratória (568 páginas, 7 perfis) | em 24/11: 0 erro 500 (antes 12), 0 violação axe séria (antes 38), sem rolagem a 320 px — não refeita em 27/11 |
+| `npm audit --omit=dev` | em 24/11: 0 vulnerabilidades (10 moderadas só em ferramentas de desenvolvimento); as dependências não mudaram desde então |
+| Capturas (`npm run screenshots`) | não refeitas (a DT-35 não muda telas) |
 
 Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; cobertura por requisito: `docs/testes/MATRIZ_DE_COBERTURA.md`; fluxos: `docs/fluxos/USER_FLOWS.md`.
 
@@ -41,6 +42,9 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 | `tests/unit/requisitos-pdf.test.ts` | PDF do documento (DT-24): sem citações jurídicas, conteúdo técnico mantido, mesmas páginas do original e sem o apêndice das RN (RN citadas ficam como texto), RF004 levando ao RF004 e mais de 900 links com destino válido |
 | `tests/unit/links.test.ts` | Todo caminho fixo usado em `href`, `link` (avisos) ou `redirect` existe no App Router |
 | `tests/unit/requisitos.test.ts` | Referências cruzadas (DT-24): catálogo extraído do documento (68 RF, 15 RNF, 42 RN, 13 RS), RF001 → RN02 ("CPF único"), RF004, identificadores inexistentes e formatos parecidos, texto preservado palavra a palavra, cópias iguais em `AGENTS.md` e `REQUISITOS_COMPLETOS.md`, ausência de citações jurídicas e todo identificador citado em `src/` existente no documento |
+| `tests/unit/dominio.test.ts` | Núcleo orientado a objetos (DT-35): ciclo de vida e encapsulamento da `Consulta` (transições válidas e recusadas com as mesmas mensagens e códigos, estado inacessível de fora, segregação na aprovação, suspensão e retomada, cancelamento, alterações pendentes, prazo excepcional), `PropostaCidada` (RN30), critérios de público-alvo polimórficos e ordem do `AvaliadorDeElegibilidade` (inclusive o limite dos 18 anos), `Cedula` sem eleitor, quórum de referência, `Apuracao` igual a `tally`, canais de aviso e `VoteRejected` |
+| `tests/integration/repositorios.test.ts` | Repositórios com o banco: ida e volta da entidade, gravação só das colunas alteradas, salvar sem alteração não mexe em `updated_at`, registro inexistente, transição inválida não grava nada, repositório da proposta cidadã |
+| `tests/integration/schema-sql.test.ts` | `database/schema.sql` e `seed-referencia.sql` atualizados; o catálogo criado pelo `schema.sql` (tabelas, colunas, restrições, índices, gatilhos, funções, tipos e view) é igual ao das migrations; contas e permissões; contagem e idempotência dos dados de referência |
 | `tests/integration/database.test.ts` | Migrations, gatilhos de imutabilidade, auditoria encadeada |
 | `tests/integration/auth.test.ts` | Cadastro, confirmação, login, bloqueio, 2º fator, recuperação, sessões |
 | `tests/integration/lifecycle.test.ts` | Ciclo da consulta, separação de funções, prazos, rotina automática |
@@ -56,7 +60,7 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 
 | # | Cenário | Teste | Situação |
 |---|---|---|---|
-| 1 | Cadastro com CPF inválido | `integration/auth.test.ts`, `e2e/citizen.spec.ts`, `unit/rules.test.ts` | aprovado |
+| 1 | Cadastro com CPF fora do formato (recusado) e com CPF fictício (aceito — DT-36) | `integration/auth.test.ts`, `e2e/citizen.spec.ts`, `unit/rules.test.ts` | aprovado |
 | 2 | CPF já utilizado | `integration/auth.test.ts` (mensagem genérica; também após desativação) | aprovado |
 | 3 | Confirmação de e-mail | `integration/auth.test.ts` (uso único, expiração 24 h) | aprovado |
 | 4 | Login com dados incorretos | `integration/auth.test.ts`, `e2e/citizen.spec.ts` | aprovado |

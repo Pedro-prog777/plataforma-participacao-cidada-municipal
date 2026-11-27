@@ -90,7 +90,7 @@
 
 ### RF001 — Cadastrar cidadão
 
-- **Objetivo:** O sistema deve permitir que uma pessoa física crie conta de cidadão com nome completo, CPF, data de nascimento, e-mail, endereço no município, senha e aceite dos Termos de Uso e da Política de Privacidade; o celular é opcional. Cada dado tem finalidade declarada: o CPF garante uma conta por pessoa (RN02) e a verificação de identidade (RF004), nunca é exibido e pode vir do provedor de identidade; a data de nascimento só é usada em consulta com critério etário justificado (RN35, RN40); o endereço apoia consultas territoriais (RF027).
+- **Objetivo:** O sistema deve permitir que uma pessoa física crie conta de cidadão com nome completo, CPF, data de nascimento, e-mail, endereço no município, senha e aceite dos Termos de Uso e da Política de Privacidade; o celular é opcional. Cada dado tem finalidade declarada: o CPF garante uma conta por pessoa (RN02) e a verificação de identidade (RF004), nunca é exibido e pode vir do provedor de identidade; a data de nascimento confirma os 18 anos para votar e o critério etário (RN35, RN40); o endereço apoia consultas territoriais (RF027).
 - **Funcionalidade implementada:** /cadastro
 - **Código:** modules/auth/auth.service.ts (registerCitizen)
 - **Regras de negócio:** CPF único (RN02); Política de senha (RN23); Proteção de dados (RN27); Dados de elegibilidade (RN31); Crianças e adolescentes (RN40).
@@ -340,7 +340,7 @@
 
 - **Objetivo:** O sistema deve manter a situação de cada consulta conforme o ciclo de vida (seção 6.1), abrindo e encerrando automaticamente nas datas definidas e aplicando só as transições permitidas.
 - **Funcionalidade implementada:** rotina automática (instrumentation) e /admin/monitoramento
-- **Código:** modules/scheduler/scheduler.service.ts (runSchedulerTick)
+- **Código:** modules/scheduler/scheduler.service.ts (runSchedulerTick); domain/entities/consulta.ts (abrir, encerrarNoHorario)
 - **Regras de negócio:** Período de votação (RN08); Consulta suspensa (RN09); Consulta cancelada (RN10); Encerramento irreversível (RN32).
 - **Dependências (matriz do documento):** depende de RF031, RF035; relaciona-se com RF040
 - **Requisitos de segurança relacionados:** RS009
@@ -369,7 +369,7 @@
 
 - **Objetivo:** O sistema deve permitir que o administrador com papel de análise conduza a proposta pelos estados da RN30: Em análise; Ajuste solicitado, com orientação ao autor; Respondida, com resposta justificada (convertida em proposta municipal, encaminhada a outro órgão ou não acolhida); Publicada, se autorizada; e Encerrada. Cada mudança notifica o autor e fica no histórico.
 - **Funcionalidade implementada:** /admin/propostas, /admin/propostas/[id]
-- **Código:** citizen-proposals.service.ts (analyzeProposal); scheduler (prazo de ajuste)
+- **Código:** citizen-proposals.service.ts (analyzeProposal); scheduler (prazo de ajuste); domain/entities/proposta-cidada.ts (PropostaCidada, estados da RN30); repositories/proposta-cidada.repository.ts
 - **Regras de negócio:** Justificativa obrigatória (RN11); Propostas cidadãs (RN30); Limites administrativos (RN39); Encaminhamentos (RN42).
 - **Dependências (matriz do documento):** depende de RF020, RF022, RF066; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -413,7 +413,7 @@
 
 - **Objetivo:** O sistema deve permitir editar propostas e consultas em Rascunho ou Rejeitada, mantendo as versões anteriores; Em análise, a edição é bloqueada.
 - **Funcionalidade implementada:** /admin/consultas/[id]/editar
-- **Código:** lifecycle.service.ts (updateConsultation); common.ts (saveVersion)
+- **Código:** lifecycle.service.ts (updateConsultation); common.ts (saveVersion); Consulta.garantirEdicao
 - **Regras de negócio:** Imutabilidade após publicação (RN12); Registros imutáveis (RN28).
 - **Dependências (matriz do documento):** depende de —; relaciona-se com RF032
 - **Requisitos de segurança relacionados:** —
@@ -454,7 +454,7 @@
 
 ### RF027 — Definir público-alvo e critérios de participação
 
-- **Objetivo:** O sistema deve permitir definir o público-alvo de cada consulta: "aberta ao público em geral" ou com limitações justificadas por território, domicílio, faixa etária ou outro critério, publicadas em linguagem simples. Não há idade mínima geral; critério etário só por consulta, justificado e conforme a RN40. Até a resposta do cliente (*), o padrão herdado da versão anterior é o domicílio no município.
+- **Objetivo:** O sistema deve permitir definir o público-alvo de cada consulta: "aberta ao público em geral" ou com limitações justificadas por território, domicílio, faixa etária ou outro critério, publicadas em linguagem simples. Só vota quem tem 18 anos; critério etário só por consulta, justificado e conforme a RN40. Até a resposta do cliente (*), o padrão herdado da versão anterior é o domicílio no município.
 - **Funcionalidade implementada:** /admin/consultas/[id]/publico-alvo
 - **Código:** lifecycle.service.ts (setAudience, estimateEligible)
 - **Regras de negócio:** Elegibilidade (RN01); Imutabilidade após publicação (RN12); Público-alvo (RN35); Crianças e adolescentes (RN40).
@@ -471,7 +471,7 @@
 
 - **Objetivo:** O sistema deve exigir, antes da aprovação, validação completa e revisão por pessoa diferente do elaborador (RN36), com lista de verificação registrada: conteúdo mínimo (RN37); pergunta clara e neutra; alternativas equilibradas e mutuamente exclusivas; contexto suficiente; público-alvo justificado; período conforme a RN14; materiais com alternativa textual; linguagem simples.
 - **Funcionalidade implementada:** /admin/consultas/[id] (pendências), /admin/consultas/[id]/revisao
-- **Código:** lifecycle.service.ts (consultationPendencies, submitForReview, reviewConsultation)
+- **Código:** lifecycle.service.ts (consultationPendencies, submitForReview, reviewConsultation); Consulta (enviarParaRevisao, garantirRevisorIndependente, concluirRevisao)
 - **Regras de negócio:** Prazo de participação (RN14); Antecedência da publicação (RN15); Segregação de funções (RN20); Responsabilidades (RN36); Conteúdo mínimo (RN37).
 - **Dependências (matriz do documento):** depende de RF025, RF026, RF027, RF029; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -486,7 +486,7 @@
 
 - **Objetivo:** O sistema deve permitir que aprovador diferente do elaborador, do último editor e do revisor aprove ou rejeite a consulta e, havendo pedido de redução para 10 dias, que quem tem o papel "autorizar prazo excepcional" decida sobre a emergência, com justificativa publicada. Quem pode exercer esse papel é decisão pendente (*).
 - **Funcionalidade implementada:** /admin/consultas/[id]/aprovacao
-- **Código:** lifecycle.service.ts (decideApproval, decideExceptionalDeadline)
+- **Código:** lifecycle.service.ts (decideApproval, decideExceptionalDeadline); Consulta (aprovar, rejeitar, decidirPrazoExcepcional, temConflitoDeAprovacao)
 - **Regras de negócio:** Justificativa obrigatória (RN11); Prazo de participação (RN14); Antecedência da publicação (RN15); Segregação de funções (RN20); Responsabilidades (RN36).
 - **Dependências (matriz do documento):** depende de RF028, RF030, RF061; relaciona-se com —
 - **Requisitos de segurança relacionados:** RS006
@@ -501,7 +501,7 @@
 
 - **Objetivo:** O sistema deve tornar pública a consulta aprovada, mudando-a para Agendada, com endereço permanente e contagem regressiva para a abertura.
 - **Funcionalidade implementada:** /admin/consultas/[id]/conducao
-- **Código:** lifecycle.service.ts (publishConsultation, unscheduleConsultation)
+- **Código:** lifecycle.service.ts (publishConsultation, unscheduleConsultation); Consulta (publicar, desfazerAgendamento)
 - **Regras de negócio:** Imutabilidade após publicação (RN12); Antecedência da publicação (RN15).
 - **Dependências (matriz do documento):** depende de RF053; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -514,7 +514,7 @@
 
 - **Objetivo:** O sistema deve abrir automaticamente a votação no horário de abertura, mudando para Aberta e registrando um retrato dos parâmetros vigentes (alternativas, público-alvo, quórum e elegíveis estimados).
 - **Funcionalidade implementada:** rotina automática
-- **Código:** scheduler.service.ts (openDueConsultations)
+- **Código:** scheduler.service.ts (openDueConsultations); Consulta.abrir
 - **Regras de negócio:** Período de votação (RN08); Imutabilidade após publicação (RN12).
 - **Dependências (matriz do documento):** depende de RF019, RF053; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -527,7 +527,7 @@
 
 - **Objetivo:** O sistema deve permitir, com justificativa e registro público, apenas correção textual que não mude o sentido, inclusão de anexos, prorrogação antes do encerramento e ajuste da abertura enquanto Agendada.
 - **Funcionalidade implementada:** /admin/consultas/[id]/conducao
-- **Código:** lifecycle.service.ts (alterPublished)
+- **Código:** lifecycle.service.ts (alterPublished); Consulta (garantirAlteracaoPublicada, garantirAberturaAjustavel)
 - **Regras de negócio:** Voto irretratável (RN06); Justificativa obrigatória (RN11); Imutabilidade após publicação (RN12); Encerramento irreversível (RN32).
 - **Dependências (matriz do documento):** depende de RF054; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -541,7 +541,7 @@
 
 - **Objetivo:** O sistema deve permitir suspender consulta Agendada ou Aberta, com justificativa pública; durante a suspensão nenhum voto é aceito e os registrados são preservados.
 - **Funcionalidade implementada:** /admin/consultas/[id]/conducao
-- **Código:** lifecycle.service.ts (suspend/resume/closeSuspendedForTally)
+- **Código:** lifecycle.service.ts (suspend/resume/closeSuspendedForTally); Consulta (suspender, retomar, encerrarAposSuspensao)
 - **Regras de negócio:** Consulta suspensa (RN09); Justificativa obrigatória (RN11).
 - **Dependências (matriz do documento):** depende de RF054; relaciona-se com RF034
 - **Requisitos de segurança relacionados:** —
@@ -554,7 +554,7 @@
 
 - **Objetivo:** O sistema deve permitir cancelar, de forma irreversível, consulta ainda não apurada; os votos não são apurados e a consulta permanece visível como Cancelada, com justificativa.
 - **Funcionalidade implementada:** /admin/consultas/[id]/conducao
-- **Código:** lifecycle.service.ts (cancelConsultation)
+- **Código:** lifecycle.service.ts (cancelConsultation); Consulta.cancelar
 - **Regras de negócio:** Consulta cancelada (RN10); Justificativa obrigatória (RN11); Encerramento irreversível (RN32).
 - **Dependências (matriz do documento):** depende de —; relaciona-se com RF043
 - **Requisitos de segurança relacionados:** —
@@ -567,7 +567,7 @@
 
 - **Objetivo:** O sistema deve encerrar automaticamente a votação no horário divulgado, sem encerramento antecipado manual; a interrupção excepcional ocorre por suspensão ou cancelamento.
 - **Funcionalidade implementada:** rotina automática
-- **Código:** scheduler.service.ts (closeDueConsultations)
+- **Código:** scheduler.service.ts (closeDueConsultations); Consulta.encerrarNoHorario
 - **Regras de negócio:** Período de votação (RN08); Imutabilidade após publicação (RN12); Encerramento irreversível (RN32).
 - **Dependências (matriz do documento):** depende de RF042, RF055, RF059; relaciona-se com RF060
 - **Requisitos de segurança relacionados:** —
@@ -578,9 +578,9 @@
 
 ### RF036 — Verificar elegibilidade do cidadão
 
-- **Objetivo:** O sistema deve verificar, em ordem: conta ativa e desbloqueada; identidade verificada; perfil Cidadão; enquadramento no público-alvo da consulta (RF027), inclusive domicílio, território e eventual critério etário justificado; consulta Aberta e no período; e ausência de participação anterior. Nenhuma idade mínima geral é aplicada, e a verificação é repetida no servidor no momento do voto.
+- **Objetivo:** O sistema deve verificar, em ordem: conta ativa e desbloqueada; identidade verificada; perfil Cidadão; enquadramento no público-alvo da consulta (RF027), inclusive domicílio, território e eventual critério etário justificado; consulta Aberta e no período; e ausência de participação anterior. Só vota quem tem 18 anos completos, e a verificação é repetida no servidor no momento do voto.
 - **Funcionalidade implementada:** /consultas/[slug], /consultas/[slug]/participar
-- **Código:** modules/voting/eligibility.ts
+- **Código:** modules/voting/eligibility.ts → domain/services/avaliador-de-elegibilidade.ts (AvaliadorDeElegibilidade); domain/strategies/criterios-publico-alvo.ts (CriterioDomicilio, CriterioTerritorio, CriterioFaixaEtaria); domain/entities/cidadao.ts (Cidadao.IDADE_MINIMA)
 - **Regras de negócio:** Elegibilidade (RN01); Conta ativa (RN03); Identidade verificada (RN04); Voto único (RN05); Período de votação (RN08); Contas administrativas não votam (RN22); Público-alvo (RN35); Crianças e adolescentes (RN40).
 - **Dependências (matriz do documento):** depende de RF004, RF027; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -594,7 +594,7 @@
 
 - **Objetivo:** O sistema deve registrar o voto do cidadão elegível em consulta Aberta, com exatamente uma alternativa, garantindo: voto único, pela unicidade do par cidadão– consulta no banco; sigilo, pois o voto é gravado sem identificador do cidadão, sem comprovante e sem horário exato; e atomicidade, pois participação e voto são gravados na mesma transação. O voto é irretratável após a confirmação.
 - **Funcionalidade implementada:** /consultas/[slug]/participar
-- **Código:** voting.service.ts (castVote)
+- **Código:** voting.service.ts (castVote); domain/entities/cedula.ts (Cedula)
 - **Regras de negócio:** Voto único (RN05); Voto irretratável (RN06); Sigilo do voto (RN07); Período de votação (RN08); Consulta suspensa (RN09); Alternativas de voto (RN13).
 - **Dependências (matriz do documento):** depende de RF011, RF038; relaciona-se com RF060
 - **Requisitos de segurança relacionados:** RS001, RS002
@@ -660,7 +660,7 @@
 
 - **Objetivo:** O sistema deve apurar a consulta Encerrada pela regra publicada antes da abertura (RN18), sem presumir o formato "Sim/Não": votos por alternativa, válidos, abstenções e total; percentuais sobre os válidos; participação sobre os elegíveis estimados, como indicador descritivo (RN41); quórum de referência, se adotado; e desempate. A apuração é determinística e gera resultado preliminar.
 - **Funcionalidade implementada:** rotina automática; /admin/consultas/[id]/resultado (recontagem)
-- **Código:** modules/results/results.service.ts (tallyConsultation); results/tally.ts
+- **Código:** modules/results/results.service.ts (tallyConsultation); results/tally.ts; domain/services/apuracao.ts (Apuracao); domain/strategies/quorum-de-referencia.ts; Consulta (garantirApuracaoPermitida, registrarApuracao)
 - **Regras de negócio:** Consulta cancelada (RN10); Sigilo das parciais (RN16); Quórum de referência (RN17); Regra de apuração (RN18); Percentuais (RN19); Limites administrativos (RN39); Resultados (RN41).
 - **Dependências (matriz do documento):** depende de RF035, RF043, RF059; relaciona-se com RF060
 - **Requisitos de segurança relacionados:** RS003
@@ -676,7 +676,7 @@
 
 - **Objetivo:** O sistema deve permitir que o administrador com papel de publicação revise o preliminar, a metodologia e as ocorrências e publique o resultado final, com nota obrigatória sobre a natureza consultiva e os próximos passos. A publicação torna o resultado imutável. Publicar o preliminar antes da homologação depende de decisão (*) e exige o rótulo "Preliminar".
 - **Funcionalidade implementada:** /admin/consultas/[id]/resultado
-- **Código:** results.service.ts (publishFinalResult, publishRectification)
+- **Código:** results.service.ts (publishFinalResult, publishRectification); Consulta (homologarResultado, garantirResultadoPublicado)
 - **Regras de negócio:** Justificativa obrigatória (RN11); Resultado imutável (RN29); Natureza consultiva (RN34); Resultados (RN41); Encaminhamentos (RN42).
 - **Dependências (matriz do documento):** depende de RF042, RF044, RF055, RF063; relaciona-se com —
 - **Requisitos de segurança relacionados:** RS003
@@ -797,7 +797,7 @@
 
 - **Objetivo:** O sistema deve permitir escolher avisos por tipo (novas consultas, abertura, alterações, lembretes, resultados, encaminhamentos e respostas a propostas), tema e bairro, por e-mail e central de avisos; avisos obrigatórios não podem ser desligados.
 - **Funcionalidade implementada:** /conta/notificacoes, /avisos/descadastrar
-- **Código:** modules/notifications/notifications.service.ts
+- **Código:** modules/notifications/notifications.service.ts; notifications/canais.ts (CanalCentralDeAvisos, CanalEmail: cada canal respeita as preferências)
 - **Regras de negócio:** Proteção de dados (RN27).
 - **Dependências (matriz do documento):** depende de —; relaciona-se com —
 - **Requisitos de segurança relacionados:** —
@@ -1001,7 +1001,7 @@
 
 ### RF067 — Apoiar proposta cidadã
 
-- **Objetivo:** Se adotado, o sistema deve permitir um apoio por cidadão a cada proposta Publicada e exibir o total; atingida a meta no prazo, ambos configuráveis, a proposta recebe análise prioritária com resposta obrigatória (RF021). Os dados de entrada citam 4 meses e 20 mil apoios, valores de um portal legislativo federal (Apêndice B), não adotados por poderem ser desproporcionais ao eleitorado municipal. Apoio não é voto nem subscrição de iniciativa popular.
+- **Objetivo:** Se adotado, o sistema deve permitir um apoio por cidadão a cada proposta Publicada e exibir o total; atingida a meta no prazo, ambos configuráveis, a proposta recebe análise prioritária com resposta obrigatória (RF021). Os dados de entrada citam 4 meses e 20 mil apoios, valores de um portal legislativo federal, não adotados por poderem ser desproporcionais ao eleitorado municipal. Apoio não é voto nem subscrição de iniciativa popular.
 - **Funcionalidade implementada:** /propostas/[protocolo] (Apoiar)
 - **Código:** citizen-proposals.service.ts (supportProposal)
 - **Regras de negócio:** Propostas cidadãs (RN30); Natureza consultiva (RN34); Manifestação não é voto (RN38).
@@ -1016,7 +1016,7 @@
 
 ### RF068 — Divulgar evento participativo e receber perguntas
 
-- **Objetivo:** Se adotado, o sistema deve permitir cadastrar evento vinculado a consulta (audiência, reunião ou debate), com pauta, data, local, link de transmissão em serviço externo e, depois, gravação legendada, ata e resumo. O cidadão envia perguntas antecipadas e durante a transmissão; perguntas por telefone são registradas por atendente. A plataforma não transmite vídeo nem faz videochamadas, e o evento não substitui o rito legal da audiência.
+- **Objetivo:** Se adotado, o sistema deve permitir cadastrar evento vinculado a consulta (audiência, reunião ou debate), com pauta, data, local, link de transmissão em serviço externo e, depois, gravação legendada, ata e resumo. O cidadão envia perguntas antecipadas e durante a transmissão; perguntas por telefone são registradas por atendente. A plataforma não transmite vídeo nem faz videochamadas, e o evento não substitui o rito da audiência.
 - **Funcionalidade implementada:** /eventos/[id], /admin/eventos
 - **Código:** modules/events/events.service.ts
 - **Regras de negócio:** Conteúdo mínimo (RN37); Manifestação não é voto (RN38); Limites administrativos (RN39).

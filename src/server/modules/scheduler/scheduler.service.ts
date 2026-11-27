@@ -16,15 +16,19 @@ import { recordPublicEvent } from "../consultations/common";
 import { estimateEligible } from "../consultations/lifecycle.service";
 import { tallyConsultation, verifyIntegrity } from "../results/results.service";
 import { checkExternalLinks } from "../attachments/attachments.service";
+import { ConsultaRepository } from "../../repositories/consulta.repository";
+import { PropostaCidadaRepository } from "../../repositories/proposta-cidada.repository";
 
 export async function openDueConsultations(db: DbOrTx = getDb()) {
   const now = clock.now();
   const due = await db.select().from(consultations).where(and(eq(consultations.status, "agendada"), lte(consultations.opensAt, now)));
   for (const c of due) {
     await db.transaction(async (tx) => {
+      const repositorio = new ConsultaRepository(tx);
       const [cur] = await tx.select().from(consultations).where(eq(consultations.id, c.id)).for("update");
-      // Suspensa antes da abertura: aguarda a retomada (o status não é "agendada").
-      if (cur.status !== "agendada") return;
+      const consulta = repositorio.deRegistro(cur);
+      // Suspensa antes da abertura: aguarda a retomada (a situação não é "agendada").
+      if (!consulta.estaEm("agendada")) return;
       const alts = await tx.select({ id: alternatives.id, label: alternatives.label }).from(alternatives).where(eq(alternatives.consultationId, c.id)).orderBy(asc(alternatives.position));
       const crit = await tx.select().from(audienceCriteria).where(eq(audienceCriteria.consultationId, c.id));
       const estimated = await estimateEligible(
@@ -34,7 +38,8 @@ export async function openDueConsultations(db: DbOrTx = getDb()) {
       );
       // Retrato dos parâmetros vigentes na abertura (RF031).
       const snapshot = { alternatives: alts, audienceOpen: cur.audienceOpen, criteria: crit.map((x) => ({ type: x.type, publicText: x.publicText })), quorumType: cur.quorumType, quorumValue: cur.quorumValue, estimatedEligible: estimated, countingRule: cur.countingRule, takenAt: now.toISOString() };
-      await tx.update(consultations).set({ status: "aberta", openedAt: now, openSnapshot: snapshot, estimatedEligible: estimated }).where(eq(consultations.id, c.id));
+      consulta.abrir(now, snapshot, estimated);
+      await repositorio.salvar(consulta);
       await recordPublicEvent(tx, c.id, "abertura", "Votação aberta automaticamente no horário programado.");
       await audit(tx, { action: "consulta_aberta", objectType: "consulta", objectId: c.id, details: { elegiveisEstimados: estimated } });
       await notifyOpened(tx, c.id);
@@ -49,9 +54,11 @@ export async function closeDueConsultations(db: DbOrTx = getDb()) {
   for (const c of due) {
     await db.transaction(async (tx) => {
       // O UPDATE aguarda os votos em andamento (que bloqueiam a linha em modo compartilhado).
-      const [cur] = await tx.select().from(consultations).where(eq(consultations.id, c.id)).for("update");
-      if (cur.status !== "aberta") return;
-      await tx.update(consultations).set({ status: "encerrada", closedAt: now }).where(eq(consultations.id, c.id));
+      const repositorio = new ConsultaRepository(tx);
+      const consulta = await repositorio.obter(c.id, { paraAtualizar: true });
+      if (!consulta.estaEm("aberta")) return;
+      consulta.encerrarNoHorario(now);
+      await repositorio.salvar(consulta);
       await recordPublicEvent(tx, c.id, "encerramento", "Votação encerrada automaticamente no horário divulgado.");
       await audit(tx, { action: "consulta_encerrada", objectType: "consulta", objectId: c.id });
       await notifyVoters(tx, c.id, "resultado", `Consulta encerrada: ${c.title}`, "A votação foi encerrada. Os votos são contados automaticamente e o resultado será publicado depois da conferência.", `/consultas/${c.slug}`);
@@ -103,7 +110,11 @@ export async function expireProposalAdjustments(db: DbOrTx = getDb()) {
   for (const p of due) {
     await db.transaction(async (tx) => {
       const note = "Encerrada automaticamente: o ajuste solicitado não foi atendido no prazo.";
-      await tx.update(citizenProposals).set({ status: "encerrada", updatedAt: clock.now() }).where(eq(citizenProposals.id, p.id));
+      const repositorio = new PropostaCidadaRepository(tx);
+      const proposta = await repositorio.obter(p.id, { paraAtualizar: true });
+      if (!proposta.estaEm("ajuste_solicitado")) return;
+      proposta.encerrarPorAjusteVencido(clock.now());
+      await repositorio.salvar(proposta);
       await tx.insert(citizenProposalEvents).values({ proposalId: p.id, status: "encerrada", note, createdAt: clock.now() });
       await notifyUser(tx, p.authorId, { type: "respostas_propostas", title: `Proposta ${p.protocol} encerrada`, body: note, link: `/conta/propostas/${p.id}` });
       await audit(tx, { action: "proposta_cidada_encerrada_prazo", objectType: "proposta_cidada", objectId: p.id });

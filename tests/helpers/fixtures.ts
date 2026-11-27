@@ -4,7 +4,7 @@ import type { Db } from "@/server/db/client";
 import { alternatives, consultationAssignments, consultations, districts, municipalProposals, organs, roles, themes, userRoles, users } from "@/server/db/schema";
 import { cpfHmac, encrypt } from "@/server/lib/crypto";
 import { hashPassword } from "@/server/lib/password";
-import { generateCpf, maskCpf } from "@/lib/cpf";
+import { generateCpf, maskCpf, onlyDigits } from "@/lib/cpf";
 import { loadActor, type Actor } from "@/server/modules/access/access.service";
 import { DAY } from "@/server/lib/clock";
 import type { ConsultationRole } from "@/lib/permissions";
@@ -18,9 +18,15 @@ async function hashOnce() {
   return pwHash;
 }
 
-export async function createCitizen(db: Db, opts: { verified?: boolean; domicile?: boolean; status?: "ativa" | "pendente"; birthDate?: string; districtName?: string } = {}) {
+/** CPF fictício: o último dígito verificador está propositalmente errado (aceito desde a DT-36). */
+export function fictitiousCpf(): string {
+  const valido = generateCpf();
+  return valido.slice(0, 10) + String((Number(valido[10]) + 1) % 10);
+}
+
+export async function createCitizen(db: Db, opts: { verified?: boolean; domicile?: boolean; status?: "ativa" | "pendente"; birthDate?: string; districtName?: string; cpf?: string } = {}) {
   seq++;
-  const cpf = generateCpf();
+  const cpf = opts.cpf ? onlyDigits(opts.cpf) : generateCpf();
   const [d] = await db.select().from(districts).where(eq(districts.name, opts.districtName ?? "Centro"));
   const now = new Date();
   const [u] = await db

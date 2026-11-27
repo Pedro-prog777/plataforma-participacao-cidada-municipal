@@ -23,13 +23,10 @@ import { emailIsSimulated, notifyUser, queueEmail } from "../notifications/notif
 import { openIncident } from "../integrity/incidents.service";
 import { evaluateEligibility, hasParticipated, loadEligibilityConsultation, loadEligibilityUser } from "./eligibility";
 import { fmtDate } from "@/lib/labels";
+import { VoteRejected } from "../../domain/erros";
+import { Cedula } from "../../domain/entities/cedula";
 
-export class VoteRejected extends DomainError {
-  constructor(message: string, code: string) {
-    super(message, code);
-    this.name = "VoteRejected";
-  }
-}
+export { VoteRejected };
 
 /** Tentativas excessivas (RF039): mais de 5 por minuto limita e abre incidente (RF060). */
 async function guardAttempts(db: DbOrTx, userId: string, consultationId: string) {
@@ -140,21 +137,20 @@ export async function castVote(userId: string, input: CastInput, db: DbOrTx = ge
       const [u, ec, p] = await Promise.all([loadEligibilityUser(userId, tx), loadEligibilityConsultation(input.consultationId, tx), hasParticipated(userId, input.consultationId, tx)]);
       const el = evaluateEligibility(u!, ec!, !!p, clock.now());
       if (!el.eligible) throw new VoteRejected(el.reason, el.code);
-      // Exatamente uma alternativa válida desta consulta (RN13).
-      if (input.abstention) {
-        if (!c.allowAbstention) throw new VoteRejected("Esta consulta não admite abstenção.", "alternativa_invalida");
-      } else {
-        const [alt] = input.alternativeId
-          ? await tx.select({ id: alternatives.id }).from(alternatives).where(and(eq(alternatives.id, input.alternativeId), eq(alternatives.consultationId, c.id)))
-          : [];
-        if (!alt) throw new VoteRejected("Alternativa inexistente.", "alternativa_invalida");
-      }
+      // Exatamente uma alternativa válida desta consulta, ou abstenção permitida (RN13) — regra da Cédula.
+      const validas = await tx.select({ id: alternatives.id }).from(alternatives).where(eq(alternatives.consultationId, c.id));
+      const cedula = Cedula.preencher(
+        { consultaId: c.id, alternativasValidas: validas.map((a) => a.id), permiteAbstencao: c.allowAbstention },
+        { abstencao: input.abstention, alternativaId: input.alternativeId },
+      );
+      const voto = cedula.paraRegistro();
       const participatedOn = brDate(clock.now());
       const [part] = await tx
         .insert(participations)
         .values({ consultationId: c.id, citizenId: userId, participatedOn, receiptHash: sha256(receipt), receiptEnc: encrypt(receipt) })
         .returning({ id: participations.id });
-      await tx.insert(votes).values({ consultationId: c.id, alternativeId: input.abstention ? null : input.alternativeId, abstention: input.abstention });
+      // O voto gravado vem da cédula: só consulta e escolha, sem quem votou (RN07).
+      await tx.insert(votes).values({ consultationId: voto.consultaId, alternativeId: voto.alternativaId, abstention: voto.abstencao });
       // O código usado e os demais ainda ativos desta consulta deixam de valer.
       await tx.update(oneTimeCodes).set({ consumedAt: clock.now() }).where(or(eq(oneTimeCodes.id, codeId), activeCodesWhere(userId, input.consultationId)));
       return { consultation: c, participatedOn, participationId: part.id };

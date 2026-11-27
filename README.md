@@ -61,18 +61,23 @@ Aplicação única (monólito) em Next.js, organizada em camadas com dependênci
 ```mermaid
 flowchart LR
   A[Páginas e componentes<br/>src/app · src/components] --> B[Ações do servidor<br/>src/server/actions]
-  B --> C[Regras de negócio<br/>src/server/modules]
+  B --> C[Casos de uso<br/>src/server/modules]
+  C --> F[Domínio orientado a objetos<br/>src/server/domain]
+  C --> G[Repositórios<br/>src/server/repositories]
+  G --> F
+  G --> E[(PostgreSQL<br/>src/server/db · database/migrations)]
   C --> D[Infraestrutura<br/>src/server/lib]
-  C --> E[(PostgreSQL<br/>src/server/db · database/migrations)]
+  C --> E
 ```
 
-- **Regras de negócio em um só lugar** (`src/server/modules`): cada serviço valida os dados no servidor, confere a permissão, executa em transação e registra na auditoria.
+- **Regras de negócio em um só lugar** (`src/server/domain` e `src/server/modules`): as entidades do domínio (`Consulta`, `PropostaCidada`, `Cidadao`, `Cedula`…) controlam o próprio estado; cada serviço valida os dados no servidor, confere a permissão, executa em transação, lê e grava a entidade pelo repositório e registra na auditoria.
+- **Orientação a objetos no núcleo (DT-35):** abstração (entidades e interfaces do domínio sem dependência de banco nem de interface), encapsulamento (estado privado; a situação da consulta e da proposta só muda pelos métodos de transição), herança (critérios de público-alvo, quórum e canais de aviso derivados de classes abstratas) e polimorfismo (a elegibilidade, a apuração e o envio de avisos tratam todas as variações pela mesma interface, sem `switch` por tipo).
 - **Sigilo do voto por estrutura:** a tabela de participações guarda quem votou em qual consulta (só a data); a tabela de votos guarda a alternativa, sem nenhum identificador do cidadão, do comprovante ou do horário. As duas são gravadas na mesma transação e não têm relacionamento entre si.
 - **Voto único garantido pelo banco:** restrição de unicidade do par cidadão–consulta, além da verificação na tela e na regra.
 - **Registros imutáveis:** votos, participações, auditoria e resultados só aceitam acréscimo (gatilhos no banco); a auditoria é encadeada por hash.
 - **Separação de funções:** quem elabora ou revisa uma consulta não a aprova; contas administrativas não votam e exigem segundo fator.
 
-Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.md](docs/arquitetura/MODELO_DE_DADOS.md) e [DECISOES_TECNICAS.md](docs/arquitetura/DECISOES_TECNICAS.md).
+Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md) (camadas e diagramas de classes), [MODELO_DE_DADOS.md](docs/arquitetura/MODELO_DE_DADOS.md) e [DECISOES_TECNICAS.md](docs/arquitetura/DECISOES_TECNICAS.md). Visão do produto em [docs/prd.md](docs/prd.md) e uma especificação por funcionalidade em [specs/](specs/README.md).
 
 ## 5. Funcionalidades desenvolvidas
 
@@ -88,7 +93,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md), [MODELO_DE_DADOS.
 
 ### Área do cidadão
 
-- Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
+- Cadastro com CPF no formato XXX.XXX.XXX-XX (aceita fictício, sem dígito verificador — DT-36) e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
 - Verificação de identidade (provedor simulado ou análise de documentos).
 - Votação em 3 passos com código de confirmação e comprovante.
 - Envio e acompanhamento de propostas, central de avisos e preferências de notificação.
@@ -120,11 +125,13 @@ plataforma-participacao-cidada-municipal/
 ├── .env.example               Modelo de configuração (sem segredos)
 ├── docs/
 │   ├── STATUS_DO_DESENVOLVIMENTO.md
+│   ├── prd.md                 Documento de produto (PRD)
 │   ├── requisitos/            PDF (com links) e original, transcrição, mapeamento, rastreabilidade, pendências
 │   ├── arquitetura/           Arquitetura, modelo de dados, decisões técnicas
 │   ├── seguranca/             Matriz de riscos
 │   ├── testes/                Plano de testes e resultados
 │   └── trello/                Plano do quadro e cartões para importação
+├── specs/                     Uma especificação por funcionalidade (14)
 ├── src/
 │   ├── app/                   Interface: rotas e páginas (portal, cidadão, admin, api)
 │   ├── components/            Interface: componentes reutilizáveis
@@ -132,11 +139,15 @@ plataforma-participacao-cidada-municipal/
 │   └── server/                Servidor
 │       ├── actions/           Ações chamadas pelos formulários
 │       ├── auth/              Sessão e guardas de acesso
-│       ├── modules/           Regras de negócio por módulo
+│       ├── domain/            Núcleo orientado a objetos: entidades, interfaces, estratégias e serviços de domínio
+│       ├── repositories/      Leitura e gravação das entidades (Drizzle)
+│       ├── modules/           Casos de uso por módulo (validação, permissão, transação, auditoria)
 │       ├── lib/               Criptografia, arquivos, parâmetros, relógio
 │       └── db/                Schema, conexão e migração
 ├── database/
 │   ├── migrations/            SQL das tabelas e dos gatilhos de imutabilidade
+│   ├── schema.sql             Estrutura completa do banco em um só script (gerado)
+│   ├── seed-referencia.sql    Dados de referência em SQL (gerado)
 │   ├── seeds/                 Dados de referência e dados fictícios de demonstração
 │   └── diagrams/              Diagrama entidade-relacionamento
 ├── tests/
@@ -197,15 +208,16 @@ npm run test:e2e     # testes no navegador, em build de produção, com acessibi
 npm run screenshots  # regenera as capturas das telas
 ```
 
-Última execução (15/11/2026, Windows 11, Node 24):
+Última execução (27/11/2026, Windows 11, Node 20.20.2):
 
 | Verificação | Resultado |
 |---|---|
 | Tipos (TypeScript) | sem erros |
-| Lint (ESLint) | sem erros |
-| Unitários, integração e segurança (Vitest, 10 arquivos) | **128 de 128 aprovados** |
-| Ponta a ponta com acessibilidade (Playwright, Chromium) | **36 de 36 aprovados** |
-| Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades |
+| Lint (ESLint, `--max-warnings 0`) | sem erros nem avisos |
+| Unitários, integração e segurança (Vitest, 16 arquivos) | **214 de 214 aprovados** |
+| Build de produção (`next build`) | sem erros |
+| Ponta a ponta com acessibilidade (Playwright, Chromium) | **65 de 65 aprovados** |
+| Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades (24/11; dependências inalteradas desde então) |
 | Integração contínua (GitHub Actions, Ubuntu, Node 22, **PostgreSQL 16 real**) | **aprovada** a cada envio — [execuções](https://github.com/Pedro-prog777/plataforma-participacao-cidada-municipal/actions) |
 
 Cenários, cobertura por requisito e o que **não** foi testado (carga, leitores de tela, outros navegadores, teste de intrusão) estão em [PLANO_DE_TESTES.md](docs/testes/PLANO_DE_TESTES.md).
@@ -260,8 +272,9 @@ Todas as capturas: [área pública](screenshots/area-publica/) · [cidadão](scr
 | Assunto | Documento |
 |---|---|
 | Regras do projeto e requisitos completos | [AGENTS.md](AGENTS.md) |
+| Produto e especificações | [PRD](docs/prd.md) · [Especificações por funcionalidade](specs/README.md) |
 | Requisitos | [Documento de requisitos (PDF com links)](docs/requisitos/Documento_de_Requisitos_v6.pdf) · [Original (PDF)](docs/requisitos/original/Documento_de_Requisitos_v6_original.pdf) · [Transcrição](docs/requisitos/REQUISITOS_COMPLETOS.md) · [Mapeamento requisito → código → teste](docs/requisitos/MAPEAMENTO_DE_REQUISITOS.md) · [Rastreabilidade](docs/requisitos/MATRIZ_DE_RASTREABILIDADE.md) · [Pendências com o cliente](docs/requisitos/PENDENCIAS_CLIENTE.md) |
-| Arquitetura | [Arquitetura](docs/arquitetura/ARQUITETURA.md) · [Modelo de dados](docs/arquitetura/MODELO_DE_DADOS.md) · [Diagrama ER](database/diagrams/modelo-er.md) · [Decisões técnicas](docs/arquitetura/DECISOES_TECNICAS.md) |
+| Arquitetura | [Arquitetura](docs/arquitetura/ARQUITETURA.md) · [Modelo de dados](docs/arquitetura/MODELO_DE_DADOS.md) · [Diagrama ER](database/diagrams/modelo-er.md) · [Script do banco](database/schema.sql) · [Decisões técnicas](docs/arquitetura/DECISOES_TECNICAS.md) |
 | Segurança | [Matriz de riscos](docs/seguranca/MATRIZ_DE_RISCOS.md) |
 | Testes | [Plano de testes e resultados](docs/testes/PLANO_DE_TESTES.md) |
 | Acompanhamento | [Status do desenvolvimento](docs/STATUS_DO_DESENVOLVIMENTO.md) · [Plano do Trello](docs/trello/PLANO_TRELLO.md) |
