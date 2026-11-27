@@ -1,7 +1,7 @@
 /** Máscaras de digitação do cadastro (RF001): pontuação automática sem alterar os dígitos. */
 import { describe, expect, it } from "vitest";
 import { caretAfterDigits, maskValue } from "@/lib/masks";
-import { generateCpf, isValidCpf } from "@/lib/cpf";
+import { generateCpf, isCpfFormat } from "@/lib/cpf";
 
 const typed = (kind: Parameters<typeof maskValue>[0], digits: string) => [...digits].reduce<string[]>((acc, ch) => [...acc, maskValue(kind, (acc.at(-1) ?? "") + ch)], []);
 
@@ -14,7 +14,9 @@ describe("maskValue", () => {
 
   it("CPF formatado continua válido para o servidor", () => {
     const cpf = generateCpf();
-    expect(isValidCpf(maskValue("cpf", cpf.replace(/\D/g, "")))).toBe(true);
+    expect(isCpfFormat(maskValue("cpf", cpf.replace(/\D/g, "")))).toBe(true);
+    // CPF fictício, sem verificador válido, também passa no servidor (DT-36).
+    expect(isCpfFormat(maskValue("cpf", "11111111111"))).toBe(true);
   });
 
   it("data: barras automáticas no formato DD/MM/AAAA", () => {

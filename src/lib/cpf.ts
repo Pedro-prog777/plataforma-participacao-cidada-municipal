@@ -4,16 +4,13 @@ export function onlyDigits(value: string): string {
   return (value || "").replace(/\D/g, "");
 }
 
-export function isValidCpf(value: string): boolean {
-  const cpf = onlyDigits(value);
-  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-  const calc = (len: number) => {
-    let sum = 0;
-    for (let i = 0; i < len; i++) sum += Number(cpf[i]) * (len + 1 - i);
-    const rest = (sum * 10) % 11;
-    return rest === 10 ? 0 : rest;
-  };
-  return calc(9) === Number(cpf[9]) && calc(10) === Number(cpf[10]);
+/**
+ * CPF aceito pelo sistema (RF001 e RF002 do Documento v6, DT-36): 11 números no formato
+ * XXX.XXX.XXX-XX, com ou sem a pontuação. Aceita CPF fictício — os dígitos verificadores não são
+ * calculados. A conta única por pessoa (RN02) continua garantida pelo HMAC do CPF no banco.
+ */
+export function isCpfFormat(value: string): boolean {
+  return /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/.test((value ?? "").trim());
 }
 
 export function formatCpf(value: string): string {
@@ -28,7 +25,10 @@ export function maskCpf(value: string): string {
   return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
 }
 
-/** Gera um CPF válido aleatório — usado apenas em dados fictícios e testes. */
+/**
+ * Gera um CPF aleatório com dígitos verificadores corretos (aparência de CPF real) — usado apenas em
+ * dados fictícios e testes. O sistema também aceita CPF sem verificador válido (DT-36).
+ */
 export function generateCpf(seed?: () => number): string {
   const rnd = seed ?? Math.random;
   const base = Array.from({ length: 9 }, () => Math.floor(rnd() * 10));

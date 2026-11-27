@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { desc, eq } from "drizzle-orm";
 import { createTestDb, destroyTestDb } from "../helpers/db";
-import { createAdmin, createCitizen, PASSWORD, TOTP_SECRET } from "../helpers/fixtures";
+import { createAdmin, createCitizen, fictitiousCpf, PASSWORD, TOTP_SECRET } from "../helpers/fixtures";
 import type { Db } from "@/server/db/client";
 import { districts, emailOutbox, sessions, users } from "@/server/db/schema";
 import { changePassword, confirmEmail, login, registerCitizen, requestPasswordReset, resetPassword, verifySecondFactor } from "@/server/modules/auth/auth.service";
@@ -10,7 +10,7 @@ import { validateSession } from "@/server/modules/auth/session.service";
 import { deactivateAccount } from "@/server/modules/profile/profile.service";
 import { assertPermission, loadActor } from "@/server/modules/access/access.service";
 import { searchAudit } from "@/server/modules/audit/audit.service";
-import { generateCpf, formatCpf } from "@/lib/cpf";
+import { generateCpf, formatCpf, maskCpf } from "@/lib/cpf";
 import { totp } from "@/server/lib/totp";
 import { clock } from "@/server/lib/clock";
 import { resetRateLimits } from "@/server/lib/rate-limit";
@@ -53,9 +53,9 @@ const lastEmail = async (to?: string) => {
 };
 
 describe("Cadastro (RF001, RF002)", () => {
-  it("recusa CPF inválido e devolve TODOS os erros por campo de uma vez", async () => {
+  it("recusa CPF fora do formato e devolve TODOS os erros por campo de uma vez", async () => {
     try {
-      await registerCitizen(form({ cpf: "111.111.111-11", email: "invalido", password: "abc", acceptTerms: undefined }), db);
+      await registerCitizen(form({ cpf: "123.456.789", email: "invalido", password: "abc", acceptTerms: undefined }), db);
       expect.unreachable();
     } catch (e) {
       expect(e).toBeInstanceOf(ValidationError);
@@ -63,6 +63,22 @@ describe("Cadastro (RF001, RF002)", () => {
       expect(Object.keys(fe)).toEqual(expect.arrayContaining(["cpf", "email", "password", "acceptTerms"]));
     }
     expect(await db.select().from(users).where(eq(users.fullName, "Maria das Dores Fictícia"))).toHaveLength(0);
+  });
+
+  it("aceita CPF fictício, sem dígito verificador, com uma conta por CPF, login e recuperação pelo CPF (DT-36, RN02)", async () => {
+    const ficticio = formatCpf(fictitiousCpf());
+    const f = form({ cpf: ficticio });
+    const { userId } = await registerCitizen(f, db);
+    const [u] = await db.select().from(users).where(eq(users.id, userId));
+    expect(u.cpfMasked).toBe(maskCpf(ficticio));
+    // O mesmo CPF fictício não abre uma segunda conta (RN02).
+    await expect(registerCitizen(form({ cpf: ficticio }), db)).rejects.toThrow(/recupere o acesso/);
+    // Depois de confirmar o e-mail, entra com o CPF fictício (RF005) e pode recuperar a senha por ele (RF007).
+    await confirmEmail((await lastEmail(f.email as string)).body.match(/token=([\w-]+)/)![1], db);
+    const r = await login({ identifier: ficticio, password: f.password as string }, ctx, db);
+    expect(r.ok).toBe(true);
+    await requestPasswordReset(ficticio.replace(/\D/g, ""), "ip-ficticio", db);
+    expect((await lastEmail(f.email as string)).body).toContain("/redefinir-senha?token=");
   });
 
   it("só cria conta quem tem 18 anos completos (DT-33)", async () => {

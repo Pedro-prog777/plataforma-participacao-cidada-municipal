@@ -12,13 +12,13 @@
 | `npm run check` | typecheck + lint + test |
 | `npm audit --omit=dev` | Dependências vulneráveis |
 
-## Última execução registrada (27/11/2026, ambiente local Windows 11, Node 20.20.2) — correção AV03 (DT-35)
+## Última execução registrada (27/11/2026, ambiente local Windows 11, Node 20.20.2) — correção AV03 (DT-35) e CPF fictício (DT-36)
 
 | Suíte | Resultado |
 |---|---|
 | Tipos (`tsc --noEmit`) | sem erros |
 | Lint (`eslint . --max-warnings 0`) | sem erros nem avisos |
-| Unitários + integração + segurança (16 arquivos) | **212 de 212 aprovados** em 27/11/2026, após a DT-35 (33 testes novos em 3 arquivos; 26/11, DT-34: 179 de 179; 25/11: 173 de 173; 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
+| Unitários + integração + segurança (16 arquivos) | **214 de 214 aprovados** em 27/11/2026, após as DT-35 e DT-36 (35 testes novos: 33 em 3 arquivos novos e 2 do CPF fictício; 26/11, DT-34: 179 de 179; 25/11: 173 de 173; 24/11: 158 de 158, linha de base do dia 150 de 152 — 2 falhas do leitor de PDF no Node 20, corrigidas) |
 | Build de produção (`next build`, dentro de `npm run test:e2e`) | sem erros |
 | E2E (4 arquivos, Chromium) | **65 de 65 aprovados**, nenhum pulado (linha de base de 24/11: 48 de 48; 17 testes novos em `robustez.spec.ts`) |
 | Varredura exploratória (568 páginas, 7 perfis) | em 24/11: 0 erro 500 (antes 12), 0 violação axe séria (antes 38), sem rolagem a 320 px — não refeita em 27/11 |
@@ -60,7 +60,7 @@ Relatório completo, bugs e evidências: `docs/testes/RELATORIO_DE_TESTES.md`; c
 
 | # | Cenário | Teste | Situação |
 |---|---|---|---|
-| 1 | Cadastro com CPF inválido | `integration/auth.test.ts`, `e2e/citizen.spec.ts`, `unit/rules.test.ts` | aprovado |
+| 1 | Cadastro com CPF fora do formato (recusado) e com CPF fictício (aceito — DT-36) | `integration/auth.test.ts`, `e2e/citizen.spec.ts`, `unit/rules.test.ts` | aprovado |
 | 2 | CPF já utilizado | `integration/auth.test.ts` (mensagem genérica; também após desativação) | aprovado |
 | 3 | Confirmação de e-mail | `integration/auth.test.ts` (uso único, expiração 24 h) | aprovado |
 | 4 | Login com dados incorretos | `integration/auth.test.ts`, `e2e/citizen.spec.ts` | aprovado |

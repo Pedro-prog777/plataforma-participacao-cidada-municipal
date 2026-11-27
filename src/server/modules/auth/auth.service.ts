@@ -5,7 +5,7 @@ import { and, count, eq, gt, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, type DbOrTx } from "../../db/client";
 import { authFailures, districts, organs, tokens, users } from "../../db/schema";
-import { isValidCpf, maskCpf, onlyDigits } from "@/lib/cpf";
+import { isCpfFormat, maskCpf, onlyDigits } from "@/lib/cpf";
 import { cpfHmac, decrypt, encrypt, randomToken, sha256 } from "../../lib/crypto";
 import { clock, HOUR, MINUTE } from "../../lib/clock";
 import { DomainError, parseOrThrow, ValidationError, type FieldErrors } from "../../lib/errors";
@@ -86,7 +86,8 @@ export const emailSchema = z
 const registrationSchema = z
   .object({
     fullName: trimmed(3, 150, "Nome completo"),
-    cpf: z.string({ error: "Informe o CPF." }).refine(isValidCpf, "CPF inválido (confira os dígitos)."),
+    // RF001/RF002 (Documento v6, DT-36): aceita CPF fictício — confere só o formato, sem dígitos verificadores.
+    cpf: z.string({ error: "Informe o CPF." }).refine(isCpfFormat, "Informe os 11 números do CPF, no formato XXX.XXX.XXX-XX."),
     birthDate: adultBirthDateSchema(),
     email: emailSchema,
     phone: phoneSchema,
@@ -306,9 +307,10 @@ export async function login(
     }
   }
 
+  // CPF (inclusive fictício, DT-36) ou e-mail.
   const digits = onlyDigits(identifier);
   const candidates =
-    !identifier.includes("@") && digits.length === 11 && isValidCpf(digits)
+    !identifier.includes("@") && isCpfFormat(digits)
       ? await db.select().from(users).where(eq(users.cpfHmac, cpfHmac(digits)))
       : await db.select().from(users).where(eq(users.email, identifier.toLowerCase()));
 
@@ -371,7 +373,7 @@ export async function requestPasswordReset(identifier: string, ip: string, db: D
   }
   const digits = onlyDigits(id);
   const rows =
-    !id.includes("@") && digits.length === 11 && isValidCpf(digits)
+    !id.includes("@") && isCpfFormat(digits)
       ? await db.select().from(users).where(eq(users.cpfHmac, cpfHmac(digits)))
       : await db.select().from(users).where(eq(users.email, id.toLowerCase()));
   for (const u of rows.filter((r) => r.status === "ativa" || r.status === "pendente")) {

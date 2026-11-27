@@ -31,6 +31,7 @@ Visitante (não autenticado); Sistema (envio do e-mail).
 ## 6. Fluxos alternativos
 
 - **Dados inválidos:** todos os erros aparecem de uma vez, por campo; nada é gravado; os valores digitados são preservados (exceto senhas).
+- **CPF fora do formato:** "Informe os 11 números do CPF, no formato XXX.XXX.XXX-XX." CPF fictício, sem dígito verificador válido, é aceito (RF001, DT-36).
 - **CPF ou e-mail já cadastrado:** mensagem genérica, sem revelar qual dado existe, com oferta de recuperar o acesso (RF007).
 - **Menor de 18 anos:** recusa no campo data de nascimento ("É preciso ter 18 anos completos para criar uma conta.").
 - **Mora fora do município:** cadastro aceito informando o município; a elegibilidade é verificada por consulta.
@@ -46,7 +47,7 @@ Visitante (não autenticado); Sistema (envio do e-mail).
 
 ## 8. Validações
 
-Nome (3 a 150 caracteres); CPF com dígitos verificadores; data DD/MM/AAAA real, não futura, a partir de 1900; e-mail válido; celular com 10 ou 11 dígitos; CEP com 8 dígitos; logradouro, número e bairro obrigatórios (ou município, se mora fora); confirmação de senha igual; aceite obrigatório. Tudo validado no servidor com Zod, mesmo que a tela também valide.
+Nome (3 a 150 caracteres); CPF com 11 números no formato XXX.XXX.XXX-XX, **aceito mesmo fictício**, sem cálculo dos dígitos verificadores (`isCpfFormat`, DT-36); data DD/MM/AAAA real, não futura, a partir de 1900; e-mail válido; celular com 10 ou 11 dígitos; CEP com 8 dígitos; logradouro, número e bairro obrigatórios (ou município, se mora fora); confirmação de senha igual; aceite obrigatório. Tudo validado no servidor com Zod, mesmo que a tela também valide.
 
 ## 9. Persistência no banco de dados
 
@@ -58,7 +59,8 @@ Nome (3 a 150 caracteres); CPF com dígitos verificadores; data DD/MM/AAAA real,
 ## 10. Critérios de aceitação
 
 - Cadastro válido cria a conta pendente e o e-mail de confirmação; o link ativa a conta uma única vez.
-- CPF inválido, campos vazios e menor de 18 anos são recusados sem gravar nada.
+- CPF fora do formato, campos vazios e menor de 18 anos são recusados sem gravar nada.
+- CPF fictício (ex.: 111.111.111-11) é aceito, e o mesmo CPF não abre uma segunda conta.
 - CPF ou e-mail repetido recebe mensagem que não revela a existência da conta.
 
 ## Implementação

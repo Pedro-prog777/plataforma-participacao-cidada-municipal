@@ -132,9 +132,10 @@ RNF04, RNF09, RNF10 e RNF11 têm metas sugeridas (*) e não foram medidos com ca
   e restritos ao modo demonstração (`DEMO_MODE`).
 - **Natureza consultiva (*):** o resultado orienta a administração e não substitui plebiscito, referendo
   ou audiência pública (RN34).
-- **Decisões pendentes do cliente (*):** listadas em `docs/requisitos/PENDENCIAS_CLIENTE.md`. Em especial,
-  o Documento v6 passou a aceitar **CPF fictício** (DT-29), mas o sistema ainda valida os dígitos
-  verificadores por decisão da equipe, aguardando a avaliação dos professores.
+- **Decisões pendentes do cliente (*):** listadas em `docs/requisitos/PENDENCIAS_CLIENTE.md`.
+- **CPF fictício (DT-36):** como no Documento v6, o cadastro aceita CPF fictício — só o formato
+  XXX.XXX.XXX-XX é conferido, sem dígitos verificadores; a conta única por CPF (RN02) continua. Com o
+  gov.br real, uma conta com CPF fictício não passaria da verificação de identidade e não votaria.
 - **Dados:** somente fictícios na demonstração; repositório público sem segredos.
 
 ## 10. Tecnologias

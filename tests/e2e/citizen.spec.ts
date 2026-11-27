@@ -2,15 +2,21 @@
 import { expect, test } from "@playwright/test";
 import { expectAccessible, lastCode, loginCitizen } from "./helpers";
 
-test("cadastro com CPF inválido mostra todos os erros por campo (RF001, RF002)", async ({ page }) => {
+test("cadastro com CPF incompleto mostra todos os erros por campo; CPF fictício é aceito (RF001, RF002, DT-36)", async ({ page }) => {
+  const erroCpf = "Informe os 11 números do CPF, no formato XXX.XXX.XXX-XX.";
   await page.goto("/cadastro");
   await page.getByLabel("Nome completo").fill("Teste E2E");
-  await page.getByLabel("CPF", { exact: false }).first().fill("111.111.111-11");
+  await page.getByLabel("CPF", { exact: false }).first().fill("123.456.78");
   await page.getByRole("button", { name: "Criar conta" }).click();
-  await expect(page.getByText("CPF inválido (confira os dígitos).")).toBeVisible();
+  await expect(page.getByText(erroCpf)).toBeVisible();
   await expect(page.getByText(/aceitar os Termos de Uso/)).toBeVisible();
   // O nome digitado é preservado após o erro.
   await expect(page.getByLabel("Nome completo")).toHaveValue("Teste E2E");
+  // CPF fictício, sem dígito verificador válido: o campo passa; só os outros erros continuam.
+  await page.getByLabel("CPF", { exact: false }).first().fill("111.111.111-11");
+  await page.getByRole("button", { name: "Criar conta" }).click();
+  await expect(page.getByText(/aceitar os Termos de Uso/)).toBeVisible();
+  await expect(page.getByText(erroCpf)).toHaveCount(0);
 });
 
 test("cadastro: a pontuação de CPF, data, celular e CEP entra sozinha; município só para quem mora fora (RF001)", async ({ page }) => {

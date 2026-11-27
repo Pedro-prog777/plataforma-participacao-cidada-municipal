@@ -93,7 +93,7 @@ Detalhes em [ARQUITETURA.md](docs/arquitetura/ARQUITETURA.md) (camadas e diagram
 
 ### Área do cidadão
 
-- Cadastro com validação de CPF e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
+- Cadastro com CPF no formato XXX.XXX.XXX-XX (aceita fictício, sem dígito verificador — DT-36) e pontuação automática (CPF, data, celular e CEP), confirmação de e-mail, recuperação e troca de senha.
 - Verificação de identidade (provedor simulado ou análise de documentos).
 - Votação em 3 passos com código de confirmação e comprovante.
 - Envio e acompanhamento de propostas, central de avisos e preferências de notificação.
@@ -214,7 +214,7 @@ npm run screenshots  # regenera as capturas das telas
 |---|---|
 | Tipos (TypeScript) | sem erros |
 | Lint (ESLint, `--max-warnings 0`) | sem erros nem avisos |
-| Unitários, integração e segurança (Vitest, 16 arquivos) | **212 de 212 aprovados** |
+| Unitários, integração e segurança (Vitest, 16 arquivos) | **214 de 214 aprovados** |
 | Build de produção (`next build`) | sem erros |
 | Ponta a ponta com acessibilidade (Playwright, Chromium) | **65 de 65 aprovados** |
 | Dependências (`npm audit --omit=dev`) | 0 vulnerabilidades (24/11; dependências inalteradas desde então) |

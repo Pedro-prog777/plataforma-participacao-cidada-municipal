@@ -42,7 +42,7 @@ Conta ativa, "Não verificado" ou "Verificação recusada".
 
 ## 8. Validações
 
-Estado (`state`) do fluxo do provedor conferido; CPF do provedor igual ao do cadastro (por HMAC); nível mínimo; arquivos com formato real permitido e até 5 MB.
+Estado (`state`) do fluxo do provedor conferido; CPF do provedor igual ao do cadastro (por HMAC; o CPF fictício aceito no cadastro também vale quando o provedor devolve o mesmo — DT-36); nível mínimo; arquivos com formato real permitido e até 5 MB.
 
 ## 9. Persistência no banco de dados
 

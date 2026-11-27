@@ -162,22 +162,23 @@ Testes novos ou ampliados:
 - **Sigilo (RS002, DT-31):** o `JOIN` por `xmin` entre participações e votos passa de mais de zero linhas para zero depois do reembaralhamento, com o mesmo hash da base apurada; o gatilho só admite a troca de `shuffle_key`.
 - **Código de confirmação e comprovante (RF011, RF038, DT-32):** código anterior continua válido ao pedir outro; no máximo 3 válidos e descarte após 3 erros; código na tela só quando o envio é simulado; fila registra "simulado"; id da participação vindo da transação; E2E lê o código na tela, copia o comprovante, recarrega a página, volta e usa o código anterior — tudo numa única guia.
 
-## 10. Atualização de 27/11/2026 — orientação a objetos e scripts do banco (DT-35)
+## 10. Atualização de 27/11/2026 — orientação a objetos, scripts do banco e CPF fictício (DT-35, DT-36)
 
-Executado no ramo `correcao-av03` (Windows 11, Node 20.20.2, PGlite, projeto na pasta do OneDrive), depois da refatoração do núcleo para classes.
+Executado no ramo `correcao-av03` (Windows 11, Node 20.20.2, PGlite, projeto na pasta do OneDrive), depois da refatoração do núcleo para classes e da mudança do CPF.
 
 | Suíte | Comando | Resultado |
 |---|---|---|
 | Tipos | `npm run typecheck` | sem erros |
 | Lint | `npx eslint . --max-warnings 0` | sem erros nem avisos |
-| Vitest — unitários, integração e segurança | `npm run test` (dentro de `npm run check`) | **212 de 212 aprovados**, 16 arquivos (33 novos; antes 179 de 179) |
+| Vitest — unitários, integração e segurança | `npm run test` (dentro de `npm run check`) | **214 de 214 aprovados**, 16 arquivos (35 novos; antes 179 de 179) |
 | Build de produção | `next build` (dentro de `npm run test:e2e`) | sem erros |
 | Playwright E2E + axe-core | `npm run test:e2e` | **65 de 65 aprovados**, nenhum pulado |
 
-Regressão: nenhum teste anterior foi alterado ou removido, e todos continuam passando — inclusive "Sigilo do voto" e as mensagens de erro conferidas pelos testes de integração, que a refatoração manteve iguais. Testes novos:
+Regressão: nenhum teste foi removido, e todos continuam passando — inclusive "Sigilo do voto" e as mensagens de erro conferidas pelos testes de integração, que a refatoração manteve iguais. A refatoração (DT-35) não alterou nenhum teste anterior; a regra nova do CPF (DT-36) mudou de propósito os testes que exigiam recusar um CPF com dígito verificador errado: agora eles conferem que CPF fora do formato é recusado e que CPF fictício é aceito (`rules.test.ts`, `masks.test.ts`, `auth.test.ts` e E2E `citizen.spec.ts`). Testes novos:
 
 - **`tests/unit/dominio.test.ts` (23):** ciclo de vida da `Consulta` (transições válidas e recusadas, com as mesmas mensagens e códigos), estado inacessível de fora (atribuição falha, `Object.keys` vazio, `JSON.stringify` vazio), segregação na aprovação, retomada, cancelamento, alterações pendentes, prazo excepcional; estados da `PropostaCidada` (RN30); polimorfismo dos critérios de público-alvo; ordem do `AvaliadorDeElegibilidade` e limite dos 18 anos; `Cedula` sem eleitor; quórum de referência; `Apuracao` com o mesmo resultado de `tally`; canais de aviso; `VoteRejected`.
 - **`tests/integration/repositorios.test.ts` (6):** ida e volta das entidades pelo banco, gravação só das colunas alteradas, salvar sem alteração não mexe em `updated_at`, registro inexistente, transição inválida não grava nada.
 - **`tests/integration/schema-sql.test.ts` (4):** `schema.sql` e `seed-referencia.sql` atualizados; o catálogo criado pelo `schema.sql` é igual ao das migrations; contas e permissões; dados de referência e reexecução.
+- **CPF fictício (2, DT-36):** `auth.test.ts` › cadastro com CPF sem dígito verificador válido, conta única por CPF, login e recuperação de senha pelo CPF; `administration.test.ts` › provedor de identidade com o CPF fictício do cadastro verifica a conta.
 
-Não refeitos nesta atualização: varredura exploratória de 568 páginas e capturas (a DT-35 não muda telas). O CI (PostgreSQL 16 real) roda em envios ao `main` e em pull requests, portanto ainda não rodou neste ramo.
+Não refeitos nesta atualização: varredura exploratória de 568 páginas e capturas (a DT-35 não muda telas). O CI (PostgreSQL 16 real) roda no pull request do ramo para o `main`.

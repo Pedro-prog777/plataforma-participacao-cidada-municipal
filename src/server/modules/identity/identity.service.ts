@@ -14,7 +14,7 @@ import { DomainError, ValidationError } from "../../lib/errors";
 import { receiveFile, type StoredFile } from "../../lib/files";
 import { LEVEL_ORDER, type IdentityAssertion, type IdentityLevel } from "../../lib/identity-provider";
 import { env } from "../../lib/env";
-import { onlyDigits, isValidCpf } from "@/lib/cpf";
+import { onlyDigits, isCpfFormat } from "@/lib/cpf";
 import { sanitizePlainText } from "@/lib/text";
 import { audit } from "../audit/audit.service";
 import { assertPermission, type Actor } from "../access/access.service";
@@ -45,7 +45,8 @@ export async function completeProviderFlow(userId: string, state: string, assert
   if (!levelSchema.safeParse(assertion.level).success) throw new ValidationError({ level: ["Nível de conta inválido."] });
   const cpf = onlyDigits(assertion.cpf);
   return db.transaction(async (tx) => {
-    if (!isValidCpf(cpf) || cpfHmac(cpf) !== u.cpfHmac) {
+    // Compara pelo HMAC; CPF fictício do cadastro também é aceito quando o provedor devolve o mesmo (DT-36).
+    if (!isCpfFormat(cpf) || cpfHmac(cpf) !== u.cpfHmac) {
       await tx.insert(identityVerifications).values({ userId, method: "govbr", status: "recusada", govbrLevel: assertion.level, reason: "CPF divergente do cadastro", decidedAt: clock.now() });
       await tx.update(users).set({ verificationLevel: "recusado" }).where(eq(users.id, userId));
       // CPF divergente: recusa registrada na auditoria (RF004) e incidente de cadastro suspeito (RS004).
