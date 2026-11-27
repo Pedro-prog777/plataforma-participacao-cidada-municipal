@@ -7,9 +7,12 @@
 import { and, asc, desc, eq, isNull, lt, sql } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
 import { emailOutbox, notificationPreferences, notifications, users } from "../../db/schema";
-import { signPayload } from "../../lib/crypto";
 import { env } from "../../lib/env";
 import { clock } from "../../lib/clock";
+import type { Aviso, Destinatario, TransporteDeEmail } from "../../domain/interfaces/notificacao";
+import { canaisDeAviso, queueEmail, TransporteSimulado, TransporteSmtp } from "./canais";
+
+export { queueEmail };
 
 export const NOTIFICATION_TYPES = {
   nova_consulta: { label: "Novas consultas publicadas", optional: true },
@@ -31,10 +34,6 @@ export function defaultPreferences() {
   return Object.fromEntries(OPTIONAL_TYPES.map((t) => [t, { email: true, inApp: true }])) as Record<string, { email: boolean; inApp: boolean }>;
 }
 
-export async function queueEmail(db: DbOrTx, to: string, subject: string, body: string) {
-  await db.insert(emailOutbox).values({ toAddress: to, subject, body });
-}
-
 export type NotifyInput = { type: NotificationType; title: string; body: string; link?: string; emailSubject?: string };
 
 /** Envia aviso respeitando preferências; avisos obrigatórios não podem ser desligados (RF052). */
@@ -45,17 +44,11 @@ export async function notifyUser(db: DbOrTx, userId: string, input: NotifyInput)
     .leftJoin(notificationPreferences, eq(notificationPreferences.userId, users.id))
     .where(eq(users.id, userId));
   if (!u || u.status === "desativada") return;
-  const mandatory = !NOTIFICATION_TYPES[input.type].optional;
-  const pref = (u.prefs ?? defaultPreferences())[input.type] ?? { email: true, inApp: true };
-  if (mandatory || pref.inApp) {
-    await db.insert(notifications).values({ userId, type: input.type, title: input.title, body: input.body, link: input.link ?? null, mandatory });
-  }
-  if (mandatory || pref.email) {
-    const link = input.link ? `\n\nAcesse: ${env.appUrl}${input.link}` : "";
-    const unsubscribe = mandatory
-      ? ""
-      : `\n\nPara deixar de receber este tipo de aviso, acesse: ${env.appUrl}/avisos/descadastrar?t=${encodeURIComponent(signPayload({ u: userId, t: input.type }))}`;
-    await queueEmail(db, u.email, input.emailSubject ?? input.title, `${input.body}${link}${unsubscribe}\n\n— ${env.municipio} · Plataforma de Participação Cidadã`);
+  const destinatario: Destinatario = { id: userId, email: u.email, preferencia: (u.prefs ?? defaultPreferences())[input.type] ?? { email: true, inApp: true } };
+  const aviso: Aviso = { tipo: input.type, titulo: input.title, corpo: input.body, link: input.link, assuntoDoEmail: input.emailSubject, obrigatorio: !NOTIFICATION_TYPES[input.type].optional };
+  // Cada canal decide se entrega (preferência) e como entrega (polimorfismo — ver canais.ts).
+  for (const canal of canaisDeAviso(db)) {
+    if (canal.deveEntregar(destinatario, aviso)) await canal.entregar(destinatario, aviso);
   }
 }
 
@@ -104,20 +97,11 @@ export function emailIsSimulated(): boolean {
   return !process.env.SMTP_URL?.trim();
 }
 
-type Transport = { send: (to: string, subject: string, body: string) => Promise<void>; simulated: boolean };
-
-let transport: Transport | null = null;
-async function getTransport(): Promise<Transport> {
+let transport: TransporteDeEmail | null = null;
+async function getTransport(): Promise<TransporteDeEmail> {
   if (transport) return transport;
   const url = process.env.SMTP_URL?.trim();
-  if (url) {
-    const nodemailer = await import("nodemailer");
-    const t = nodemailer.createTransport(url);
-    const from = process.env.SMTP_FROM || `PPCM <nao-responda@${new URL(env.appUrl).hostname}>`;
-    transport = { simulated: false, send: async (to, subject, text) => void (await t.sendMail({ from, to, subject, text })) };
-  } else {
-    transport = { simulated: true, send: async () => {} };
-  }
+  transport = url ? await TransporteSmtp.conectar(url, process.env.SMTP_FROM || `PPCM <nao-responda@${new URL(env.appUrl).hostname}>`) : new TransporteSimulado();
   return transport;
 }
 
@@ -132,9 +116,9 @@ export async function processOutbox(db: DbOrTx = getDb(), batch = 50) {
   let sent = 0;
   for (const m of pending) {
     try {
-      await t.send(m.toAddress, m.subject, m.body);
+      await t.enviar(m.toAddress, m.subject, m.body);
       // Transporte simulado (sem SMTP): a mensagem não saiu de verdade e não é registrada como "enviado".
-      await db.update(emailOutbox).set({ status: t.simulated ? "simulado" : "enviado", sentAt: clock.now(), attempts: m.attempts + 1 }).where(eq(emailOutbox.id, m.id));
+      await db.update(emailOutbox).set({ status: t.simulado ? "simulado" : "enviado", sentAt: clock.now(), attempts: m.attempts + 1 }).where(eq(emailOutbox.id, m.id));
       sent++;
     } catch (e) {
       const attempts = m.attempts + 1;
@@ -144,5 +128,5 @@ export async function processOutbox(db: DbOrTx = getDb(), batch = 50) {
         .where(eq(emailOutbox.id, m.id));
     }
   }
-  return { sent, simulated: t.simulated };
+  return { sent, simulated: t.simulado };
 }
