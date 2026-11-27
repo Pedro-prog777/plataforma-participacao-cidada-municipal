@@ -1,15 +1,20 @@
 /**
- * Verificação de elegibilidade (RF036) — avaliada NA ORDEM do documento:
- *  1) conta ativa e desbloqueada; 2) identidade verificada; 3) perfil Cidadão com 18 anos completos;
- *  4) enquadramento no público-alvo (domicílio, território, faixa etária justificada);
- *  5) consulta Aberta e no período (horário do servidor); 6) ausência de participação anterior.
- * Só vota quem tem 18 anos completos (RF036, Documento v6 — DT-29/DT-30); um critério etário da
- * consulta só pode restringir mais. Repetida no servidor no momento do voto.
+ * Elegibilidade (RF036) — ponte entre os dados do banco e as classes de domínio.
+ *
+ * A regra fica em `src/server/domain`: `AvaliadorDeElegibilidade` aplica as verificações na ordem
+ * do documento, `Cidadao` define a idade mínima de 18 anos (DT-30, DT-33) e os critérios de
+ * público-alvo (`CriterioDomicilio`, `CriterioTerritorio`, `CriterioFaixaEtaria`…) avaliam cada um a sua
+ * condição (polimorfismo). Este módulo carrega os dados, monta os objetos e mantém as funções que o
+ * restante do sistema já usa. Repetida no servidor no momento do voto.
  */
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb, type DbOrTx } from "../../db/client";
 import { audienceCriteria, consultations, districts, participations, users } from "../../db/schema";
-import { ageOn, clock } from "../../lib/clock";
+import { clock } from "../../lib/clock";
+import { Cidadao } from "../../domain/entities/cidadao";
+import { PublicoAlvo } from "../../domain/entities/publico-alvo";
+import { AvaliadorDeElegibilidade } from "../../domain/services/avaliador-de-elegibilidade";
+import type { ResultadoElegibilidade } from "../../domain/interfaces/elegibilidade";
 
 export type EligibilityUser = {
   id: string;
@@ -31,82 +36,38 @@ export type EligibilityConsultation = {
   criteria: { type: string; params: { districtIds?: string[]; regionIds?: string[]; minAge?: number; maxAge?: number } }[];
 };
 
-export type EligibilityResult =
-  | { eligible: true }
-  | { eligible: false; code: string; reason: string; action?: { label: string; href: string } };
+export type EligibilityResult = ResultadoElegibilidade;
 
-/**
- * Idade mínima da plataforma: só quem tem 18 anos completos cria conta de cidadão (DT-33) e vota
- * (RF036, DT-30). Fonte única da regra — o cadastro (`auth.service.ts`) também a usa.
- */
-export const IDADE_MINIMA = 18;
+/** Idade mínima da plataforma (fonte única: `Cidadao.IDADE_MINIMA`); o cadastro também a usa. */
+export const IDADE_MINIMA = Cidadao.IDADE_MINIMA;
 
 /** 18 anos completos na data de referência, no fuso de Brasília (pessoa com 17 anos e 364 dias não tem). */
 export function temIdadeMinima(birthDate: string | null, now: Date = clock.now()): boolean {
-  return !!birthDate && ageOn(birthDate, now) >= IDADE_MINIMA;
+  return Cidadao.temIdadeMinima(birthDate, now);
+}
+
+/** Converte a conta lida do banco no objeto de domínio. */
+export function cidadaoDe(u: EligibilityUser): Cidadao {
+  return new Cidadao({
+    id: u.id,
+    tipo: u.kind,
+    situacaoDaConta: u.status,
+    bloqueadoAte: u.lockedUntil,
+    nivelDeVerificacao: u.verificationLevel,
+    bairroId: u.districtId,
+    regiaoId: u.regionId,
+    domicilioComprovadoEm: u.domicileVerifiedAt,
+    nascimento: u.birthDate,
+  });
+}
+
+export function publicoAlvoDe(c: Pick<EligibilityConsultation, "audienceOpen" | "criteria">): PublicoAlvo {
+  return PublicoAlvo.de(c.audienceOpen, c.criteria);
 }
 
 export function evaluateEligibility(u: EligibilityUser, c: EligibilityConsultation, alreadyParticipated: boolean, now: Date = clock.now()): EligibilityResult {
-  if (u.status !== "ativa" || (u.lockedUntil && u.lockedUntil > now)) {
-    return { eligible: false, code: "conta_inativa", reason: "Sua conta não está ativa no momento.", action: { label: "Ver meu perfil", href: "/conta" } };
-  }
-  if (u.kind === "cidadao" && u.verificationLevel !== "verificado") {
-    return {
-      eligible: false,
-      code: "identidade_nao_verificada",
-      reason: "Para participar, é preciso verificar sua identidade.",
-      action: { label: "Verificar identidade", href: "/conta/verificacao" },
-    };
-  }
-  if (u.kind !== "cidadao") {
-    // RN22: contas administrativas não votam.
-    return { eligible: false, code: "conta_administrativa", reason: "Contas administrativas não participam das votações." };
-  }
-  if (!temIdadeMinima(u.birthDate, now)) {
-    return u.birthDate
-      ? { eligible: false, code: "menor_de_18", reason: "Para votar é preciso ter 18 anos completos." }
-      : { eligible: false, code: "menor_de_18", reason: "Não foi possível conferir sua idade. Para votar é preciso ter 18 anos completos.", action: { label: "Ver meu perfil", href: "/conta" } };
-  }
-  if (!c.audienceOpen) {
-    for (const crit of c.criteria) {
-      const r = checkCriterion(u, crit, now);
-      if (r) return r;
-    }
-  }
-  if (c.status !== "aberta" || !c.opensAt || !c.closesAt || now < c.opensAt || now >= c.closesAt) {
-    return { eligible: false, code: "fora_do_periodo", reason: c.status === "suspensa" ? "A consulta está suspensa. Nenhum voto é aceito durante a suspensão." : "A consulta não está aberta para participação neste momento." };
-  }
-  if (alreadyParticipated) return { eligible: false, code: "ja_participou", reason: "Você já participou desta consulta.", action: { label: "Ver meu comprovante", href: "/conta/participacoes" } };
-  return { eligible: true };
-}
-
-function checkCriterion(u: EligibilityUser, crit: EligibilityConsultation["criteria"][number], now: Date): EligibilityResult | null {
-  const comprovar = { label: "Atualizar endereço e comprovar domicílio", href: "/conta/verificacao" };
-  switch (crit.type) {
-    case "domicilio":
-      if (!u.districtId) return { eligible: false, code: "fora_do_publico", reason: "Esta consulta é destinada a quem mora no município.", action: { label: "Atualizar endereço", href: "/conta/perfil/editar" } };
-      if (!u.domicileVerifiedAt) return { eligible: false, code: "domicilio_nao_comprovado", reason: "Esta consulta exige comprovação de domicílio no município.", action: comprovar };
-      return null;
-    case "territorio": {
-      const ds = crit.params.districtIds ?? [];
-      const rs = crit.params.regionIds ?? [];
-      const inside = (u.districtId && ds.includes(u.districtId)) || (u.regionId && rs.includes(u.regionId));
-      if (!inside) return { eligible: false, code: "fora_do_publico", reason: "Esta consulta é destinada a moradores de bairros ou regiões específicos, e seu endereço não está entre eles." };
-      if (!u.domicileVerifiedAt) return { eligible: false, code: "domicilio_nao_comprovado", reason: "Esta consulta exige comprovação de domicílio no território.", action: comprovar };
-      return null;
-    }
-    case "faixa_etaria": {
-      if (!u.birthDate) return { eligible: false, code: "fora_do_publico", reason: "Não foi possível conferir sua idade." };
-      const age = ageOn(u.birthDate, now);
-      if ((crit.params.minAge !== undefined && age < crit.params.minAge) || (crit.params.maxAge !== undefined && age > crit.params.maxAge)) {
-        return { eligible: false, code: "fora_do_publico", reason: "Esta consulta é destinada a uma faixa etária específica, e você não se enquadra nela." };
-      }
-      return null;
-    }
-    default:
-      // Critério "outro": apenas informativo, não verificado automaticamente (ver PENDENCIAS_CLIENTE).
-      return null;
-  }
+  const avaliador = new AvaliadorDeElegibilidade({ situacao: c.status, abertura: c.opensAt, encerramento: c.closesAt }, publicoAlvoDe(c));
+  return avaliador.avaliar(cidadaoDe(u), alreadyParticipated, now);
 }
 
 export async function loadEligibilityUser(userId: string, db: DbOrTx = getDb()): Promise<EligibilityUser | null> {
@@ -166,8 +127,5 @@ export async function checkEligibility(userId: string, consultationId: string, d
 
 /** Enquadramento no público-alvo que pode votar (estimativa de elegíveis e avisos), sem período nem participação. */
 export function matchesAudience(u: EligibilityUser, c: Pick<EligibilityConsultation, "audienceOpen" | "criteria">, now: Date = clock.now()): boolean {
-  if (u.kind !== "cidadao" || u.status !== "ativa") return false;
-  if (!temIdadeMinima(u.birthDate, now)) return false;
-  if (c.audienceOpen) return true;
-  return c.criteria.every((crit) => checkCriterion({ ...u, domicileVerifiedAt: u.domicileVerifiedAt ?? now }, crit, now) === null);
+  return AvaliadorDeElegibilidade.enquadraNoPublico(cidadaoDe(u), publicoAlvoDe(c), now);
 }
