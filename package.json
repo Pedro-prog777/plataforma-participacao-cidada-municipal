@@ -18,6 +18,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "tsx scripts/reset.ts",
+    "db:sql": "tsx scripts/gerar-sql-do-banco.ts",
     "jobs:tick": "tsx scripts/jobs.ts",
     "trello:sync": "node scripts/trello-sync.mjs",
     "requisitos:pdf": "tsx scripts/pdf-requisitos/gerar.ts",
