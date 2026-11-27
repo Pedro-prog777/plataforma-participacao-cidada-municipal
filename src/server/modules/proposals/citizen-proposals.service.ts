@@ -17,6 +17,7 @@ import { PROPOSAL_RESPONSE, PUBLIC_STATUSES } from "@/lib/labels";
 import { audit } from "../audit/audit.service";
 import { assertPermission, usersWithPermission, type Actor } from "../access/access.service";
 import { notifyUser } from "../notifications/notifications.service";
+import { PropostaCidadaRepository } from "../../repositories/proposta-cidada.repository";
 
 const OPEN_STATES = ["recebida", "em_analise", "ajuste_solicitado"] as const;
 
@@ -98,14 +99,13 @@ export async function submitCitizenProposal(userId: string, input: Record<string
 export async function resubmitAfterAdjustment(userId: string, id: string, input: Record<string, unknown>, db: DbOrTx = getDb()) {
   const data = parseOrThrow(proposalSchema, input);
   await db.transaction(async (tx) => {
-    const [p] = await tx.select().from(citizenProposals).where(eq(citizenProposals.id, id)).for("update");
-    if (!p || p.authorId !== userId) throw new NotFoundError();
-    if (p.status !== "ajuste_solicitado") throw new DomainError("A proposta não está aguardando ajuste.");
+    const repositorio = new PropostaCidadaRepository(tx);
+    const proposta = await repositorio.obter(id, { paraAtualizar: true });
+    if (proposta.autorId !== userId) throw new NotFoundError();
     const now = clock.now();
-    await tx
-      .update(citizenProposals)
-      .set({ title: data.title, problem: data.problem, solution: data.solution, themeId: data.themeId, districtId: data.districtId, authorizePublication: data.authorizePublication === "sim", status: "em_analise", searchText: normalizeSearch(`${data.title} ${data.problem} ${data.solution}`), updatedAt: now })
-      .where(eq(citizenProposals.id, id));
+    // Só reenvia quem está em "ajuste solicitado"; a proposta volta para análise (RN30) — regra da entidade.
+    proposta.reenviarComAjustes({ titulo: data.title, problema: data.problem, solucao: data.solution, temaId: data.themeId, bairroId: data.districtId, autorizaPublicacao: data.authorizePublication === "sim" }, now);
+    await repositorio.salvar(proposta);
     await tx.insert(citizenProposalEvents).values({ proposalId: id, status: "em_analise", note: "Autor enviou os ajustes solicitados.", actorId: userId, createdAt: now });
     await audit(tx, { actorId: userId, actorRole: "cidadao", action: "proposta_cidada_ajustada", objectType: "proposta_cidada", objectId: id });
   });
@@ -226,67 +226,53 @@ export type AnalysisAction =
 export async function analyzeProposal(actor: Actor, id: string, act: AnalysisAction, db: DbOrTx = getDb()) {
   await assertPermission(actor, "propostas_cidadas.analisar", { objectType: "proposta_cidada", objectId: id }, db);
   return db.transaction(async (tx) => {
-    const [p] = await tx.select().from(citizenProposals).where(eq(citizenProposals.id, id)).for("update");
-    if (!p) throw new NotFoundError();
-    if (p.authorId === actor.id) throw new DomainError("Não é permitido analisar a própria proposta.");
+    const repositorio = new PropostaCidadaRepository(tx);
+    const proposta = await repositorio.obter(id, { paraAtualizar: true });
+    proposta.garantirAnalistaDiferenteDoAutor(actor.id);
     const now = clock.now();
-    let status = p.status;
     let note = "";
-    const set: Partial<typeof citizenProposals.$inferInsert> = { updatedAt: now };
+    // Cada ação é um método da entidade, que confere o estado de origem (RN30) e as justificativas (RN11).
     switch (act.action) {
       case "iniciar_analise":
-        if (p.status !== "recebida") throw new DomainError("Somente propostas Recebidas podem entrar em análise.");
-        status = "em_analise";
+        proposta.iniciarAnalise(now);
         note = "Proposta em análise pela administração.";
         break;
       case "solicitar_ajuste": {
-        if (p.status !== "em_analise") throw new DomainError("Ajuste só pode ser solicitado durante a análise.");
         const g = sanitizePlainText(act.guidance ?? "");
-        if (!g) throw new ValidationError({ guidance: ["Oriente o autor sobre o ajuste necessário."] });
         const days = await getSetting("proposta.prazo_ajuste_dias", tx);
-        status = "ajuste_solicitado";
-        set.adjustmentGuidance = g;
-        set.adjustmentDeadline = new Date(now.getTime() + days * DAY);
+        proposta.solicitarAjuste(g, days, now);
         note = `Ajuste solicitado: ${g} (prazo de ${days} dias).`;
         break;
       }
       case "responder": {
-        if (!["em_analise", "recebida"].includes(p.status)) throw new DomainError("A proposta precisa estar em análise para ser respondida.");
         const text = sanitizePlainText(act.responseText ?? "");
-        if (!text) throw new ValidationError({ responseText: ["A resposta deve ser justificada (RN11)."] });
-        if (!(act.responseType in PROPOSAL_RESPONSE)) throw new ValidationError({ responseType: ["Selecione o tipo de resposta."] });
-        status = "respondida";
-        set.responseType = act.responseType;
-        set.responseText = text;
+        proposta.responder(act.responseType, text, now);
         note = `${PROPOSAL_RESPONSE[act.responseType]}: ${text}`;
         if (act.responseType === "convertida") {
           // Aceita: o sistema cria proposta municipal vinculada (RF022) em Rascunho.
           const [mp] = await tx
             .insert(municipalProposals)
-            .values({ title: p.title.slice(0, 200), summary: p.problem.slice(0, 600), description: p.solution, justification: text, themeId: p.themeId, status: "rascunho", originCitizenProposalId: p.id, createdBy: actor.id, lastEditedBy: actor.id, createdAt: now, updatedAt: now })
+            .values({ title: proposta.titulo.slice(0, 200), summary: proposta.problema.slice(0, 600), description: proposta.solucao, justification: text, themeId: proposta.temaId, status: "rascunho", originCitizenProposalId: proposta.id, createdBy: actor.id, lastEditedBy: actor.id, createdAt: now, updatedAt: now })
             .returning();
-          set.municipalProposalId = mp.id;
+          proposta.vincularPropostaMunicipal(mp.id);
         }
         break;
       }
       case "publicar":
-        if (p.status !== "respondida") throw new DomainError("Só propostas respondidas podem ser publicadas.");
-        if (!p.authorizePublication) throw new DomainError("O autor não autorizou a publicação do texto.");
-        status = "publicada";
-        set.publishedAt = now;
+        proposta.publicar(now);
         note = "Texto publicado no portal (sem dados pessoais do autor).";
         break;
       case "encerrar": {
         const j = sanitizePlainText(act.justification ?? "");
-        if (!j) throw new ValidationError({ justification: ["Justifique o encerramento."] });
-        status = "encerrada";
+        proposta.encerrar(j, now);
         note = `Encerrada: ${j}`;
         break;
       }
     }
-    await tx.update(citizenProposals).set({ ...set, status }).where(eq(citizenProposals.id, id));
+    await repositorio.salvar(proposta);
+    const status = proposta.situacao;
     await tx.insert(citizenProposalEvents).values({ proposalId: id, status, note, actorId: actor.id, createdAt: now });
-    await notifyUser(tx, p.authorId, { type: "respostas_propostas", title: `Proposta ${p.protocol}: ${status.replace("_", " ")}`, body: note, link: `/conta/propostas/${id}` });
+    await notifyUser(tx, proposta.autorId, { type: "respostas_propostas", title: `Proposta ${proposta.protocolo}: ${status.replace("_", " ")}`, body: note, link: `/conta/propostas/${id}` });
     await audit(tx, { actorId: actor.id, actorRole: "analise_propostas", action: `proposta_cidada_${act.action}`, objectType: "proposta_cidada", objectId: id });
   });
 }

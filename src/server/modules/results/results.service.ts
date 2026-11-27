@@ -3,7 +3,7 @@
  */
 import { and, asc, count, desc, eq, sql } from "drizzle-orm";
 import { getDb, getDbKind, type DbOrTx } from "../../db/client";
-import { alternatives, consultations, integrityChecks, participations, results, votes, type ResultData } from "../../db/schema";
+import { alternatives, integrityChecks, participations, results, votes, type ResultData } from "../../db/schema";
 import { canonicalJson, sha256 } from "../../lib/crypto";
 import { clock } from "../../lib/clock";
 import { DomainError, ValidationError } from "../../lib/errors";
@@ -15,6 +15,7 @@ import { notifyUser } from "../notifications/notifications.service";
 import { notifyVoters } from "../notifications/dispatch";
 import { openIncident } from "../integrity/incidents.service";
 import { getConsultationOrThrow, recordPublicEvent } from "../consultations/common";
+import { ConsultaRepository } from "../../repositories/consulta.repository";
 import { tally } from "./tally";
 
 /** Hash da base apurada (RNF07): votos ordenados por id — reprodutível e sem dados pessoais. */
@@ -93,9 +94,10 @@ export async function verifyIntegrity(consultationId: string, stage: "encerramen
 /* ------------------------------------------------------------------ */
 export async function tallyConsultation(consultationId: string, db: DbOrTx = getDb(), opts: { recount?: boolean } = {}) {
   return db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, consultationId, { forUpdate: true });
-    const allowed = opts.recount ? ["apurada"] : ["encerrada"];
-    if (!allowed.includes(c.status)) throw new DomainError(opts.recount ? "Recontagem só é possível antes da publicação." : "A apuração exige consulta Encerrada.");
+    const consulta = repositorio.deRegistro(c);
+    consulta.garantirApuracaoPermitida(!!opts.recount);
     // "Bloqueia a base de votos": impede qualquer escrita concorrente durante a contagem.
     if (getDbKind() === "pg") await tx.execute(sql`LOCK TABLE votes IN SHARE MODE`);
     const integrity = await verifyIntegrity(consultationId, "apuracao", tx);
@@ -111,7 +113,8 @@ export async function tallyConsultation(consultationId: string, db: DbOrTx = get
     }
     await tx.insert(results).values({ consultationId, kind: "preliminar", data, hash, baseHash, createdAt: clock.now() });
     if (!opts.recount) {
-      await tx.update(consultations).set({ status: "apurada" }).where(eq(consultations.id, consultationId));
+      consulta.registrarApuracao();
+      await repositorio.salvar(consulta);
       await recordPublicEvent(tx, consultationId, "apuracao", "Votos contados automaticamente. Resultado preliminar aguardando conferência.", null, { hashBase: baseHash });
       for (const u of await usersWithPermission("resultados.publicar", tx)) {
         await notifyUser(tx, u.id, { type: "conta", title: "Resultado preliminar disponível", body: `A consulta "${c.title}" foi apurada e aguarda homologação.`, link: `/admin/consultas/${consultationId}/resultado` });
@@ -135,8 +138,11 @@ export async function publishFinalResult(actor: Actor, consultationId: string, n
   const n = sanitizePlainText(note ?? "");
   if (n.length < 20) throw new ValidationError({ note: ["A nota oficial é obrigatória: explique a natureza consultiva e os próximos passos (RN34)."] });
   return db.transaction(async (tx) => {
+    const repositorio = new ConsultaRepository(tx);
     const c = await getConsultationOrThrow(tx, consultationId, { forUpdate: true });
-    if (c.status !== "apurada") throw new DomainError("Só é possível homologar consultas Apuradas.");
+    const consulta = repositorio.deRegistro(c);
+    // Só homologa consulta Apurada; a mudança só é gravada depois da integridade e do resultado final.
+    consulta.homologarResultado();
     const integrity = await verifyIntegrity(consultationId, "publicacao", tx);
     if (!integrity.passed) throw new DomainError("A verificação de integridade falhou. A publicação está bloqueada e um incidente foi aberto (RF059).", "integridade");
     const [prelim] = await tx.select().from(results).where(and(eq(results.consultationId, consultationId), eq(results.kind, "preliminar"))).orderBy(desc(results.createdAt)).limit(1);
@@ -145,7 +151,7 @@ export async function publishFinalResult(actor: Actor, consultationId: string, n
       .insert(results)
       .values({ consultationId, kind: "final", data: prelim.data, hash: prelim.hash, baseHash: prelim.baseHash, note: n, createdBy: actor.id, createdAt: clock.now() })
       .returning();
-    await tx.update(consultations).set({ status: "finalizada" }).where(eq(consultations.id, consultationId));
+    await repositorio.salvar(consulta);
     await recordPublicEvent(tx, consultationId, "resultado", "Resultado final conferido e publicado.", n, { hash: final.hash });
     await audit(tx, { actorId: actor.id, actorRole: "publicacao_resultados", action: "resultado_publicado", objectType: "consulta", objectId: consultationId, details: { hash: final.hash } });
     await notifyVoters(tx, consultationId, "resultado", `Resultado publicado: ${c.title}`, `O resultado da consulta "${c.title}" foi publicado. Lembre-se: a votação é consultiva e orienta a administração.`, `/consultas/${c.slug}/resultado`);
@@ -160,7 +166,7 @@ export async function publishRectification(actor: Actor, consultationId: string,
   if (!j) throw new ValidationError({ justification: ["A retificação exige justificativa com o erro comprovado (RN11)."] });
   return db.transaction(async (tx) => {
     const c = await getConsultationOrThrow(tx, consultationId, { forUpdate: true });
-    if (c.status !== "finalizada") throw new DomainError("Retificação só se aplica a resultado já publicado.");
+    new ConsultaRepository(tx).deRegistro(c).garantirResultadoPublicado();
     const integrity = await verifyIntegrity(consultationId, "sob_demanda", tx);
     if (!integrity.passed) throw new DomainError("A verificação de integridade falhou; resolva o incidente antes de retificar.");
     const { data, baseHash, hash } = await computeResult(tx, consultationId);

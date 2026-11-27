@@ -221,6 +221,11 @@ export class Consulta extends EntidadeComCicloDeVida<SituacaoConsulta, Proprieda
     this.garantirSituacao(ALTERAVEIS_APOS_PUBLICAR, "Alteração proibida nesta situação (RN12/RN32). Para mudanças de fundo, cancele e crie nova consulta.", "alteracao_proibida");
   }
 
+  /** A data de abertura só muda enquanto a consulta ainda está Agendada (RF032). */
+  garantirAberturaAjustavel(): void {
+    this.garantirSituacao(["agendada"], "A abertura só pode ser ajustada enquanto a consulta está Agendada.", "alteracao_proibida");
+  }
+
   /* -------------------- suspensão e retomada (RF033) -------------------- */
   suspender(justificativa: string): void {
     const antes = this.situacao;
@@ -276,5 +281,10 @@ export class Consulta extends EntidadeComCicloDeVida<SituacaoConsulta, Proprieda
 
   homologarResultado(): void {
     this.transicionar("finalizada", ["apurada"], "Só é possível homologar consultas Apuradas.");
+  }
+
+  /** Retificação só depois do resultado final publicado; o original continua visível (RF043, RN29). */
+  garantirResultadoPublicado(): void {
+    this.garantirSituacao(["finalizada"], "Retificação só se aplica a resultado já publicado.");
   }
 }
